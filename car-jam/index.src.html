@@ -170,6 +170,7 @@ let mx = -1, my = -1, hot = false;                 // mouse position, and whethe
 let level = 1, cars = [], specs = [], moves = 0, undo = [], hints = 1, levelT = 0;
 let drag = null, slide = null, hint = null, exitT = -1, winT = 0, earned = 0, gain = 0, starPing = 0;
 let decor = [], decorKey = '';
+let still = null;                  // local cover renderer: a fixed board rectangle
 
 // ---- Audio (synthesised): sound effects and a quiet looping tune
 let ac = null, out = null, beat = 0, nextT = 0;
@@ -237,6 +238,7 @@ resize();
 const X = v => x0 + v * u, Y = v => y0 + v * u;
 // The 6x6 board: top-left corner and cell size in pixels. The exit road runs off to the right.
 function board() {
+  if (still) return still;
   const size = land ? 74 : 84, bx = land ? 46 : 5, by = land ? 20 : 27;
   const s = shakeT > 0 ? Math.sin(time * 90) * u * 0.5 * (shakeT / 0.12) : 0;
   return { x: X(bx) + s, y: Y(by), cell: size * u / N, size: size * u };
@@ -850,31 +852,67 @@ if (LOCAL && QS.get('level')) {
 }
 if (LOCAL && QS.get('coins')) { persist = () => {}; save.coins = +QS.get('coins'); }
 if (LOCAL && QS.get('screen')) { page = +QS.get('page') || 0; screen = QS.get('screen'); }
-// Local trailer renderer: solves a few levels on screen at a fixed 30 fps and posts each frame
-// to the local capture server.
+// Local trailer renderer: solves one level on screen, then shows a few moves in each other world,
+// at a fixed 30 fps, and posts each frame to the local capture server.
 async function demoLoop() {
-  const dt = 1 / 30, tour = [4, 22, 60];
-  let n = 0, mt = 0, li = 0, path = null;
+  const dt = 1 / 30, tour = [4, 30, 50, 70, 90];
+  let n = 0, mt = 0, li = 0, played = 0, path = null;
   persist = () => {};
   const snap = async () => {
     update(dt); draw();
     const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.93));
     await fetch('/frame?v=' + DEMO + '&n=' + String(n++).padStart(4, '0'), { method: 'POST', body: blob });
   };
+  const open = k => { startLevel(tour[k]); path = solve(cars); played = 0; mt = -0.3; };
   screen = 'menu';
-  for (let i = 0; i < 36; i++) await snap();
-  startLevel(tour[0]); path = solve(cars);
-  while (n < 516) {
+  for (let i = 0; i < 40; i++) await snap();
+  open(0);
+  while (n < 720) {
     mt += dt;
-    if (screen === 'game' && !slide && exitT < 0 && mt > 0.42 && path.length) {
-      mt = 0;
+    if (screen === 'game' && !slide && exitT < 0 && mt > 0.4 && path.length) {
+      if (li > 0 && played >= 6) { if (++li >= tour.length) break; open(li); continue; }
+      mt = 0; played++;
       const m = path.shift(), from = coord(cars[m[0]]);
       slide = { car: m[0], from, to: m[1], t: 0, then: () => afterMove(m[0], from) };
     }
-    if (screen === 'win' && winT > 1.7) { if (++li >= tour.length) break; startLevel(tour[li]); path = solve(cars); }
+    if (screen === 'win' && winT > 2) { if (++li >= tour.length) break; open(li); }
     await snap();
   }
+  for (let i = 0; i < 12; i++) await snap();
   await fetch('/frame?v=' + DEMO + '&n=done', { method: 'POST', body: 'x' });
+}
+// Local cover renderer (?demo=cover&w=&h=): one still of a busy board under the title, posted as a PNG.
+async function coverShot() {
+  const wide = W > H * 1.2, w = WORLDS[0];
+  u = Math.min(W, H) / (wide ? 100 : 110); x0 = y0 = 0; persist = () => {};
+  level = 9; cars = parse(LEVELS[8]); specs = cars.map((c, i) => specFor(i)); screen = 'game'; time = 0.4;
+  const size = wide ? H * 0.74 : Math.min(W * 0.8, H * 0.6);
+  still = { x: wide ? W - size - H * 0.2 : (W - size) / 2 - W * 0.02, y: wide ? H * 0.13 : H - size - H * 0.07, cell: size / N, size };
+  const b = still, c = b.cell, ey = b.y + EXIT_ROW * c;
+  ground(w);
+  road(w, b.x + b.size + u * 2, ey + c * 0.04, W, c * 0.92, false);
+  scatter('cover', 3, [[b.x - u * 5, b.y - u * 5, size + u * 10, size + u * 10], [b.x + size, ey - u * 2, W, c + u * 4]]);
+  drawDecor(w);
+  const sh2 = wide ? g.createLinearGradient(0, 0, b.x, 0) : g.createLinearGradient(0, 0, 0, b.y);
+  sh2.addColorStop(0, 'rgba(12,28,22,.62)'); sh2.addColorStop(1, 'rgba(12,28,22,0)');
+  g.fillStyle = sh2; g.fillRect(0, 0, wide ? b.x : W, wide ? H : b.y);
+  drawBoard();
+  if (wide) {
+    const cx = (b.x - u * 3) / 2;
+    label('CAR JAM', cx, H * 0.27, H * 0.165, '#fff', 'center', '#16202c');
+    label('ESCAPE', cx, H * 0.43, H * 0.12, w.accent, 'center', '#16202c');
+    g.save(); g.translate(cx, H * 0.72); g.rotate(-0.14);
+    drawCar(-H * 0.36, -H * 0.02, H * 0.3, H * 0.15, true, LOOKS[2]);
+    drawCar(-H * 0.02, -H * 0.19, H * 0.42, H * 0.21, true, Object.assign({ me: true }, SKINS[0]));
+    g.restore();
+  } else {
+    const top = b.y - u * 3;
+    label('CAR JAM', W / 2, top * 0.4, Math.min(W * 0.19, top * 0.42), '#fff', 'center', '#16202c');
+    label('ESCAPE', W / 2, top * 0.76, Math.min(W * 0.13, top * 0.29), w.accent, 'center', '#16202c');
+  }
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  await fetch('/frame?v=' + DEMO + '-' + W + 'x' + H + '&n=cover&ext=png', { method: 'POST', body: blob });
+  await fetch('/frame?v=' + DEMO + '-' + W + 'x' + H + '&n=done', { method: 'POST', body: 'x' });
 }
 let last = performance.now();
 function frame(now) {
@@ -885,7 +923,7 @@ function frame(now) {
   draw();
   requestAnimationFrame(frame);
 }
-if (DEMO) demoLoop(); else requestAnimationFrame(frame);
+if (DEMO === 'cover') coverShot(); else if (DEMO) demoLoop(); else requestAnimationFrame(frame);
 })();
 </script>
 </body>

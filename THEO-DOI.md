@@ -41,7 +41,9 @@ Làm lại sau khi bị CrazyGames chê chất lượng. Màn chơi giữ nguyê
 - Phím tắt máy tính: Z hoàn tác, R chơi lại, H gợi ý, Esc thoát.
 - Đã thử trên máy: menu, chọn màn, gara, chơi hết màn 1 bằng kéo thả, màn thắng; ngang và dọc; không lỗi console.
 
-Còn thiếu trước khi gửi lại CrazyGames: ảnh bìa và video mới (bản cũ là giao diện cũ), gộp nhánh vào `main`, tải bản `dist/car-jam/crazygames` lên bản nháp, chủ dự án bấm Submit.
+Ảnh bìa (6 cỡ) và 2 video xem trước mới đã làm ngày 2026-10-11, nằm ở `dist/car-jam/assets`; sinh lại bằng `?demo=cover&w=&h=` và `?demo=<tên>&w=&h=` cùng máy chủ nhận khung hình. Nhánh đã gộp vào `main`.
+
+Còn thiếu trước khi gửi lại CrazyGames: tải bản `dist/car-jam/crazygames` cùng bìa và video lên bản nháp, chủ dự án bấm Submit.
 
 ## Số liệu
 
