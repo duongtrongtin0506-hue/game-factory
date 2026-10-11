@@ -17,16 +17,17 @@ Cập nhật: 2026-10-11. Trạng thái duyệt là lần kiểm tra gần nhấ
 | Game | Cổng | Ngày | Trạng thái | SDK đúng cổng |
 |---|---|---|---|---|
 | Tap Arcade (bản 5 trò) | GameMonetize | 2026-10-09 | Đang chờ duyệt (xem lần cuối 2026-10-09) | Có, đã qua Verify |
-| Tap Arcade (bản Journey) | CrazyGames | 2026-10-10 | Bản nháp, chưa gửi | Có |
-| Boba Sort | CrazyGames | 2026-10-10 | Bản nháp, chưa gửi | Có |
-| Car Jam Escape | CrazyGames | 2026-10-10 | Bản nháp, chưa gửi | Có |
-| Tile Trio | CrazyGames | 2026-10-10 | Bản nháp, chưa gửi | Có |
+| Tap Arcade (bản Journey) | CrazyGames | 2026-10-11 | BỊ TỪ CHỐI 2026-10-11 | Có |
+| Boba Sort | CrazyGames | 2026-10-11 | BỊ TỪ CHỐI 2026-10-11 | Có |
+| Car Jam Escape | CrazyGames | 2026-10-11 | BỊ TỪ CHỐI 2026-10-11 | Có |
+| Tile Trio | CrazyGames | 2026-10-11 | BỊ TỪ CHỐI 2026-10-11 | Có |
 | One Line Fill | Chưa nộp | - | Chưa có ảnh bìa, video | Có sẵn trong mã |
 | (tài khoản) | GameDistribution | 2026-10-09 | Đã gửi đăng ký, chờ thư | Chưa viết |
 
 Ghi chú:
 - Bốn game còn lại chưa lên GameMonetize: mỗi game cần một GameId riêng (hằng `GAME_ID` đang để trống).
 - CrazyGames giai đoạn Basic Launch chưa chia tiền quảng cáo.
+- 2026-10-11: cả 4 game gửi CrazyGames bị từ chối trong ngày, cùng một câu: "The overall quality of the game does not yet meet the expectations of our platform". Không nêu lỗi kỹ thuật. Không gửi lại bản cũ; chỉ gửi lại sau khi nâng chất lượng rõ rệt một game.
 - CrazyGames xóa ảnh bìa và video mỗi khi tải bản game mới; phải tải lại.
 
 ## Số liệu
