@@ -27,6 +27,11 @@ jobs:
           cache: pip
           cache-dependency-path: tools/requirements.txt
       - run: pip install -r tools/requirements.txt && python -m playwright install --with-deps chromium
+      - name: Cai butler (cong cu day game len itch.io)
+        run: |
+          curl -sSL -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default
+          unzip -q -o butler.zip -d "$HOME/butler" && rm butler.zip
+          chmod +x "$HOME/butler/butler" && echo "$HOME/butler" >> "$GITHUB_PATH"
       - run: python tools/run_daily.py
       - name: Ghi trang thai vao kho
         if: always()

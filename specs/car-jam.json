@@ -21,7 +21,7 @@
     "pacing": "ascending, one easy level after every four"
   },
   "web": "web/car-jam/index.html",
-  "itch": null,
+  "itch": "car-jam-escape",
   "roblox": null,
   "safety": {
     "gambling": false,

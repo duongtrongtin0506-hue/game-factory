@@ -64,8 +64,11 @@ def step_publish():
         for spec in (ROOT / "specs" / f"{g}.json" for g in build.GAMES):
             slug = json.loads(spec.read_text(encoding="utf-8")).get("itch")
             if slug:
-                subprocess.run(["butler", "push", str(ROOT / "dist" / spec.stem / "none"), f"{user}/{slug}:html5"],
-                               check=True, timeout=180, env=dict(os.environ, BUTLER_API_KEY=key))
+                out = subprocess.run(["butler", "push", str(ROOT / "dist" / spec.stem / "none"), f"{user}/{slug}:html5"],
+                                     capture_output=True, timeout=180, env=dict(os.environ, BUTLER_API_KEY=key))
+                if out.returncode:  # butler ghi ly do o cuoi (sai khoa, chua co trang game...): dua vao bao cao de biet sua gi
+                    text = (out.stdout + out.stderr).decode("utf-8", "replace").strip()
+                    raise RuntimeError(f"itch.io {slug}: {' | '.join(text.splitlines()[-3:])}")
                 pushed += 1
         done["itch.io"] = f"da day {pushed} game"
     done["Roblox"] = "bo qua (chua co ban Roblox; cho so lieu 14 ngay de chon game)"
