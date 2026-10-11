@@ -1,0 +1,29 @@
+# Secrets: never commit
+.env
+*.env
+*key*
+*secret*
+*token*
+credentials*
+client_secret*.json
+*.pem
+
+# Logs and tool folders
+logs/
+*.log
+node_modules/
+venv/
+.venv/
+__pycache__/
+
+# Build output and upload packages (rebuilt by build.ps1)
+dist/
+build/
+_build/
+upload*/
+
+# Large binaries
+*.zip
+*.mp4
+*.mov
+*.psd

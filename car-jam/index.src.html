@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Car Jam Escape</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#243447;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(() => {
+'use strict';
+
+// ============================================================================
+// Ads. PORTAL is a build flag: each portal gets its own zip with its own SDK.
+//   'gamemonetize'  GameMonetize HTML5 SDK (needs GAME_ID from their dashboard)
+//   'crazygames'    CrazyGames SDK v3 (no id; only works on their domain)
+//   'none'          no SDK, no ads
+// ============================================================================
+const PORTAL = 'gamemonetize';
+const GAME_ID = '';
+const LOCAL = /^(localhost|127\.0\.0\.1|)$/.test(location.hostname);
+const QS = new URLSearchParams(LOCAL ? location.search : '');
+const DEMO = QS.get('demo');            // local only: renders an auto-played trailer frame by frame
+
+let adPlaying = false, adDone = null, adTimer = 0, cg = null;
+function finishAd(ok) {
+  clearTimeout(adTimer); adPlaying = false;
+  const f = adDone; adDone = null;
+  if (f) f(ok !== false);
+}
+function loadScript(src, id, onload) {
+  const s = document.createElement('script');
+  s.id = id; s.src = src; s.onload = onload || null;
+  document.head.appendChild(s);
+}
+if (!LOCAL && PORTAL === 'gamemonetize' && GAME_ID) {
+  window.SDK_OPTIONS = {
+    gameId: GAME_ID,
+    onEvent(a) {
+      if (a.name === 'SDK_GAME_PAUSE') { clearTimeout(adTimer); adPlaying = true; }
+      else if (a.name === 'SDK_GAME_START') finishAd(true);
+    }
+  };
+  loadScript('https://api.gamemonetize.com/sdk.js', 'gamemonetize-sdk');
+}
+if (!LOCAL && PORTAL === 'crazygames') {
+  loadScript('https://sdk.crazygames.com/crazygames-sdk-v3.js', 'crazygames-sdk', () => {
+    window.CrazyGames.SDK.init().then(() => { cg = window.CrazyGames.SDK; }).catch(() => {});
+  });
+}
+// type: 'midgame' | 'rewarded'. done(ok): ok is false only when a rewarded ad was adblocked.
+function showAd(type, done) {
+  if (adDone) return;
+  if (cg) {
+    adDone = done;
+    cg.ad.requestAd(type, {
+      adStarted: () => { adPlaying = true; },
+      adFinished: () => finishAd(true),
+      adError: e => finishAd(!(type === 'rewarded' && e && e.code === 'adblock'))
+    });
+  } else if (window.sdk && window.sdk.showBanner) {
+    adDone = done; adTimer = setTimeout(finishAd, 4000);
+    window.sdk.showBanner();
+  } else done(true);
+}
+function gameplay(on) {
+  if (!cg) return;
+  try { if (on) cg.game.gameplayStart(); else cg.game.gameplayStop(); } catch (e) {}
+}
+
+// ==CORE== (pure puzzle logic: no DOM)
+const N = 6, EXIT_ROW = 2;
+// 100 boards made by tools/gen-levels.js. Each is 36 cells, row by row: '.' is empty and a
+// letter is a car ('A' is the red car). PAR is the proven minimum number of moves.
+/*LEVELS*/
+function parse(code) {
+  const cars = [];
+  for (let i = 0; i < N * N; i++) {
+    if (code[i] === '.') continue;
+    const k = code.charCodeAt(i) - 65, row = Math.floor(i / N), col = i % N;
+    if (!cars[k]) cars[k] = { row, col, len: 1, horiz: true };
+    else { cars[k].len++; if (col === cars[k].col) cars[k].horiz = false; }
+  }
+  return cars;
+}
+function occupancy(cars, skip) {
+  const occ = new Int8Array(N * N);
+  cars.forEach((c, i) => { if (i !== skip) for (let k = 0; k < c.len; k++) occ[(c.row + (c.horiz ? 0 : k)) * N + c.col + (c.horiz ? k : 0)] = 1; });
+  return occ;
+}
+// How far car i can slide: [lowest, highest] value of its moving coordinate.
+function range(cars, i) {
+  const c = cars[i], occ = occupancy(cars, i), fixed = c.horiz ? c.row : c.col;
+  const free = p => !occ[c.horiz ? fixed * N + p : p * N + fixed];
+  let lo = c.horiz ? c.col : c.row, hi = lo;
+  while (lo > 0 && free(lo - 1)) lo--;
+  while (hi + c.len < N && free(hi + c.len)) hi++;
+  return [lo, hi];
+}
+function solved(cars) { return cars[0].col + cars[0].len === N; }
+// Breadth-first search from the current position. Returns the shortest list of [car, to] moves.
+function solve(cars) {
+  const start = cars.map(c => c.horiz ? c.col : c.row), key = p => p.join('');
+  const from = new Map([[key(start), null]]);
+  let frontier = [start];
+  const at = p => cars.map((c, i) => c.horiz ? { row: c.row, col: p[i], len: c.len, horiz: true } : { row: p[i], col: c.col, len: c.len, horiz: false });
+  while (frontier.length) {
+    const next = [];
+    for (const pos of frontier) {
+      if (pos[0] + cars[0].len === N) {
+        const path = [];
+        for (let k = key(pos), e = from.get(k); e; k = e.prev, e = from.get(k)) path.unshift([e.car, e.to]);
+        return path;
+      }
+      const cur = at(pos);
+      for (let i = 0; i < cars.length; i++) {
+        const r = range(cur, i);
+        for (let p = r[0]; p <= r[1]; p++) {
+          if (p === pos[i]) continue;
+          const np = pos.slice(); np[i] = p;
+          const k = key(np);
+          if (!from.has(k)) { from.set(k, { prev: key(pos), car: i, to: p }); next.push(np); }
+        }
+      }
+    }
+    frontier = next;
+  }
+  return null;
+}
+// ==/CORE==
+
+const PAINT = ['#ff4d5e', '#ffb84d', '#4dc3ff', '#8fd66b', '#9b7bff', '#ff8ad1', '#4de0c0', '#ffd84d', '#7a9cff', '#c9d0e0', '#ff9a6b', '#6bd6ff', '#b3e06b', '#e0a0ff'];
+const SAVE_KEY = 'carJam.save.v1';
+const FONT = 'system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+const TAU = 6.2832;
+
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+let W = 0, H = 0, u = 1, sw = 100, sh = 160, x0 = 0, y0 = 0, land = false;
+
+let save = { unlocked: 1, stars: {}, muted: false };
+try { Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY)) || {}); } catch (e) {}
+let persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} };
+
+let screen = 'menu';              // menu | levels | game | win
+let time = 0, page = 0, btns = [], parts = [];
+let level = 1, cars = [], moves = 0, undo = [], hints = 1;
+let drag = null, slide = null, hint = null, exitT = -1, winT = 0, earned = 0;
+
+// ---- Audio (synthesised)
+let ac = null;
+function initAudio() {
+  if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (AC) ac = new AC();
+}
+function tone(f1, f2, d, type, vol, delay) {
+  if (save.muted || adPlaying || !ac) return;
+  const t = ac.currentTime + (delay || 0), o = ac.createOscillator(), ga = ac.createGain();
+  o.type = type || 'sine';
+  o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t + d);
+  ga.gain.setValueAtTime(vol || 0.2, t); ga.gain.exponentialRampToValueAtTime(0.001, t + d);
+  o.connect(ga); ga.connect(ac.destination);
+  o.start(t); o.stop(t + d + 0.02);
+}
+const sfx = {
+  move:  () => tone(300, 200, 0.08, 'triangle', 0.22),
+  bump:  () => tone(150, 110, 0.06, 'square', 0.08),
+  honk:  () => { tone(440, 440, 0.12, 'square', 0.12); tone(554, 554, 0.2, 'square', 0.12, 0.13); },
+  win:   () => [523, 659, 784, 1047].forEach((f, i) => tone(f, f, 0.16, 'triangle', 0.22, i * 0.11)),
+  click: () => tone(600, 600, 0.04, 'square', 0.07)
+};
+
+// ---- Layout: a 100x160 stage in portrait, 160x100 in landscape, centred in the window.
+function resize() {
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  if (DEMO) { W = +QS.get('w') || W; H = +QS.get('h') || H; dpr = 1; cv.style.width = W + 'px'; cv.style.height = H + 'px'; }
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  land = W > H * 1.15;
+  sw = land ? 160 : 100; sh = land ? 100 : 160;
+  u = Math.min(W / sw, H / sh);
+  x0 = (W - sw * u) / 2; y0 = (H - sh * u) / 2;
+}
+window.addEventListener('resize', resize);
+resize();
+const X = v => x0 + v * u, Y = v => y0 + v * u;
+// The 6x6 board: top-left corner and cell size in pixels.
+function board() {
+  const size = land ? 74 : 86, bx = land ? 20 : 4, by = land ? 21 : 26;      // leaves room for the exit arrow on the right
+  return { x: X(bx), y: Y(by), cell: size * u / N, size: size * u };
+}
+
+// ---- Drawing helpers
+function label(str, x, y, size, color, align, stroke) {
+  g.font = '800 ' + size + 'px ' + FONT;
+  g.textAlign = align || 'center'; g.textBaseline = 'middle';
+  if (stroke) { g.lineWidth = size * 0.16; g.strokeStyle = stroke; g.lineJoin = 'round'; g.strokeText(str, x, y); }
+  g.fillStyle = color; g.fillText(str, x, y);
+}
+function rrect(x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+function star(x, y, r, color) {
+  g.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r;
+    g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+  }
+  g.closePath(); g.fillStyle = color; g.fill();
+}
+function burst(x, y, color, n) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, s = u * (15 + Math.random() * 45);
+    parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - u * 20, life: 0.6 + Math.random() * 0.4, color, size: u * (0.6 + Math.random() * 1.2) });
+  }
+}
+function button(str, cx, cy, w, h, color, dark, action, size) {
+  btns.push({ x: cx - w / 2, y: cy - h / 2, w, h, action });
+  g.fillStyle = dark; rrect(cx - w / 2, cy - h / 2 + u * 1, w, h, h / 2); g.fill();
+  g.fillStyle = color; rrect(cx - w / 2, cy - h / 2, w, h, h / 2); g.fill();
+  label(str, cx, cy, size || h * 0.42, '#fff');
+}
+function roundBtn(str, x, y, action, off) {
+  const r = u * 5.5;
+  btns.push({ x: x - r, y: y - r, w: r * 2, h: r * 2, action });
+  g.fillStyle = '#34475e'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+  g.lineWidth = u * 0.6; g.strokeStyle = '#51698a'; g.stroke();
+  label(str, x, y, u * 5.5, off ? '#6f839d' : '#fff');
+  if (off) { g.strokeStyle = '#ff6b78'; g.lineWidth = u * 0.8; g.lineCap = 'round'; g.beginPath(); g.moveTo(x - r * 0.5, y + r * 0.5); g.lineTo(x + r * 0.5, y - r * 0.5); g.stroke(); }
+}
+// A car seen from above, drawn in a (w x h) box whose long side is the direction of travel.
+function drawCar(x, y, w, h, horiz, color, alpha) {
+  const L = horiz ? w : h, T = horiz ? h : w, pad = T * 0.09;
+  g.save(); g.translate(x + w / 2, y + h / 2); if (!horiz) g.rotate(Math.PI / 2);
+  g.globalAlpha = alpha === undefined ? 1 : alpha;
+  g.fillStyle = 'rgba(0,0,0,.28)'; rrect(-L / 2 + pad, -T / 2 + pad + T * 0.06, L - 2 * pad, T - 2 * pad, T * 0.22); g.fill();
+  g.fillStyle = '#1c2530';                                        // wheels
+  [[-0.3, -1], [0.3, -1], [-0.3, 1], [0.3, 1]].forEach(p => { rrect(p[0] * L - T * 0.11, p[1] * (T / 2 - pad) - T * 0.07, T * 0.22, T * 0.14, T * 0.05); g.fill(); });
+  g.fillStyle = color; rrect(-L / 2 + pad, -T / 2 + pad, L - 2 * pad, T - 2 * pad, T * 0.22); g.fill();
+  g.fillStyle = 'rgba(255,255,255,.22)'; rrect(-L / 2 + pad * 1.6, -T / 2 + pad * 1.6, L - pad * 3.2, T * 0.2, T * 0.1); g.fill();
+  g.fillStyle = 'rgba(20,30,45,.55)';                             // windscreen (front = +x) and rear window
+  rrect(L / 2 - pad - T * 0.52, -T * 0.3, T * 0.24, T * 0.6, T * 0.07); g.fill();
+  rrect(-L / 2 + pad + T * 0.2, -T * 0.28, T * 0.16, T * 0.56, T * 0.06); g.fill();
+  g.fillStyle = '#fff6c0';                                        // headlights
+  g.beginPath(); g.arc(L / 2 - pad - T * 0.07, -T * 0.24, T * 0.055, 0, TAU); g.arc(L / 2 - pad - T * 0.07, T * 0.24, T * 0.055, 0, TAU); g.fill();
+  g.restore();
+}
+
+// ---- Game flow
+function startLevel(n) {
+  level = n; cars = parse(LEVELS[n - 1]);
+  moves = 0; undo = []; hints = 1; drag = null; slide = null; hint = null; exitT = -1; parts = [];
+  screen = 'game'; gameplay(true);
+  if (level === 1) showHint();
+}
+function coord(c) { return c.horiz ? c.col : c.row; }
+function setCoord(c, v) { if (c.horiz) c.col = v; else c.row = v; }
+function afterMove(i, from) {
+  moves++; undo.push([i, from]); hint = null; sfx.move();
+  if (solved(cars)) { exitT = 0; sfx.honk(); gameplay(false); }
+  else if (level === 1) showHint();
+}
+function showHint() { const path = solve(cars); if (path && path.length) hint = { car: path[0][0], to: path[0][1] }; }
+function useHint() {
+  if (exitT >= 0 || slide) return;
+  if (hints > 0) { hints--; showHint(); return; }
+  showAd('rewarded', ok => { if (ok) showHint(); });
+}
+function undoMove() {
+  if (!undo.length || slide || exitT >= 0) return;
+  const m = undo.pop(), c = cars[m[0]];
+  slide = { car: m[0], from: coord(c), to: m[1], t: 0 };
+  moves = Math.max(0, moves - 1); hint = null;
+}
+function win() {
+  const par = PAR[level - 1];
+  earned = moves <= par ? 3 : moves <= Math.ceil(par * 1.5) + 1 ? 2 : 1;
+  save.stars[level] = Math.max(save.stars[level] || 0, earned);
+  if (level < LEVELS.length) save.unlocked = Math.max(save.unlocked, level + 1);
+  persist();
+  screen = 'win'; winT = 0; sfx.win();
+  for (let i = 0; i < 40; i++) burst(X(sw * Math.random()), Y(sh * 0.3 * Math.random()), PAINT[i % PAINT.length], 1);
+}
+function nextLevel() {
+  const go = () => startLevel(Math.min(LEVELS.length, level + 1));
+  if (level % 2 === 0) showAd('midgame', go); else go();   // an ad break every second level
+}
+
+// ---- Screens
+function background() {
+  const bg = g.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#2b4160'); bg.addColorStop(1, '#1b2838');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  g.strokeStyle = 'rgba(255,255,255,.05)'; g.lineWidth = u * 1.2;
+  for (let i = -8; i < 30; i++) { const x = i * u * 14 + (time * u * 3) % (u * 14); g.beginPath(); g.moveTo(x, 0); g.lineTo(x + H * 0.5, H); g.stroke(); }
+}
+function drawMenu() {
+  const cx = X(sw / 2), top = land ? 12 : 30;
+  drawCar(cx - u * 26, Y(top), u * 30, u * 15, true, PAINT[0]);
+  drawCar(cx + u * 8, Y(top - 4), u * 15, u * 30, false, PAINT[2]);
+  drawCar(cx - u * 8, Y(top + 17), u * 44, u * 14.5, true, PAINT[1]);
+  label('CAR JAM', cx, Y(land ? 55 : 82), u * 15, '#fff', 'center', '#16202c');
+  label('ESCAPE', cx, Y(land ? 68 : 97), u * 12, '#ffd84d', 'center', '#16202c');
+  const pulse = 1 + Math.sin(time * 4) * 0.03;
+  button('PLAY', cx, Y(land ? 85 : 124), u * 52 * pulse, u * 15 * pulse, '#3ddc84', '#1f9d55', () => {
+    if (save.unlocked === 1 && !save.stars[1]) startLevel(1); else { page = Math.floor((save.unlocked - 1) / 20); screen = 'levels'; }
+  });
+  roundBtn('♪', X(sw - 9), Y(9), () => { save.muted = !save.muted; persist(); }, save.muted);
+}
+function drawLevels() {
+  const cx = X(sw / 2), cols = land ? 5 : 4, rows = 20 / cols, pages = LEVELS.length / 20;
+  label('LEVELS', cx, Y(10), u * 8, '#fff');
+  roundBtn('‹', X(9), Y(9), () => { screen = 'menu'; });
+  const gx = land ? 30 : 8, gw = sw - gx * 2, gy = 20, gh = sh - 20 - 20;
+  const cw = gw / cols, ch = gh / rows, s = Math.min(cw, ch) * 0.86 * u;
+  for (let k = 0; k < 20; k++) {
+    const n = page * 20 + k + 1;
+    const x = X(gx + (k % cols + 0.5) * cw), y = Y(gy + (Math.floor(k / cols) + 0.5) * ch), open = n <= save.unlocked;
+    g.fillStyle = 'rgba(0,0,0,.3)'; rrect(x - s / 2, y - s / 2 + u * 0.8, s, s, u * 3); g.fill();
+    g.fillStyle = open ? '#3d5a80' : '#2a3a50'; rrect(x - s / 2, y - s / 2, s, s, u * 3); g.fill();
+    label(String(n), x, y - s * 0.1, s * 0.36, open ? '#fff' : '#566b85');
+    const st = save.stars[n] || 0;
+    for (let j = 0; j < 3; j++) star(x + (j - 1) * s * 0.24, y + s * 0.28, s * 0.1, j < st ? '#ffd84d' : 'rgba(255,255,255,.14)');
+    if (open) btns.push({ x: x - s / 2, y: y - s / 2, w: s, h: s, action: () => startLevel(n) });
+  }
+  const by = Y(sh - 9);
+  if (page > 0) roundBtn('‹', cx - u * 22, by, () => { page--; });
+  label((page + 1) + ' / ' + pages, cx, by, u * 5, '#fff');
+  if (page < pages - 1) roundBtn('›', cx + u * 22, by, () => { page++; });
+}
+function drawBoard() {
+  const b = board(), c = b.cell;
+  g.fillStyle = 'rgba(0,0,0,.3)'; rrect(b.x - u * 2, b.y - u * 2 + u * 1.2, b.size + u * 4, b.size + u * 4, u * 4); g.fill();
+  g.fillStyle = '#4a5a70'; rrect(b.x - u * 2, b.y - u * 2, b.size + u * 4, b.size + u * 4, u * 4); g.fill();
+  g.fillStyle = '#39475a'; rrect(b.x, b.y, b.size, b.size, u * 2); g.fill();
+  g.fillStyle = '#39475a'; g.fillRect(b.x + b.size - u, b.y + EXIT_ROW * c + c * 0.08, u * 3.2, c * 0.84);     // the exit gap
+  g.fillStyle = 'rgba(255,255,255,.07)';
+  for (let i = 0; i < N * N; i++) { rrect(b.x + (i % N) * c + c * 0.06, b.y + Math.floor(i / N) * c + c * 0.06, c * 0.88, c * 0.88, c * 0.14); g.fill(); }
+  const ax = b.x + b.size + u * 4.5 + Math.sin(time * 5) * u * 0.8, ay = b.y + (EXIT_ROW + 0.5) * c;                 // exit arrow
+  g.fillStyle = '#3ddc84'; g.beginPath(); g.moveTo(ax + u * 3, ay); g.lineTo(ax - u * 1.5, ay - u * 3.2); g.lineTo(ax - u * 1.5, ay + u * 3.2); g.closePath(); g.fill();
+
+  if (hint && exitT < 0) {                                         // ghost of where the hinted car should go
+    const h = cars[hint.car], gc = h.horiz ? hint.to : h.col, gr = h.horiz ? h.row : hint.to;
+    drawCar(b.x + gc * c, b.y + gr * c, (h.horiz ? h.len : 1) * c, (h.horiz ? 1 : h.len) * c, h.horiz, '#fff', 0.22 + Math.sin(time * 6) * 0.1);
+  }
+  g.save(); g.beginPath(); g.rect(b.x - u * 2, b.y - u * 2, W, b.size + u * 4); g.clip();
+  cars.forEach((car, i) => {
+    let col = car.col, row = car.row;
+    const v = drag && drag.car === i ? drag.pos : slide && slide.car === i ? slide.from + (slide.to - slide.from) * Math.min(1, slide.t / 0.16) : null;
+    if (v !== null) { if (car.horiz) col = v; else row = v; }
+    if (i === 0 && exitT >= 0) col += exitT * exitT * 22;
+    const w = (car.horiz ? car.len : 1) * c, h = (car.horiz ? 1 : car.len) * c;
+    if (hint && hint.car === i && exitT < 0) { g.fillStyle = 'rgba(255,255,255,' + (0.25 + Math.sin(time * 6) * 0.15) + ')'; rrect(b.x + col * c - u * 0.6, b.y + row * c - u * 0.6, w + u * 1.2, h + u * 1.2, c * 0.24); g.fill(); }
+    drawCar(b.x + col * c, b.y + row * c, w, h, car.horiz, PAINT[i % PAINT.length]);
+  });
+  g.restore();
+}
+function drawGame() {
+  const cx = X(sw / 2), b = board();
+  roundBtn('‹', X(9), Y(9), () => { gameplay(false); page = Math.floor((level - 1) / 20); screen = 'levels'; });
+  label('LEVEL ' + level, cx, Y(7.5), u * 6.5, '#fff');
+  label('MOVES  ' + moves + '   •   BEST  ' + PAR[level - 1], cx, Y(14.5), u * 3.6, '#9fb4cf');
+  roundBtn('♪', X(sw - 9), Y(9), () => { save.muted = !save.muted; persist(); }, save.muted);
+  drawBoard();
+  const list = [
+    ['UNDO', '#9b7bff', '#7a5bd6', undoMove, undo.length > 0],
+    [hints > 0 ? 'HINT  ' + hints : '▶  HINT', '#ffb84d', '#d98a1a', useHint, true],
+    ['RESTART', '#4dc3ff', '#2f9fd8', () => startLevel(level), true]
+  ];
+  list.forEach((it, i) => {
+    const bx = land ? X(136) : cx + (i - 1) * u * 31, by = land ? Y(36 + i * 16) : Y(sh - 12);
+    g.globalAlpha = it[4] ? 1 : 0.45;
+    button(it[0], bx, by, u * (land ? 40 : 29), u * 11, it[1], it[2], it[3], u * 3.9);
+    g.globalAlpha = 1;
+  });
+}
+function drawWin() {
+  const cx = X(sw / 2), cy = Y(sh / 2), a = Math.min(1, winT / 0.35);
+  drawBoard();
+  g.fillStyle = 'rgba(10,18,30,' + (0.7 * a) + ')'; g.fillRect(0, 0, W, H);
+  if (winT < 0.45) return;
+  const pw = u * 84, ph = u * 82;
+  g.fillStyle = '#2f445f'; rrect(cx - pw / 2, cy - ph / 2, pw, ph, u * 6); g.fill();
+  label('LEVEL ' + level, cx, cy - u * 32, u * 5, '#9fb4cf');
+  label('ESCAPED!', cx, cy - u * 23, u * 9, '#3ddc84');
+  for (let j = 0; j < 3; j++) {
+    const k = Math.max(0, Math.min(1, (winT - 0.55 - j * 0.2) / 0.2));
+    star(cx + (j - 1) * u * 17, cy - u * 7 - (j === 1 ? u * 2 : 0), u * 8 * (j < earned ? 0.6 + 0.4 * k : 1), j < earned && k > 0 ? '#ffd84d' : 'rgba(255,255,255,.14)');
+  }
+  label('MOVES  ' + moves + '   •   BEST  ' + PAR[level - 1], cx, cy + u * 6, u * 3.8, '#9fb4cf');
+  if (level < LEVELS.length) button('NEXT LEVEL', cx, cy + u * 17, u * 62, u * 13, '#3ddc84', '#1f9d55', nextLevel);
+  else label('ALL 100 LEVELS DONE!', cx, cy + u * 17, u * 5, '#ffd84d');
+  button('REPLAY', cx - u * 16.5, cy + u * 32, u * 29, u * 10, '#4dc3ff', '#2f9fd8', () => startLevel(level), u * 4);
+  button('LEVELS', cx + u * 16.5, cy + u * 32, u * 29, u * 10, '#9b7bff', '#7a5bd6', () => { page = Math.floor((level - 1) / 20); screen = 'levels'; }, u * 4);
+}
+
+// ---- Input: drag a car along its lane.
+cv.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (adPlaying) return;
+  initAudio();
+  const x = e.clientX, y = e.clientY;
+  for (let i = btns.length - 1; i >= 0; i--) {
+    const b = btns[i];
+    if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) { sfx.click(); b.action(); return; }
+  }
+  if (screen !== 'game' || exitT >= 0 || slide) return;
+  const b = board(), col = Math.floor((x - b.x) / b.cell), row = Math.floor((y - b.y) / b.cell);
+  if (col < 0 || row < 0 || col >= N || row >= N) return;
+  const i = cars.findIndex(c => c.horiz ? row === c.row && col >= c.col && col < c.col + c.len : col === c.col && row >= c.row && row < c.row + c.len);
+  if (i < 0) return;
+  const r = range(cars, i);
+  drag = { car: i, start: coord(cars[i]), pos: coord(cars[i]), lo: r[0], hi: r[1], px: x, py: y, bumped: false };
+  try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+});
+cv.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const c = cars[drag.car], d = ((c.horiz ? e.clientX - drag.px : e.clientY - drag.py)) / board().cell;
+  const want = drag.start + d;
+  drag.pos = Math.max(drag.lo, Math.min(drag.hi, want));
+  if ((want < drag.lo - 0.15 || want > drag.hi + 0.15) && !drag.bumped) { drag.bumped = true; sfx.bump(); }
+  if (want >= drag.lo && want <= drag.hi) drag.bumped = false;
+});
+function release() {
+  if (!drag) return;
+  const c = cars[drag.car], to = Math.round(drag.pos), from = drag.start, i = drag.car;
+  drag = null;
+  if (to !== from) { setCoord(c, to); afterMove(i, from); }
+}
+cv.addEventListener('pointerup', release);
+cv.addEventListener('pointercancel', release);
+cv.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('visibilitychange', () => {
+  if (!ac) return;
+  if (document.hidden) ac.suspend(); else if (!adPlaying) ac.resume();
+});
+
+// ---- Main loop
+function update(dt) {
+  time += dt;
+  if (slide) { slide.t += dt; if (slide.t >= 0.16) { setCoord(cars[slide.car], slide.to); const s = slide; slide = null; if (s.then) s.then(); } }
+  if (exitT >= 0 && screen === 'game') { exitT += dt; if (exitT > 0.6) win(); }
+  if (screen === 'win') winT += dt;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    p.life -= dt; p.vy += u * 90 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+    if (p.life <= 0) parts.splice(i, 1);
+  }
+}
+function draw() {
+  btns = [];
+  background();
+  if (screen === 'menu') drawMenu();
+  else if (screen === 'levels') drawLevels();
+  else if (screen === 'game') drawGame();
+  else drawWin();
+  for (const p of parts) {
+    g.globalAlpha = Math.max(0, Math.min(1, p.life * 2));
+    g.fillStyle = p.color; g.beginPath(); g.arc(p.x, p.y, p.size, 0, TAU); g.fill();
+  }
+  g.globalAlpha = 1;
+}
+// Local test hook: ?level=N opens a level, &solve=K plays the first K solution moves, &win=1 finishes it.
+if (LOCAL && QS.get('level')) {
+  startLevel(+QS.get('level'));
+  const path = solve(cars), k = QS.get('win') ? path.length : +QS.get('solve') || 0;
+  for (let i = 0; i < k; i++) { setCoord(cars[path[i][0]], path[i][1]); moves++; }
+  hint = null;
+  if (QS.get('win')) { persist = () => {}; win(); winT = 2; }
+}
+// Local trailer renderer: solves a few levels on screen at a fixed 30 fps and posts each frame
+// to the local capture server.
+async function demoLoop() {
+  const dt = 1 / 30, tour = [4, 22, 60];
+  let n = 0, mt = 0, li = 0, path = null;
+  persist = () => {};
+  const snap = async () => {
+    update(dt); draw();
+    const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.93));
+    await fetch('/frame?v=' + DEMO + '&n=' + String(n++).padStart(4, '0'), { method: 'POST', body: blob });
+  };
+  screen = 'menu';
+  for (let i = 0; i < 36; i++) await snap();
+  startLevel(tour[0]); path = solve(cars);
+  while (n < 516) {
+    mt += dt;
+    if (screen === 'game' && !slide && exitT < 0 && mt > 0.42 && path.length) {
+      mt = 0;
+      const m = path.shift(), from = coord(cars[m[0]]);
+      slide = { car: m[0], from, to: m[1], t: 0, then: () => afterMove(m[0], from) };
+    }
+    if (screen === 'win' && winT > 1.7) { if (++li >= tour.length) break; startLevel(tour[li]); path = solve(cars); }
+    await snap();
+  }
+  await fetch('/frame?v=' + DEMO + '&n=done', { method: 'POST', body: 'x' });
+}
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  if (!adPlaying) update(dt);
+  draw();
+  requestAnimationFrame(frame);
+}
+if (DEMO) demoLoop(); else requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

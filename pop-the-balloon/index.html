@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Pop the Balloon</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#16254a;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(() => {
+'use strict';
+
+// ---- Ad hook: wire the portal SDK (GameMonetize / GameDistribution / CrazyGames) here.
+// Called between rounds; must call done() when the ad finishes or fails.
+function adBreak(done) { done(); }
+
+const COLORS = [
+  { name: 'RED',    c: '#ff4d5e' },
+  { name: 'BLUE',   c: '#3d9bff' },
+  { name: 'GREEN',  c: '#3ddc84' },
+  { name: 'YELLOW', c: '#ffd23d' },
+  { name: 'PURPLE', c: '#b06cff' },
+  { name: 'ORANGE', c: '#ff9a3d' }
+];
+const MAX_LIVES = 3, TARGET_TIME = 10, BEST_KEY = 'popTheBalloon.best';
+const FONT = 'system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+let W = 0, H = 0, cw = 0, x0 = 0, u = 1;
+
+let state = 'menu';            // menu | play | over
+let time = 0, elapsed = 0, level = 1;
+let score = 0, best = 0, lives = MAX_LIVES, combo = 0;
+let target = 0, targetTimer = 0, banner = 0;
+let spawnTimer = 0, shake = 0, overTime = 0, newBest = false;
+let balloons = [], parts = [], texts = [], clouds = [];
+let playBtn = null, muteBtn = null;
+
+try { best = parseInt(localStorage.getItem(BEST_KEY), 10) || 0; } catch (e) {}
+
+// ---- Audio (synthesised, no files)
+let ac = null, muted = false;
+function initAudio() {
+  if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (AC) ac = new AC();
+}
+function tone(f1, f2, d, type, vol, delay) {
+  if (muted || !ac) return;
+  const t = ac.currentTime + (delay || 0);
+  const o = ac.createOscillator(), ga = ac.createGain();
+  o.type = type || 'triangle';
+  o.frequency.setValueAtTime(f1, t);
+  o.frequency.exponentialRampToValueAtTime(f2, t + d);
+  ga.gain.setValueAtTime(vol || 0.2, t);
+  ga.gain.exponentialRampToValueAtTime(0.001, t + d);
+  o.connect(ga); ga.connect(ac.destination);
+  o.start(t); o.stop(t + d + 0.02);
+}
+const sfx = {
+  pop:   () => tone(520 + Math.min(combo, 12) * 40, 260, 0.09, 'triangle', 0.25),
+  gold:  () => { tone(660, 660, 0.08, 'sine', 0.2); tone(880, 880, 0.08, 'sine', 0.2, 0.08); tone(1320, 1320, 0.14, 'sine', 0.2, 0.16); },
+  wrong: () => tone(180, 70, 0.28, 'sawtooth', 0.18),
+  bomb:  () => { tone(120, 40, 0.4, 'sawtooth', 0.25); tone(90, 30, 0.4, 'square', 0.15); },
+  swap:  () => { tone(440, 440, 0.07, 'square', 0.1); tone(660, 660, 0.1, 'square', 0.1, 0.08); },
+  over:  () => { tone(440, 440, 0.15, 'triangle', 0.2); tone(330, 330, 0.15, 'triangle', 0.2, 0.16); tone(220, 220, 0.35, 'triangle', 0.2, 0.32); }
+};
+
+// ---- Layout
+function resize() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  cw = Math.min(W, H * 0.62); x0 = (W - cw) / 2; u = cw / 100;
+}
+window.addEventListener('resize', resize);
+resize();
+
+for (let i = 0; i < 6; i++) {
+  clouds.push({ x: Math.random(), y: 0.08 + Math.random() * 0.7, s: 0.6 + Math.random() * 0.9, v: 0.006 + Math.random() * 0.012 });
+}
+
+// ---- Game flow
+function activeColors() { return Math.min(COLORS.length, 3 + Math.floor((level - 1) / 2)); }
+
+function startGame() {
+  state = 'play';
+  elapsed = 0; level = 1; score = 0; lives = MAX_LIVES; combo = 0;
+  balloons = []; parts = []; texts = [];
+  spawnTimer = 0.4; newBest = false;
+  target = -1; pickTarget();
+}
+
+function pickTarget() {
+  const n = activeColors();
+  let t;
+  do { t = Math.floor(Math.random() * n); } while (t === target);
+  target = t; targetTimer = TARGET_TIME; banner = 1.4;
+  // Balloons already on screen never cost a life after the colour changes.
+  for (const b of balloons) b.free = true;
+  sfx.swap();
+}
+
+function endGame() {
+  state = 'over'; overTime = 0;
+  if (score > best) {
+    best = score; newBest = true;
+    try { localStorage.setItem(BEST_KEY, String(best)); } catch (e) {}
+  }
+  sfx.over();
+}
+
+function loseLife(label, x, y) {
+  lives--; combo = 0; shake = 0.3;
+  floatText(label, x, y, '#ff6b78');
+  if (lives <= 0) endGame();
+}
+
+function spawn() {
+  const playing = state === 'play';
+  const r = u * (11 + Math.random() * 2.5);
+  const rnd = Math.random();
+  let type = 'normal';
+  if (playing && level >= 2 && rnd < 0.07) type = 'bomb';
+  else if (playing && rnd > 0.955) type = 'gold';
+  const ci = playing
+    ? (Math.random() < 0.42 ? target : Math.floor(Math.random() * activeColors()))
+    : Math.floor(Math.random() * COLORS.length);
+  const boost = playing ? Math.min(2.4, 1 + (level - 1) * 0.09) : 0.8;
+  balloons.push({
+    x: x0 + r + Math.random() * (cw - 2 * r), y: H + r * 1.6, r, ci, type,
+    vy: H * 0.2 * boost * (0.85 + Math.random() * 0.3),
+    ph: Math.random() * 6.28, sf: 1 + Math.random() * 1.5, sw: u * (4 + Math.random() * 6),
+    free: false
+  });
+}
+
+function burst(x, y, color, n) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * 6.28, s = u * (20 + Math.random() * 60);
+    parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0.5 + Math.random() * 0.3, color, size: u * (0.8 + Math.random() * 1.6) });
+  }
+}
+function floatText(str, x, y, color) { texts.push({ str, x, y, life: 0.9, color }); }
+
+function popBalloon(i) {
+  const b = balloons[i];
+  balloons.splice(i, 1);
+  if (b.type === 'bomb') {
+    burst(b.x, b.y, '#ff8a3d', 26); burst(b.x, b.y, '#2b2f3a', 14);
+    sfx.bomb(); loseLife('BOOM!', b.x, b.y);
+  } else if (b.type === 'gold') {
+    burst(b.x, b.y, '#ffe27a', 24);
+    score += 5; floatText('+5', b.x, b.y, '#ffe27a'); sfx.gold();
+  } else if (b.ci === target) {
+    const mult = combo >= 10 ? 3 : combo >= 5 ? 2 : 1;
+    combo++; score += mult;
+    burst(b.x, b.y, COLORS[b.ci].c, 14);
+    floatText('+' + mult, b.x, b.y, '#ffffff'); sfx.pop();
+  } else {
+    burst(b.x, b.y, COLORS[b.ci].c, 8);
+    sfx.wrong(); loseLife('WRONG!', b.x, b.y);
+  }
+}
+
+// ---- Input
+function inRect(x, y, r) { return r && x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h; }
+
+cv.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  initAudio();
+  const x = e.clientX, y = e.clientY;
+  if (inRect(x, y, muteBtn)) { muted = !muted; return; }
+  if (state === 'menu') { startGame(); return; }
+  if (state === 'over') {
+    if (overTime > 0.6 && inRect(x, y, playBtn)) adBreak(startGame);
+    return;
+  }
+  for (let i = balloons.length - 1; i >= 0; i--) {
+    const b = balloons[i];
+    const dx = (x - b.x) / (b.r * 1.15), dy = (y - b.y) / (b.r * 1.35);
+    if (dx * dx + dy * dy <= 1) { popBalloon(i); return; }
+  }
+});
+cv.addEventListener('contextmenu', e => e.preventDefault());
+
+// ---- Update
+function update(dt) {
+  time += dt;
+  for (const c of clouds) { c.x += c.v * dt; if (c.x > 1.3) c.x = -0.3; }
+
+  if (state === 'play') {
+    elapsed += dt;
+    level = 1 + Math.floor(elapsed / 12);
+    targetTimer -= dt;
+    if (targetTimer <= 0) pickTarget();
+  } else if (state === 'over') {
+    overTime += dt;
+  }
+
+  if (state !== 'over') {
+    spawnTimer -= dt;
+    if (spawnTimer <= 0) {
+      spawn();
+      spawnTimer = state === 'play' ? Math.max(0.34, 0.95 - level * 0.06) : 0.7;
+    }
+  }
+
+  for (let i = balloons.length - 1; i >= 0; i--) {
+    const b = balloons[i];
+    b.y -= b.vy * dt;
+    b.x += Math.sin(time * b.sf + b.ph) * b.sw * dt;
+    if (b.y < -b.r * 1.6) {
+      balloons.splice(i, 1);
+      if (state === 'play' && b.type === 'normal' && b.ci === target && !b.free) {
+        sfx.wrong(); loseLife('MISSED!', b.x, u * 34);
+      }
+    }
+  }
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    p.life -= dt; p.vy += u * 120 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+    if (p.life <= 0) parts.splice(i, 1);
+  }
+  for (let i = texts.length - 1; i >= 0; i--) {
+    const t = texts[i];
+    t.life -= dt; t.y -= u * 14 * dt;
+    if (t.life <= 0) texts.splice(i, 1);
+  }
+  if (banner > 0) banner -= dt;
+  if (shake > 0) shake -= dt;
+}
+
+// ---- Drawing helpers
+function label(str, x, y, size, color, align, stroke) {
+  g.font = '800 ' + size + 'px ' + FONT;
+  g.textAlign = align || 'center'; g.textBaseline = 'middle';
+  if (stroke) { g.lineWidth = size * 0.16; g.strokeStyle = stroke; g.lineJoin = 'round'; g.strokeText(str, x, y); }
+  g.fillStyle = color; g.fillText(str, x, y);
+}
+function rrect(x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+function heart(x, y, s, on) {
+  g.beginPath();
+  g.moveTo(x, y + s * 0.9);
+  g.bezierCurveTo(x - s * 1.5, y - s * 0.1, x - s * 0.7, y - s * 1.1, x, y - s * 0.3);
+  g.bezierCurveTo(x + s * 0.7, y - s * 1.1, x + s * 1.5, y - s * 0.1, x, y + s * 0.9);
+  g.fillStyle = on ? '#ff4d5e' : 'rgba(255,255,255,.22)'; g.fill();
+}
+function star(x, y, r) {
+  g.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r;
+    g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+  }
+  g.closePath(); g.fill();
+}
+
+function drawBalloon(b) {
+  const col = b.type === 'gold' ? '#ffc928' : b.type === 'bomb' ? '#2b2f3a' : COLORS[b.ci].c;
+  const rx = b.r, ry = b.r * 1.2;
+  g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = Math.max(1, u * 0.35);
+  g.beginPath(); g.moveTo(b.x, b.y + ry + b.r * 0.15);
+  g.quadraticCurveTo(b.x + Math.sin(time * 2 + b.ph) * b.r * 0.35, b.y + ry + b.r * 0.8, b.x, b.y + ry + b.r * 1.4);
+  g.stroke();
+  g.fillStyle = col;
+  g.beginPath(); g.moveTo(b.x, b.y + ry - 1);
+  g.lineTo(b.x - b.r * 0.15, b.y + ry + b.r * 0.2); g.lineTo(b.x + b.r * 0.15, b.y + ry + b.r * 0.2); g.fill();
+  g.beginPath(); g.ellipse(b.x, b.y, rx, ry, 0, 0, 6.2832); g.fill();
+  const sh = g.createRadialGradient(b.x - rx * 0.35, b.y - ry * 0.4, rx * 0.05, b.x, b.y, ry * 1.05);
+  sh.addColorStop(0, 'rgba(255,255,255,.6)'); sh.addColorStop(0.45, 'rgba(255,255,255,0)'); sh.addColorStop(1, 'rgba(0,0,0,.22)');
+  g.fillStyle = sh; g.fill();
+  if (b.type === 'gold') {
+    g.fillStyle = '#fff8d6'; star(b.x, b.y, b.r * 0.5);
+  } else if (b.type === 'bomb') {
+    g.strokeStyle = '#ff4d5e'; g.lineWidth = b.r * 0.18; g.lineCap = 'round';
+    const k = b.r * 0.35;
+    g.beginPath(); g.moveTo(b.x - k, b.y - k); g.lineTo(b.x + k, b.y + k);
+    g.moveTo(b.x + k, b.y - k); g.lineTo(b.x - k, b.y + k); g.stroke();
+  }
+}
+
+function drawBackground() {
+  const sky = g.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, '#2b6cd4'); sky.addColorStop(0.6, '#6fc3f7'); sky.addColorStop(1, '#c9ecff');
+  g.fillStyle = sky; g.fillRect(0, 0, W, H);
+  g.fillStyle = 'rgba(255,255,255,.75)';
+  for (const c of clouds) {
+    const x = c.x * W, y = c.y * H, s = c.s * u * 9;
+    g.beginPath();
+    g.arc(x, y, s, 0, 6.2832); g.arc(x + s * 1.1, y - s * 0.4, s * 1.2, 0, 6.2832);
+    g.arc(x + s * 2.3, y, s, 0, 6.2832); g.arc(x + s * 1.1, y + s * 0.3, s * 1.1, 0, 6.2832);
+    g.fill();
+  }
+}
+
+function drawHud() {
+  const cx = x0 + cw / 2;
+  label(String(score), x0 + u * 5, u * 9, u * 9, '#fff', 'left', 'rgba(0,0,0,.25)');
+  if (combo >= 5) label('x' + (combo >= 10 ? 3 : 2), x0 + u * 5, u * 17, u * 5, '#ffe27a', 'left', 'rgba(0,0,0,.25)');
+  for (let i = 0; i < MAX_LIVES; i++) heart(x0 + cw - u * 7 - i * u * 9, u * 9, u * 3.4, i < lives);
+
+  const pw = u * 62, ph = u * 12, px = cx - pw / 2, py = u * 19;
+  g.fillStyle = 'rgba(10,25,60,.55)'; rrect(px, py, pw, ph, ph / 2); g.fill();
+  g.fillStyle = COLORS[target].c;
+  g.beginPath(); g.ellipse(px + u * 8, py + ph / 2, u * 3.4, u * 4.1, 0, 0, 6.2832); g.fill();
+  label('POP ' + COLORS[target].name, cx + u * 4, py + ph / 2, u * 5.6, '#fff');
+  const frac = Math.max(0, targetTimer / TARGET_TIME);
+  g.fillStyle = 'rgba(255,255,255,.25)'; rrect(px + u * 6, py + ph + u * 1.5, pw - u * 12, u * 1.4, u * 0.7); g.fill();
+  g.fillStyle = COLORS[target].c; rrect(px + u * 6, py + ph + u * 1.5, Math.max(u * 1.4, (pw - u * 12) * frac), u * 1.4, u * 0.7); g.fill();
+
+  if (banner > 0) {
+    const a = Math.min(1, banner / 0.4), s = 1 + (1 - Math.min(1, (1.4 - banner) / 0.2)) * 0.5;
+    g.globalAlpha = a;
+    label(COLORS[target].name + '!', cx, H * 0.45, u * 15 * s, COLORS[target].c, 'center', '#fff');
+    g.globalAlpha = 1;
+  }
+}
+
+function drawButton(str, cy) {
+  const cx = x0 + cw / 2, w = u * 58, h = u * 15, pulse = 1 + Math.sin(time * 4) * 0.03;
+  playBtn = { x: cx - w / 2, y: cy - h / 2, w, h };
+  g.save(); g.translate(cx, cy); g.scale(pulse, pulse);
+  g.fillStyle = '#1f9d55'; rrect(-w / 2, -h / 2 + u * 1.2, w, h, h / 2); g.fill();
+  g.fillStyle = '#3ddc84'; rrect(-w / 2, -h / 2, w, h, h / 2); g.fill();
+  label(str, 0, 0, u * 6.5, '#fff');
+  g.restore();
+}
+
+function drawMute() {
+  const r = u * 5.5, x = x0 + u * 8, y = H - u * 8;
+  muteBtn = { x: x - r, y: y - r, w: r * 2, h: r * 2 };
+  g.fillStyle = 'rgba(10,25,60,.5)'; g.beginPath(); g.arc(x, y, r, 0, 6.2832); g.fill();
+  label('♪', x, y, u * 6, muted ? 'rgba(255,255,255,.35)' : '#fff');
+  if (muted) {
+    g.strokeStyle = '#ff6b78'; g.lineWidth = u * 0.9; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(x - r * 0.55, y + r * 0.55); g.lineTo(x + r * 0.55, y - r * 0.55); g.stroke();
+  }
+}
+
+function draw() {
+  g.save();
+  if (shake > 0) g.translate((Math.random() - 0.5) * u * 4 * shake / 0.3, (Math.random() - 0.5) * u * 4 * shake / 0.3);
+  drawBackground();
+  for (const b of balloons) drawBalloon(b);
+  for (const p of parts) {
+    g.globalAlpha = Math.max(0, Math.min(1, p.life * 2.5));
+    g.fillStyle = p.color; g.beginPath(); g.arc(p.x, p.y, p.size, 0, 6.2832); g.fill();
+  }
+  g.globalAlpha = 1;
+  for (const t of texts) {
+    g.globalAlpha = Math.max(0, Math.min(1, t.life * 2));
+    label(t.str, t.x, t.y, u * 6.5, t.color, 'center', 'rgba(0,0,0,.35)');
+  }
+  g.globalAlpha = 1;
+  g.restore();
+
+  const cx = x0 + cw / 2;
+  if (state === 'play') {
+    drawHud();
+  } else if (state === 'menu') {
+    g.fillStyle = 'rgba(10,25,60,.35)'; g.fillRect(0, 0, W, H);
+    label('POP THE', cx, H * 0.24, u * 13, '#fff', 'center', '#16254a');
+    label('BALLOON', cx, H * 0.24 + u * 15, u * 16, '#ffd23d', 'center', '#16254a');
+    label('Pop only the colour shown.', cx, H * 0.5, u * 5, '#fff');
+    label('Gold = bonus. Avoid the bombs!', cx, H * 0.5 + u * 7.5, u * 5, '#fff');
+    drawButton('TAP TO PLAY', H * 0.68);
+    if (best > 0) label('BEST  ' + best, cx, H * 0.68 + u * 17, u * 5.5, '#ffe27a', 'center', 'rgba(0,0,0,.3)');
+  } else {
+    const a = Math.min(1, overTime / 0.4);
+    g.fillStyle = 'rgba(10,25,60,' + (0.6 * a) + ')'; g.fillRect(0, 0, W, H);
+    g.globalAlpha = a;
+    label('GAME OVER', cx, H * 0.25, u * 12, '#fff', 'center', '#16254a');
+    label('SCORE', cx, H * 0.4, u * 5, 'rgba(255,255,255,.8)');
+    label(String(score), cx, H * 0.4 + u * 13, u * 20, '#ffd23d', 'center', '#16254a');
+    label(newBest ? 'NEW BEST!' : 'BEST  ' + best, cx, H * 0.4 + u * 28, u * 5.5, newBest ? '#3ddc84' : '#fff');
+    drawButton('PLAY AGAIN', H * 0.74);
+    g.globalAlpha = 1;
+  }
+  drawMute();
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  update(dt); draw();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
