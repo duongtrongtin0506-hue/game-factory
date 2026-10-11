@@ -22,7 +22,8 @@ Tra ngày 2026-10-11 bằng model nhẹ, chỉ ghi điều đọc được trên
 
 ## itch.io
 - `butler push <thư mục hoặc zip> user/game:kenh`; tên project viết thường. Sau lần đẩy đầu phải vào Edit game, đặt loại trang là HTML và đánh dấu kênh đó chơi trong trình duyệt. Nguồn: https://itch.io/docs/butler/pushing
-- Đăng nhập butler trong CI bằng biến `BUTLER_API_KEY`: chưa xác minh trên trang chính thức; `tools/run_daily.py` đang giả định như vậy, phải thử khi có tài khoản.
+- Đăng nhập butler trong CI bằng biến `BUTLER_API_KEY`. Nguồn: https://itch.io/docs/butler/login.html . Bản Linux tải ở https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default (tệp zip). Nguồn: https://itch.io/docs/butler/installing.html
+- Đẩy vào trang game chưa tồn tại bị từ chối `itch.io API error (400): /wharf/builds: invalid game` (thử thật 2026-10-12): phải tạo trang trước. Kênh tên `html5` không tự gắn nhãn chơi trong trình duyệt; phải tích tay trên trang Edit game.
 - itch.io có cho quảng cáo không, kiếm tiền thế nào: chưa xác minh.
 
 ## Roblox

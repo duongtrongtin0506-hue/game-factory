@@ -14,31 +14,25 @@ Mở `C:\Users\Administrator\Desktop\GAME\web\web\car-jam\index.html` bằng Chr
 1. Mở https://gamemonetize.com/account/login.php trong Chrome thường, đăng nhập.
 2. Nhắn: **xong gamemonetize**. Claude xem kết quả duyệt Tap Arcade (nộp 2026-10-09).
 
-## 3. Webhook Discord kênh #game (2 phút)
+## 3. Webhook Discord, 4. healthchecks.io
 
-1. Server **Máy chủ của net24**: giữ (hoặc chuột phải) kênh **#game** → **Chỉnh sửa kênh** → **Tích hợp** → **Webhook** → **Tạo webhook** → **Sao chép URL webhook**.
-2. Dán vào GitHub Secrets với Name `DISCORD_WEBHOOK`.
-3. Nhắn: **xong discord**.
-
-Không dùng kênh #dang-tiktok hay server Coinnew24. Nếu đã tạo webhook từ trước: chỉ cần sao chép lại URL và làm bước 2.
-
-## 4. healthchecks.io (3 phút, miễn phí)
-
-1. Mở https://healthchecks.io → tạo check tên `game-factory`, **Period 1 day**, **Grace 6 hours**.
-2. Sao chép **Ping URL**, dán vào GitHub Secrets với Name `HC_PING`.
-3. **Integrations** → **Discord** → chọn server **Máy chủ của net24**, kênh **#game**.
-4. Nhắn: **xong healthchecks**.
+XONG 2026-10-12: hai khóa đã vào GitHub Secrets và lần chạy thử đã báo được.
 
 ## 5. Kiểm tra Gmail
 
 Tìm thư từ GameDistribution hoặc Azerion Connect (đăng ký 2026-10-09), làm theo hướng dẫn kích hoạt. Nhắn: **có thư gamedistribution**.
 
-## 6. Tài khoản itch.io (5 phút, miễn phí)
+## 6. Tạo trang Car Jam Escape trên itch.io (3 phút)
 
-1. Đăng ký tại https://itch.io/register (bạn tự đặt mật khẩu).
-2. Mở https://itch.io/user/settings/api-keys → **Generate new API key** → sao chép.
-3. GitHub Secrets: Name `BUTLER_API_KEY` = khóa vừa sao chép; Name `ITCH_USER` = tên tài khoản itch.io.
-4. Nhắn: **xong itch**.
+Tài khoản và hai khóa itch.io đã có (2026-10-12). Lần đẩy thử bị itch.io trả lời "invalid game": trang game chưa tồn tại, itch.io không tự tạo.
+
+1. Mở https://itch.io/game/new (đang đăng nhập tài khoản itch.io của bạn).
+2. **Title**: `Car Jam Escape`. **Project URL**: sửa phần cuối thành đúng `car-jam-escape`.
+3. **Kind of project**: chọn **HTML**. **Pricing**: **No payments**. Không cần tải tệp nào lên.
+4. Cuối trang, **Visibility & access** để **Draft** → **Save & view page**.
+5. Nhắn: **xong trang itch**. Claude đẩy game lên rồi chỉ bạn hai ô cần tích để game chơi được trong trình duyệt.
+
+Nếu itch.io không cho lưu khi chưa có tệp: bấm **Upload files**, chọn `C:\Users\Administrator\Desktop\GAME\web\dist\car-jam\car-jam-none.zip`, tích **This file will be played in the browser**, rồi lưu.
 
 ## Chưa cần làm
 

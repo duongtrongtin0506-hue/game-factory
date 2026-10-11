@@ -39,12 +39,13 @@ Màn mới sinh bằng thuật toán + bộ giải, không cần Gemini nên kh�
 - Không ghi mật khẩu hay khóa vào tệp. Khóa ở GitHub Secrets hoặc `.env` (mẫu: `.env.example`).
 - Phút GitHub Actions miễn phí (2.000/tháng) dùng chung cho mọi kho riêng tư của tài khoản.
 
-## Trạng thái (2026-10-11)
+## Trạng thái (2026-10-12)
 
 - Chưa game nào lên sóng. CrazyGames từ chối cả 4 game vì chất lượng (2026-10-11). Tap Arcade chờ duyệt ở GameMonetize từ 2026-10-09, chưa xem lại. GameDistribution chờ thư.
 - Car Jam Escape bản 2 đã gộp vào `main`, chưa nộp lại: chờ chủ chơi thử.
 - Quy trình ngày chạy đạt trên máy (5/5 game qua kiểm thử, 100 màn + 40 dự trữ). Trên GitHub Actions: xem `TRANG-THAI.md`.
-- Chưa có khóa nào: Discord, healthchecks, itch.io, Roblox đều đang bị bỏ qua.
+- Khóa (2026-10-12): `DISCORD_WEBHOOK`, `HC_PING`, `BUTLER_API_KEY`, `ITCH_USER` đã ở GitHub Secrets; Discord + healthchecks đã báo được từ Actions. Roblox chưa có.
+- itch.io: `daily.yml` đã cài butler, `specs/car-jam.json` có `"itch": "car-jam-escape"`. Lần đẩy thử 12/10 bị `invalid game` (khóa nhận, trang game chưa có; butler không tự tạo trang). Bốn game kia `itch` còn null. Cho đến khi chủ tạo trang, `daily` 06:00 sẽ báo 🔴 mỗi ngày ở bước dang.
 
 ## Việc dở
 
@@ -52,7 +53,7 @@ Màn mới sinh bằng thuật toán + bộ giải, không cần Gemini nên kh�
 2. Sau khi chủ chơi thử: tạo bài nộp CrazyGames mới cho Car Jam 2 (bài cũ không tải bản mới được).
 3. Bộ giải trong `tools/` cho Boba Sort, Tile Trio, One Line Fill (màn của ba game này đang sinh trong game theo hạt giống) và tách màn ra `levels/`.
 4. Car Jam: `take 20` mới chỉ thêm màn; game cần cảnh cho thế giới thứ 6 và sửa chữ "ALL 100 LEVELS" trước bản cập nhật tháng. Chỉ nộp khi bản hiện tại đã được duyệt.
-5. Đường itch.io trong `run_daily.py` chưa chạy thật (chưa có tài khoản); workflow chưa cài butler.
+5. itch.io: chờ chủ nhắn "xong trang itch" (HUONG-DAN-CHU mục 6) → chạy lại `daily` (workflow_dispatch) → chỉ chủ tích "played in the browser" + cỡ khung trên trang Edit game → rồi đặt `itch` cho 4 game còn lại.
 6. `roblox/` (Luau + Rojo) chưa làm: chờ số liệu 14 ngày để chọn game.
 7. Tách lớp quảng cáo thành `web/ads.js` chung; thêm SDK GameDistribution khi tài khoản được duyệt.
 8. Nghiên cứu còn thiếu: xem các mục "chưa xác minh" trong `NGHIEN-CUU.md`.
