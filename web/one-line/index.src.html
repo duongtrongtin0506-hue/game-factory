@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>One Line Fill</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#1d1438;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(() => {
+'use strict';
+
+// ============================================================================
+// Ads. PORTAL is a build flag: each portal gets its own zip with its own SDK.
+//   'gamemonetize'  GameMonetize HTML5 SDK (needs GAME_ID from their dashboard)
+//   'crazygames'    CrazyGames SDK v3 (no id; only works on their domain)
+//   'none'          no SDK, no ads
+// ============================================================================
+const PORTAL = 'gamemonetize';
+const GAME_ID = '';
+const LOCAL = /^(localhost|127\.0\.0\.1|)$/.test(location.hostname);
+const QS = new URLSearchParams(LOCAL ? location.search : '');
+const DEMO = QS.get('demo');            // local only: renders an auto-played trailer frame by frame
+
+let adPlaying = false, adDone = null, adTimer = 0, cg = null;
+function finishAd(ok) {
+  clearTimeout(adTimer); adPlaying = false;
+  const f = adDone; adDone = null;
+  if (f) f(ok !== false);
+}
+function loadScript(src, id, onload) {
+  const s = document.createElement('script');
+  s.id = id; s.src = src; s.onload = onload || null;
+  document.head.appendChild(s);
+}
+if (!LOCAL && PORTAL === 'gamemonetize' && GAME_ID) {
+  window.SDK_OPTIONS = {
+    gameId: GAME_ID,
+    onEvent(a) {
+      if (a.name === 'SDK_GAME_PAUSE') { clearTimeout(adTimer); adPlaying = true; }
+      else if (a.name === 'SDK_GAME_START') finishAd(true);
+    }
+  };
+  loadScript('https://api.gamemonetize.com/sdk.js', 'gamemonetize-sdk');
+}
+if (!LOCAL && PORTAL === 'crazygames') {
+  loadScript('https://sdk.crazygames.com/crazygames-sdk-v3.js', 'crazygames-sdk', () => {
+    window.CrazyGames.SDK.init().then(() => { cg = window.CrazyGames.SDK; }).catch(() => {});
+  });
+}
+// type: 'midgame' | 'rewarded'. done(ok): ok is false only when a rewarded ad was adblocked.
+function showAd(type, done) {
+  if (adDone) return;
+  if (cg) {
+    adDone = done;
+    cg.ad.requestAd(type, {
+      adStarted: () => { adPlaying = true; },
+      adFinished: () => finishAd(true),
+      adError: e => finishAd(!(type === 'rewarded' && e && e.code === 'adblock'))
+    });
+  } else if (window.sdk && window.sdk.showBanner) {
+    adDone = done; adTimer = setTimeout(finishAd, 4000);
+    window.sdk.showBanner();
+  } else done(true);
+}
+function gameplay(on) {
+  if (!cg) return;
+  try { if (on) cg.game.gameplayStart(); else cg.game.gameplayStop(); } catch (e) {}
+}
+
+// ==CORE== (pure puzzle logic: no DOM)
+/*LEVELS*/
+// A level is a string: width, height, start column, start row (one digit each), then the sample
+// line as R L D U steps. The cells that line crosses are the board, and the line is what hints
+// replay. tools/oneline.py builds the levels and checks each one before it gets here.
+function makeLevel(n) {
+  const s = LEVELS[n - 1], step = { R: [1, 0], L: [-1, 0], D: [0, 1], U: [0, -1] };
+  let x = +s[2], y = +s[3];
+  const path = [[x, y]];
+  for (const ch of s.slice(4)) { x += step[ch][0]; y += step[ch][1]; path.push([x, y]); }
+  return { w: +s[0], h: +s[1], path };
+}
+// ==/CORE==
+
+const SAVE_KEY = 'oneLine.save.v1';
+const FONT = 'system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+const TAU = 6.2832;
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+let W = 0, H = 0, u = 1, sw = 100, sh = 160, x0 = 0, y0 = 0, land = false;
+
+let save = { unlocked: 1, stars: {}, muted: false };
+try { Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY)) || {}); } catch (e) {}
+let persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} };
+
+let screen = 'menu';              // menu | levels | game | win
+let time = 0, page = 0, btns = [], parts = [];
+let level = 1, lv = null, cells = new Set(), line = [], hints = 2, hintLen = 0, used = 0, dragging = false, winT = 0, earned = 0, pulse = 0;
+
+// ---- Audio (synthesised)
+let ac = null;
+function initAudio() {
+  if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (AC) ac = new AC();
+}
+function tone(f1, f2, d, type, vol, delay) {
+  if (save.muted || adPlaying || !ac) return;
+  const t = ac.currentTime + (delay || 0), o = ac.createOscillator(), ga = ac.createGain();
+  o.type = type || 'sine';
+  o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t + d);
+  ga.gain.setValueAtTime(vol || 0.2, t); ga.gain.exponentialRampToValueAtTime(0.001, t + d);
+  o.connect(ga); ga.connect(ac.destination);
+  o.start(t); o.stop(t + d + 0.02);
+}
+const sfx = {
+  step:  n => tone(300 + n * 18, 300 + n * 18, 0.06, 'sine', 0.18),
+  back:  () => tone(240, 200, 0.05, 'sine', 0.12),
+  win:   () => [523, 659, 784, 1047].forEach((f, i) => tone(f, f, 0.16, 'triangle', 0.22, i * 0.11)),
+  click: () => tone(600, 600, 0.04, 'square', 0.07)
+};
+
+// ---- Layout: a 100x160 stage in portrait, 160x100 in landscape, centred in the window.
+function resize() {
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  if (DEMO) { W = +QS.get('w') || W; H = +QS.get('h') || H; dpr = 1; cv.style.width = W + 'px'; cv.style.height = H + 'px'; }
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  land = W > H * 1.15;
+  sw = land ? 160 : 100; sh = land ? 100 : 160;
+  u = Math.min(W / sw, H / sh);
+  x0 = (W - sw * u) / 2; y0 = (H - sh * u) / 2;
+}
+window.addEventListener('resize', resize);
+resize();
+const X = v => x0 + v * u, Y = v => y0 + v * u;
+
+// ---- Drawing helpers
+function label(str, x, y, size, color, align, stroke) {
+  g.font = '800 ' + size + 'px ' + FONT;
+  g.textAlign = align || 'center'; g.textBaseline = 'middle';
+  if (stroke) { g.lineWidth = size * 0.16; g.strokeStyle = stroke; g.lineJoin = 'round'; g.strokeText(str, x, y); }
+  g.fillStyle = color; g.fillText(str, x, y);
+}
+function rrect(x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+function star(x, y, r, color) {
+  g.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r;
+    g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+  }
+  g.closePath(); g.fillStyle = color; g.fill();
+}
+function burst(x, y, color, n) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, s = u * (15 + Math.random() * 45);
+    parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - u * 20, life: 0.6 + Math.random() * 0.4, color, size: u * (0.6 + Math.random() * 1.2) });
+  }
+}
+function button(str, cx, cy, w, h, color, dark, action, size) {
+  btns.push({ x: cx - w / 2, y: cy - h / 2, w, h, action });
+  g.fillStyle = dark; rrect(cx - w / 2, cy - h / 2 + u * 1, w, h, h / 2); g.fill();
+  g.fillStyle = color; rrect(cx - w / 2, cy - h / 2, w, h, h / 2); g.fill();
+  label(str, cx, cy, size || h * 0.42, '#fff');
+}
+function roundBtn(str, x, y, action, off) {
+  const r = u * 5.5;
+  btns.push({ x: x - r, y: y - r, w: r * 2, h: r * 2, action });
+  g.fillStyle = '#34265e'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+  g.lineWidth = u * 0.6; g.strokeStyle = '#5a45a0'; g.stroke();
+  label(str, x, y, u * 5.5, off ? '#7566a8' : '#fff');
+  if (off) { g.strokeStyle = '#ff6b9d'; g.lineWidth = u * 0.8; g.lineCap = 'round'; g.beginPath(); g.moveTo(x - r * 0.5, y + r * 0.5); g.lineTo(x + r * 0.5, y - r * 0.5); g.stroke(); }
+}
+// The line shifts through a rainbow from its start to its head.
+function hue(i, n) { return 'hsl(' + Math.round(190 + 150 * i / Math.max(1, n - 1)) + ',90%,62%)'; }
+
+// ---- Board geometry
+function geo() {
+  const ax = land ? 12 : 6, aw = land ? 96 : 88, ay = land ? 19 : 24, ah = land ? 76 : 104;
+  const cell = Math.min(aw / lv.w, ah / lv.h, land ? 15 : 22) * u;
+  return { cell, bx: X(ax + aw / 2) - lv.w * cell / 2, by: Y(ay + ah / 2) - lv.h * cell / 2 };
+}
+const ck = (x, y) => y * 10 + x;
+
+// ---- Game flow
+function startLevel(n) {
+  level = n; lv = makeLevel(n);
+  cells = new Set(lv.path.map(p => ck(p[0], p[1])));
+  line = [lv.path[0]]; hints = 2; hintLen = 0; used = 0; dragging = false; parts = [];
+  screen = 'game'; gameplay(true);
+}
+function inLine(x, y) { return line.findIndex(p => p[0] === x && p[1] === y); }
+// Called with the cell under the finger: extend the line into a free neighbour, or step back.
+function visit(x, y) {
+  if (!cells.has(ck(x, y))) return;
+  const head = line[line.length - 1], i = inLine(x, y);
+  if (i >= 0) {
+    if (i === line.length - 2) { line.pop(); sfx.back(); }
+    return;
+  }
+  if (Math.abs(head[0] - x) + Math.abs(head[1] - y) !== 1) return;
+  line.push([x, y]); pulse = 1; sfx.step(line.length);
+  if (line.length === cells.size) win();
+}
+function rewind() { if (line.length > 1) { line = [lv.path[0]]; sfx.back(); } }
+// A hint redraws the line along the known solution, a few cells further than last time.
+function useHint() {
+  const give = () => {
+    used++;
+    let same = 0;
+    while (same < line.length && line[same][0] === lv.path[same][0] && line[same][1] === lv.path[same][1]) same++;
+    hintLen = Math.min(lv.path.length - 1, Math.max(same, hintLen) + Math.max(3, Math.ceil(lv.path.length / 5)));
+    line = lv.path.slice(0, hintLen).map(p => p.slice());
+    sfx.step(line.length);
+  };
+  if (hints > 0) { hints--; give(); } else showAd('rewarded', ok => { if (ok) give(); });
+}
+function win() {
+  earned = used === 0 ? 3 : used === 1 ? 2 : 1;
+  save.stars[level] = Math.max(save.stars[level] || 0, earned);
+  if (level < LEVELS.length) save.unlocked = Math.max(save.unlocked, level + 1);
+  persist();
+  dragging = false; screen = 'win'; winT = 0; sfx.win(); gameplay(false);
+  for (let i = 0; i < 40; i++) burst(X(sw * Math.random()), Y(sh * 0.3 * Math.random()), hue(i, 40), 1);
+}
+function nextLevel() {
+  const go = () => startLevel(Math.min(LEVELS.length, level + 1));
+  if (level % 3 === 0) showAd('midgame', go); else go();   // an ad break every third level
+}
+
+// ---- Screens
+function background() {
+  const bg = g.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#2b1d57'); bg.addColorStop(1, '#150e2b');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  for (let i = 0; i < 16; i++) {
+    g.fillStyle = 'rgba(255,255,255,' + (0.05 + 0.05 * Math.sin(time * 1.5 + i)) + ')';
+    g.beginPath(); g.arc((i * 197.3) % W, (i * 131.7 + time * 4) % H, u * (0.6 + i % 3 * 0.5), 0, TAU); g.fill();
+  }
+}
+function drawMenu() {
+  const cx = X(sw / 2), top = land ? 22 : 40, s = u * (land ? 9 : 11);
+  const pts = [[-2, 0], [-1, 0], [-1, 1], [0, 1], [1, 1], [1, 0], [2, 0]], k = Math.min(pts.length, 2 + Math.floor((time * 3) % (pts.length + 3)));
+  g.lineCap = 'round'; g.lineJoin = 'round'; g.lineWidth = s * 0.5;
+  for (let i = 1; i < k; i++) { g.strokeStyle = hue(i, pts.length); g.beginPath(); g.moveTo(cx + pts[i - 1][0] * s, Y(top) + pts[i - 1][1] * s); g.lineTo(cx + pts[i][0] * s, Y(top) + pts[i][1] * s); g.stroke(); }
+  pts.forEach((p, i) => { g.fillStyle = i < k ? hue(i, pts.length) : 'rgba(255,255,255,.2)'; g.beginPath(); g.arc(cx + p[0] * s, Y(top) + p[1] * s, s * 0.22, 0, TAU); g.fill(); });
+  label('ONE LINE', cx, Y(land ? 52 : 80), u * 14, '#fff', 'center', '#150e2b');
+  label('FILL', cx, Y(land ? 66 : 96), u * 14, '#5ee6ff', 'center', '#150e2b');
+  const pl = 1 + Math.sin(time * 4) * 0.03;
+  button('PLAY', cx, Y(land ? 84 : 124), u * 52 * pl, u * 15 * pl, '#ff6b9d', '#c9457a', () => {
+    if (save.unlocked === 1 && !save.stars[1]) startLevel(1); else { page = Math.floor((save.unlocked - 1) / 20); screen = 'levels'; }
+  });
+  roundBtn('♪', X(sw - 9), Y(9), () => { save.muted = !save.muted; persist(); }, save.muted);
+}
+function drawLevels() {
+  const cx = X(sw / 2), cols = land ? 5 : 4, rows = 20 / cols, pages = LEVELS.length / 20;
+  label('LEVELS', cx, Y(10), u * 8, '#fff');
+  roundBtn('‹', X(9), Y(9), () => { screen = 'menu'; });
+  const gx = land ? 30 : 8, gw = sw - gx * 2, gy = 20, gh = sh - 20 - 20;
+  const cw = gw / cols, ch = gh / rows, s = Math.min(cw, ch) * 0.86 * u;
+  for (let k = 0; k < 20; k++) {
+    const n = page * 20 + k + 1;
+    const x = X(gx + (k % cols + 0.5) * cw), y = Y(gy + (Math.floor(k / cols) + 0.5) * ch), open = n <= save.unlocked;
+    g.fillStyle = 'rgba(0,0,0,.3)'; rrect(x - s / 2, y - s / 2 + u * 0.8, s, s, u * 3); g.fill();
+    g.fillStyle = open ? '#4a3794' : '#2a1f52'; rrect(x - s / 2, y - s / 2, s, s, u * 3); g.fill();
+    label(String(n), x, y - s * 0.1, s * 0.36, open ? '#fff' : '#57468f');
+    const st = save.stars[n] || 0;
+    for (let j = 0; j < 3; j++) star(x + (j - 1) * s * 0.24, y + s * 0.28, s * 0.1, j < st ? '#ffd23d' : 'rgba(255,255,255,.14)');
+    if (open) btns.push({ x: x - s / 2, y: y - s / 2, w: s, h: s, action: () => startLevel(n) });
+  }
+  const by = Y(sh - 9);
+  if (page > 0) roundBtn('‹', cx - u * 22, by, () => { page--; });
+  label((page + 1) + ' / ' + pages, cx, by, u * 5, '#fff');
+  if (page < pages - 1) roundBtn('›', cx + u * 22, by, () => { page++; });
+}
+function drawBoard() {
+  const p = geo(), c = p.cell, mid = (x, y) => [p.bx + (x + 0.5) * c, p.by + (y + 0.5) * c];
+  for (const k of cells) {
+    const x = k % 10, y = Math.floor(k / 10), on = inLine(x, y) >= 0;
+    g.fillStyle = 'rgba(0,0,0,.28)'; rrect(p.bx + x * c + c * 0.05, p.by + y * c + c * 0.05 + c * 0.05, c * 0.9, c * 0.9, c * 0.2); g.fill();
+    g.fillStyle = on ? '#4a3794' : '#3a2b78'; rrect(p.bx + x * c + c * 0.05, p.by + y * c + c * 0.05, c * 0.9, c * 0.9, c * 0.2); g.fill();
+  }
+  g.lineCap = 'round'; g.lineJoin = 'round'; g.lineWidth = c * 0.38;
+  for (let i = 1; i < line.length; i++) {
+    const a = mid(line[i - 1][0], line[i - 1][1]), b = mid(line[i][0], line[i][1]);
+    g.strokeStyle = hue(i, cells.size); g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.stroke();
+  }
+  const s0 = mid(lv.path[0][0], lv.path[0][1]);
+  g.fillStyle = hue(0, cells.size); g.beginPath(); g.arc(s0[0], s0[1], c * 0.27, 0, TAU); g.fill();
+  const hd = line[line.length - 1], hm = mid(hd[0], hd[1]);
+  g.fillStyle = '#fff'; g.beginPath(); g.arc(hm[0], hm[1], c * (0.2 + pulse * 0.08 + Math.sin(time * 5) * 0.015), 0, TAU); g.fill();
+  // Wordless tutorial on level 1: a ghost dot runs ahead along the solution.
+  if (level === 1 && screen === 'game' && line.length < cells.size) {
+    let same = 0;
+    while (same < line.length && line[same][0] === lv.path[same][0] && line[same][1] === lv.path[same][1]) same++;
+    if (same === line.length) {
+      const f = (time * 2.2) % 1, a = mid(hd[0], hd[1]), b = mid(lv.path[same][0], lv.path[same][1]);
+      g.fillStyle = 'rgba(255,255,255,' + (0.75 * (1 - f)) + ')';
+      g.beginPath(); g.arc(a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f, c * 0.14, 0, TAU); g.fill();
+    }
+  }
+}
+function drawGame() {
+  const cx = X(sw / 2);
+  roundBtn('‹', X(9), Y(9), () => { gameplay(false); page = Math.floor((level - 1) / 20); screen = 'levels'; });
+  label('LEVEL ' + level, cx, Y(7.5), u * 6.5, '#fff');
+  label(line.length + ' / ' + cells.size, cx, Y(14.5), u * 3.8, '#b9a8f0');
+  roundBtn('♪', X(sw - 9), Y(9), () => { save.muted = !save.muted; persist(); }, save.muted);
+  drawBoard();
+  const list = [
+    [hints > 0 ? 'HINT  ' + hints : '▶  HINT', '#ffb020', '#d98a1a', useHint, true],
+    ['CLEAR', '#5b8cff', '#3a66d6', rewind, line.length > 1]
+  ];
+  list.forEach((it, i) => {
+    const bx = land ? X(135) : cx + (i - 0.5) * u * 44, by = land ? Y(42 + i * 17) : Y(sh - 12);
+    g.globalAlpha = it[4] ? 1 : 0.45;
+    button(it[0], bx, by, u * 40, u * 12, it[1], it[2], it[3], u * 4.2);
+    g.globalAlpha = 1;
+  });
+}
+function drawWin() {
+  const cx = X(sw / 2), cy = Y(sh / 2), a = Math.min(1, winT / 0.5);
+  drawBoard();
+  if (winT < 0.7) return;
+  g.fillStyle = 'rgba(12,7,28,' + (0.72 * Math.min(1, (winT - 0.7) / 0.3)) + ')'; g.fillRect(0, 0, W, H);
+  if (winT < 1) return;
+  const pw = u * 84, ph = u * 80;
+  g.fillStyle = '#34265e'; rrect(cx - pw / 2, cy - ph / 2, pw, ph, u * 6); g.fill();
+  label('LEVEL ' + level, cx, cy - u * 31, u * 5, '#b9a8f0');
+  label('FILLED!', cx, cy - u * 22, u * 9, '#5ee6ff');
+  for (let j = 0; j < 3; j++) {
+    const k = Math.max(0, Math.min(1, (winT - 1.1 - j * 0.2) / 0.2));
+    star(cx + (j - 1) * u * 17, cy - u * 6 - (j === 1 ? u * 2 : 0), u * 8 * (j < earned ? 0.6 + 0.4 * k : 1), j < earned && k > 0 ? '#ffd23d' : 'rgba(255,255,255,.14)');
+  }
+  if (level < LEVELS.length) button('NEXT LEVEL', cx, cy + u * 14, u * 62, u * 13, '#ff6b9d', '#c9457a', nextLevel);
+  else label('ALL ' + LEVELS.length + ' LEVELS DONE!', cx, cy + u * 14, u * 5, '#ffd23d');
+  button('REPLAY', cx - u * 16.5, cy + u * 30, u * 29, u * 10, '#5b8cff', '#3a66d6', () => startLevel(level), u * 4);
+  button('LEVELS', cx + u * 16.5, cy + u * 30, u * 29, u * 10, '#9b7bff', '#7a5bd6', () => { page = Math.floor((level - 1) / 20); screen = 'levels'; }, u * 4);
+}
+
+// ---- Input: press and drag across the cells.
+function cellUnder(x, y) {
+  const p = geo(), cx = Math.floor((x - p.bx) / p.cell), cy = Math.floor((y - p.by) / p.cell);
+  return cx >= 0 && cy >= 0 && cx < lv.w && cy < lv.h ? [cx, cy] : null;
+}
+cv.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (adPlaying) return;
+  initAudio();
+  const x = e.clientX, y = e.clientY;
+  for (let i = btns.length - 1; i >= 0; i--) {
+    const b = btns[i];
+    if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) { sfx.click(); b.action(); return; }
+  }
+  if (screen !== 'game') return;
+  const c = cellUnder(x, y);
+  if (!c) return;
+  // Tapping a cell already on the line cuts the line back to it.
+  const i = inLine(c[0], c[1]);
+  if (i >= 0 && i < line.length - 1) { line.length = i + 1; sfx.back(); }
+  dragging = true; visit(c[0], c[1]);
+  try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+});
+cv.addEventListener('pointermove', e => {
+  if (!dragging || screen !== 'game') return;
+  const c = cellUnder(e.clientX, e.clientY);
+  if (c) visit(c[0], c[1]);
+});
+const stopDrag = () => { dragging = false; };
+cv.addEventListener('pointerup', stopDrag);
+cv.addEventListener('pointercancel', stopDrag);
+cv.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('visibilitychange', () => {
+  if (!ac) return;
+  if (document.hidden) ac.suspend(); else if (!adPlaying) ac.resume();
+});
+
+// ---- Main loop
+function update(dt) {
+  time += dt;
+  if (pulse > 0) pulse = Math.max(0, pulse - dt * 5);
+  if (screen === 'win') winT += dt;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    p.life -= dt; p.vy += u * 90 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+    if (p.life <= 0) parts.splice(i, 1);
+  }
+}
+function draw() {
+  btns = [];
+  background();
+  if (screen === 'menu') drawMenu();
+  else if (screen === 'levels') drawLevels();
+  else if (screen === 'game') drawGame();
+  else drawWin();
+  for (const p of parts) {
+    g.globalAlpha = Math.max(0, Math.min(1, p.life * 2));
+    g.fillStyle = p.color; g.beginPath(); g.arc(p.x, p.y, p.size, 0, TAU); g.fill();
+  }
+  g.globalAlpha = 1;
+}
+// Local test hook: ?level=N opens a level, &steps=K draws the first K cells, &win=1 finishes it.
+// Local test hook: ?selftest=1 puts the level count and the levels whose sample line leaves the board or crosses itself in the page title.
+if (LOCAL && QS.get('selftest')) document.title = 'selftest:' + LEVELS.length + ':' + LEVELS.map((b, i) => {
+  const l = makeLevel(i + 1), seen = new Set(l.path.map(p => p[0] + ',' + p[1]));
+  return seen.size === l.path.length && l.path.every(p => p[0] >= 0 && p[1] >= 0 && p[0] < l.w && p[1] < l.h) ? 0 : i + 1;
+}).filter(Boolean).join(',');
+if (LOCAL && QS.get('level')) {
+  startLevel(+QS.get('level'));
+  const k = QS.get('win') ? lv.path.length : +QS.get('steps') || 1;
+  line = lv.path.slice(0, k).map(p => p.slice());
+  if (QS.get('win')) { persist = () => {}; win(); winT = 3; }
+}
+// Local trailer renderer: traces a few levels at a fixed 30 fps and posts each frame to the
+// local capture server.
+async function demoLoop() {
+  const dt = 1 / 30, tour = [5, 28, 60, 85];
+  let n = 0, mt = 0, li = 0;
+  persist = () => {};
+  const snap = async () => {
+    update(dt); draw();
+    const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.93));
+    await fetch('/frame?v=' + DEMO + '&n=' + String(n++).padStart(4, '0'), { method: 'POST', body: blob });
+  };
+  screen = 'menu';
+  for (let i = 0; i < 36; i++) await snap();
+  startLevel(tour[0]);
+  while (n < 516) {
+    mt += dt;
+    if (screen === 'game' && mt > 0.11) { mt = 0; const p = lv.path[line.length]; visit(p[0], p[1]); }
+    if (screen === 'win' && winT > 2.4) { if (++li >= tour.length) break; startLevel(tour[li]); }
+    await snap();
+  }
+  await fetch('/frame?v=' + DEMO + '&n=done', { method: 'POST', body: 'x' });
+}
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  if (!adPlaying) update(dt);
+  draw();
+  requestAnimationFrame(frame);
+}
+if (DEMO) demoLoop(); else requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

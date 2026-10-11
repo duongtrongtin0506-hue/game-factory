@@ -10,7 +10,7 @@ Cập nhật: 2026-10-11. Trạng thái duyệt là lần kiểm tra gần nhấ
 | Boba Sort | Xếp màu | 100 | Có | Có, 100/100 giải được |
 | Car Jam Escape | Trượt khối | 100 (+40 dự trữ) | Có | Có: `tools/carjam.py` và bộ giải trong game cho cùng số bước ở 100/100 màn |
 | Tile Trio | Ghép ba ô | 100 (+40 dự trữ) | Có | Có: `tools/tiletrio.py` giải được 100/100 (2026-10-12); độ khó đo bằng tỉ lệ thua của người chơi chỉ nhìn trước mắt |
-| One Line Fill | Vẽ một nét | 100 | Có | Lời giải có sẵn hợp lệ 100/100; có 2 màn trùng nhau |
+| One Line Fill | Vẽ một nét | 100 (+40 dự trữ) | Có | Có: `tools/oneline.py` giải được 100/100 (2026-10-12); màn 27 trùng màn 26 đã thay, không còn màn trùng |
 
 Cả 5 game qua `tools/smoke_test.py` (màn hình điện thoại dọc và ngang, không lỗi console) ngày 2026-10-11.
 itch.io: có tài khoản và khóa (2026-10-12), chưa có trang game nào. Roblox: chưa có tài khoản.

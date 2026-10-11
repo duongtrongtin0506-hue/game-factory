@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Kiem ban web da build (dist/<game>/none) tren trinh duyet co man hinh dien thoai: python tools/smoke_test.py
 Moi game: mo doc va ngang, cham vai cho, mo man dau va man cuoi qua moc ?level (chi co tac dung tren 127.0.0.1).
-Hong khi: co loi console / loi JavaScript, canvas trong tron, (Car Jam) bo giai trong game ra so buoc khac levels/, (Boba Sort) bo giai trong game khong giai noi mot man, hoac (Tile Trio) man co danh sach quan hong.
+Hong khi: co loi console / loi JavaScript, canvas trong tron, (Car Jam) bo giai trong game ra so buoc khac levels/, (Boba Sort) bo giai trong game khong giai noi mot man, (Tile Trio) man co danh sach quan hong, hoac (One Line Fill) duong di mau hong.
 In 1 dong moi game; thoat 1 neu co loi."""
 import functools
 import http.server
@@ -19,7 +19,7 @@ CASES = {
     "boba-sort": ["?level=1", "?level=LAST&win=1"],
     "car-jam": ["?level=1", "?level=LAST&win=1", "?screen=levels"],
     "tile-trio": ["?level=1", "?level=LAST&end=win"],
-    "one-line": ["?level=1", "?level=100&win=1"],
+    "one-line": ["?level=1", "?level=LAST&win=1"],
 }
 COLORS = """() => { const c = document.querySelector('canvas'); if (!c || !c.width) return 0;
   const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data, seen = new Set();
@@ -41,7 +41,7 @@ def run():
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(ROOT / "dist")))
     threading.Thread(target=server.serve_forever, daemon=True).start()
     base = f"http://127.0.0.1:{server.server_address[1]}"
-    counts = {g: len(json.loads((ROOT / "levels" / f"{g}.json").read_text(encoding="utf-8"))) for g in ("car-jam", "boba-sort", "tile-trio")}
+    counts = {g: len(json.loads((ROOT / "levels" / f"{g}.json").read_text(encoding="utf-8"))) for g in ("car-jam", "boba-sort", "tile-trio", "one-line")}
     results, failed = [], False
     with sync_playwright() as p:
         browser = p.chromium.launch()
