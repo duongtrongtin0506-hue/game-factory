@@ -16,13 +16,14 @@ import bobasort
 import build
 import carjam
 import notify
+import tiletrio
 
 ROOT = Path(__file__).resolve().parent.parent
 HISTORY = ROOT / "metrics" / "history.json"
 VN = timezone(timedelta(hours=7))
 FIX = {
-    "kiem man": "chay python tools/carjam.py verify va tools/bobasort.py verify, xoa man sai khoi levels/ hoac content-queue/",
-    "bo sung hang du tru": "chay python tools/carjam.py fill 300 (hoac tools/bobasort.py fill 300) tren may roi commit content-queue/",
+    "kiem man": "chay python tools/carjam.py verify, tools/bobasort.py verify va tools/tiletrio.py verify, xoa man sai khoi levels/ hoac content-queue/",
+    "bo sung hang du tru": "chay python tools/carjam.py fill 300 (hoac tools/bobasort.py, tools/tiletrio.py fill 300) tren may roi commit content-queue/",
     "build": "xem dau PORTAL va /*LEVELS*/ trong web/<game>/index.html",
     "kiem ban web": "chay python tools/smoke_test.py tren may, sua loi console cua game duoc neu ten",
     "dang": "kiem khoa nen tang trong GitHub Secrets (con han khong), chay lai workflow",
@@ -30,13 +31,13 @@ FIX = {
 
 
 def step_verify():
-    problems = carjam.verify() + bobasort.verify()
+    problems = carjam.verify() + bobasort.verify() + tiletrio.verify()
     if problems:
         raise RuntimeError("; ".join(problems[:3]))
 
 
 def step_fill():
-    for name, tool in (("Car Jam", carjam), ("Boba Sort", bobasort)):
+    for name, tool in (("Car Jam", carjam), ("Boba Sort", bobasort), ("Tile Trio", tiletrio)):
         if len(tool.load(tool.QUEUE)) < tool.QUEUE_TARGET:
             tool.fill(90)
         left = len(tool.load(tool.QUEUE))
@@ -127,6 +128,7 @@ def main():
         f"- Kết quả: {'🔴 HỎNG ở bước ' + failed + ': ' + detail if failed else '✅ đạt'}",
         f"- Car Jam Escape: {row['levels']} màn trong game, {row['queue']} màn dự trữ đã kiểm (cần ≥ {carjam.QUEUE_MIN})",
         f"- Boba Sort: {len(bobasort.load(bobasort.LEVELS))} màn trong game, {len(bobasort.load(bobasort.QUEUE))} màn dự trữ đã kiểm (cần ≥ {bobasort.QUEUE_MIN})",
+        f"- Tile Trio: {len(tiletrio.load(tiletrio.LEVELS))} màn trong game, {len(tiletrio.load(tiletrio.QUEUE))} màn dự trữ đã kiểm (cần ≥ {tiletrio.QUEUE_MIN})",
         f"- Kiểm bản web cỡ điện thoại: {row['games_tested']}/{len(build.GAMES)} game đạt",
         "- Đăng: " + ("; ".join(f"{k}: {v}" for k, v in published.items()) or "không đăng lần này"),
         "- Lượt chơi, thời gian chơi, doanh thu: chưa có, chưa game nào lên sóng", "",
