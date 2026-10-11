@@ -30,6 +30,19 @@ Ghi chú:
 - 2026-10-11: cả 4 game gửi CrazyGames bị từ chối trong ngày, cùng một câu: "The overall quality of the game does not yet meet the expectations of our platform". Không nêu lỗi kỹ thuật. Không gửi lại bản cũ; chỉ gửi lại sau khi nâng chất lượng rõ rệt một game.
 - CrazyGames xóa ảnh bìa và video mỗi khi tải bản game mới; phải tải lại.
 
+## Car Jam Escape bản 2 (nhánh `car-jam-v2`, 2026-10-11)
+
+Làm lại sau khi bị CrazyGames chê chất lượng. Màn chơi giữ nguyên (100 màn đã kiểm bằng BFS).
+- Hình: 5 thế giới (mỗi 20 màn một cảnh), bãi xe có lề, đường ra và thanh chắn mở khi thắng; xe có 6 kiểu (thể thao, sedan, taxi, cảnh sát, tải, buýt).
+- Hiệu ứng: xe trượt về ô, bụi, rung khi chạm, pháo giấy, sao nổ từng cái, chuyển cảnh mờ, nút sáng khi rê chuột.
+- Âm thanh: nhạc nền tổng hợp (nút tắt riêng), thêm tiếng sao, xu, mua, nổ máy.
+- Hướng dẫn: ngón tay kéo mẫu ở màn 1, lời nhắc ở màn 2 và 3.
+- Tiến trình: xu thưởng theo sao, gara 6 mẫu xe mua bằng xu, gợi ý mua bằng 30 xu trước khi phải xem quảng cáo.
+- Phím tắt máy tính: Z hoàn tác, R chơi lại, H gợi ý, Esc thoát.
+- Đã thử trên máy: menu, chọn màn, gara, chơi hết màn 1 bằng kéo thả, màn thắng; ngang và dọc; không lỗi console.
+
+Còn thiếu trước khi gửi lại CrazyGames: ảnh bìa và video mới (bản cũ là giao diện cũ), gộp nhánh vào `main`, tải bản `dist/car-jam/crazygames` lên bản nháp, chủ dự án bấm Submit.
+
 ## Số liệu
 
 Chưa có: chưa game nào lên sóng.
