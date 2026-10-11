@@ -1,6 +1,6 @@
 # Trạng thái game-factory
 
-- Lần chạy cuối: 2026-10-12 01:23 (giờ VN), chạy thử, không đăng
+- Lần chạy cuối: 2026-10-12 01:28 (giờ VN), chạy thử, không đăng
 - Kết quả: ✅ đạt
 - Car Jam Escape: 100 màn trong game, 40 màn dự trữ đã kiểm (cần ≥ 30)
 - Kiểm bản web cỡ điện thoại: 5/5 game đạt
