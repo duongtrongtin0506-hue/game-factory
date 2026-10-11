@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Tile Trio</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#1f6f5c;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(() => {
+'use strict';
+
+/*ADS*/
+// Local-only helpers (?level=, ?demo=, ?selftest= ...): ignored anywhere but a local test server.
+const QS = new URLSearchParams(LOCAL ? location.search : '');
+const DEMO = QS.get('demo');            // local only: renders an auto-played trailer frame by frame
+
+// ==CORE== (pure puzzle logic: no DOM)
+const TRAY = 7, KINDS = 14;
+/*LEVELS*/
+// Tiles sit on a half-step grid: a tile is 2x2 half-steps, so an upper tile can overlap up to
+// four tiles below it. a covers b when it is on a higher layer and their squares overlap.
+function covers(a, b) { return a.z > b.z && Math.abs(a.x - b.x) < 2 && Math.abs(a.y - b.y) < 2; }
+function isFree(t, tiles) { return !tiles.some(o => o !== t && !o.gone && covers(o, t)); }
+// A level is a string of four characters per tile: x, y (base 36, in half-steps), layer, kind (base 36).
+// tools/tiletrio.py builds the boards and checks each one can be finished before it gets here.
+function makeLevel(n) {
+  const s = LEVELS[n - 1], tiles = [];
+  for (let i = 0; i < s.length; i += 4) tiles.push({ x: parseInt(s[i], 36), y: parseInt(s[i + 1], 36), z: +s[i + 2], kind: parseInt(s[i + 3], 36), gone: false });
+  return tiles;
+}
+// ==/CORE==
+
+const INK = ['#ff4d5e', '#3d9bff', '#3ddc84', '#ffb020', '#b06cff', '#ff7ab8', '#17c3b2', '#ff8a3d', '#5b6cff', '#8fbf2f', '#e0527f', '#00a6d6', '#c77dff', '#d98a1a'];
+const SAVE_KEY = 'tileTrio.save.v1';
+const FONT = 'system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+const TAU = 6.2832;
+
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+let W = 0, H = 0, u = 1, sw = 100, sh = 160, x0 = 0, y0 = 0, land = false;
+
+let save = { unlocked: 1, stars: {}, muted: false };
+try { Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY)) || {}); } catch (e) {}
+let persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} };
+
+let screen = 'menu';              // menu | levels | game | win | fail
+let time = 0, page = 0, btns = [], parts = [];
+let level = 1, tiles = [], tray = [], flying = [], history = [];
+let undos = 2, shuffles = 1, used = 0, revived = false, endT = 0, earned = 0;
+
+// ---- Audio (synthesised)
+let ac = null;
+function initAudio() {
+  if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (AC) ac = new AC();
+}
+function tone(f1, f2, d, type, vol, delay) {
+  if (save.muted || adPlaying || !ac) return;
+  const t = ac.currentTime + (delay || 0), o = ac.createOscillator(), ga = ac.createGain();
+  o.type = type || 'sine';
+  o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t + d);
+  ga.gain.setValueAtTime(vol || 0.2, t); ga.gain.exponentialRampToValueAtTime(0.001, t + d);
+  o.connect(ga); ga.connect(ac.destination);
+  o.start(t); o.stop(t + d + 0.02);
+}
+const sfx = {
+  pick:  () => tone(560, 720, 0.07, 'sine', 0.2),
+  match: () => { tone(660, 660, 0.08, 'triangle', 0.22); tone(880, 880, 0.08, 'triangle', 0.22, 0.07); tone(1175, 1175, 0.14, 'triangle', 0.22, 0.14); },
+  bad:   () => tone(170, 110, 0.14, 'sawtooth', 0.12),
+  fail:  () => { tone(330, 330, 0.15, 'triangle', 0.2); tone(247, 247, 0.15, 'triangle', 0.2, 0.16); tone(196, 196, 0.3, 'triangle', 0.2, 0.32); },
+  win:   () => [523, 659, 784, 1047].forEach((f, i) => tone(f, f, 0.16, 'triangle', 0.22, i * 0.11)),
+  click: () => tone(600, 600, 0.04, 'square', 0.07)
+};
+
+// ---- Layout: a 100x160 stage in portrait, 160x100 in landscape, centred in the window.
+function resize() {
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  if (DEMO) { W = +QS.get('w') || W; H = +QS.get('h') || H; dpr = 1; cv.style.width = W + 'px'; cv.style.height = H + 'px'; }
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  land = W > H * 1.15;
+  sw = land ? 160 : 100; sh = land ? 100 : 160;
+  u = Math.min(W / sw, H / sh);
+  x0 = (W - sw * u) / 2; y0 = (H - sh * u) / 2;
+}
+window.addEventListener('resize', resize);
+resize();
+const X = v => x0 + v * u, Y = v => y0 + v * u;
+
+// ---- Drawing helpers
+function label(str, x, y, size, color, align, stroke) {
+  g.font = '800 ' + size + 'px ' + FONT;
+  g.textAlign = align || 'center'; g.textBaseline = 'middle';
+  if (stroke) { g.lineWidth = size * 0.16; g.strokeStyle = stroke; g.lineJoin = 'round'; g.strokeText(str, x, y); }
+  g.fillStyle = color; g.fillText(str, x, y);
+}
+function rrect(x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+function poly(x, y, r, n, rot, inner) {
+  g.beginPath();
+  const steps = inner ? n * 2 : n;
+  for (let i = 0; i < steps; i++) {
+    const a = rot + i * TAU / steps, rr = inner && i % 2 ? r * inner : r;
+    g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+  }
+  g.closePath(); g.fill();
+}
+function star(x, y, r, color) { g.fillStyle = color; poly(x, y, r, 5, -Math.PI / 2, 0.45); }
+// The 14 tile pictures, all drawn with shapes so the game ships no image files.
+function icon(k, x, y, r) {
+  g.fillStyle = INK[k]; g.strokeStyle = INK[k]; g.lineCap = 'round'; g.lineJoin = 'round';
+  switch (k) {
+    case 0: g.beginPath(); g.moveTo(x, y + r * 0.9); g.bezierCurveTo(x - r * 1.5, y - r * 0.1, x - r * 0.7, y - r * 1.1, x, y - r * 0.3); g.bezierCurveTo(x + r * 0.7, y - r * 1.1, x + r * 1.5, y - r * 0.1, x, y + r * 0.9); g.fill(); break;   // heart
+    case 1: g.beginPath(); g.moveTo(x, y - r); g.bezierCurveTo(x + r * 1.1, y + r * 0.1, x + r * 0.6, y + r, x, y + r); g.bezierCurveTo(x - r * 0.6, y + r, x - r * 1.1, y + r * 0.1, x, y - r); g.fill(); break;   // drop
+    case 2: for (let i = 0; i < 4; i++) { g.beginPath(); g.ellipse(x + Math.cos(i * TAU / 4) * r * 0.42, y + Math.sin(i * TAU / 4) * r * 0.42, r * 0.5, r * 0.5, 0, 0, TAU); g.fill(); } break;   // clover
+    case 3: poly(x, y, r, 5, -Math.PI / 2, 0.45); break;                                   // star
+    case 4: poly(x, y, r, 4, 0); break;                                                    // diamond
+    case 5: for (let i = 0; i < 6; i++) { g.beginPath(); g.arc(x + Math.cos(i * TAU / 6) * r * 0.55, y + Math.sin(i * TAU / 6) * r * 0.55, r * 0.38, 0, TAU); g.fill(); } g.fillStyle = '#fff'; g.beginPath(); g.arc(x, y, r * 0.28, 0, TAU); g.fill(); break;   // flower
+    case 6: g.beginPath(); g.arc(x, y, r * 0.95, 0.6, TAU - 0.6); g.arc(x + r * 0.45, y, r * 0.75, TAU - 0.95, 0.95, true); g.closePath(); g.fill(); break;   // moon
+    case 7: poly(x, y, r, 3, -Math.PI / 2); break;                                         // triangle
+    case 8: rrect(x - r * 0.82, y - r * 0.82, r * 1.64, r * 1.64, r * 0.3); g.fill(); break;   // square
+    case 9: poly(x, y, r, 6, 0); break;                                                    // hexagon
+    case 10: g.lineWidth = r * 0.42; g.beginPath(); g.arc(x, y, r * 0.68, 0, TAU); g.stroke(); break;   // ring
+    case 11: g.beginPath(); g.moveTo(x + r * 0.2, y - r); g.lineTo(x - r * 0.65, y + r * 0.15); g.lineTo(x - r * 0.05, y + r * 0.15); g.lineTo(x - r * 0.25, y + r); g.lineTo(x + r * 0.65, y - r * 0.2); g.lineTo(x + r * 0.05, y - r * 0.2); g.closePath(); g.fill(); break;   // bolt
+    case 12: g.lineWidth = r * 0.46; g.beginPath(); g.moveTo(x - r * 0.75, y); g.lineTo(x + r * 0.75, y); g.moveTo(x, y - r * 0.75); g.lineTo(x, y + r * 0.75); g.stroke(); break;   // plus
+    default: g.beginPath(); g.arc(x - r * 0.35, y + r * 0.2, r * 0.5, 0, TAU); g.arc(x + r * 0.35, y + r * 0.2, r * 0.5, 0, TAU); g.arc(x, y - r * 0.2, r * 0.6, 0, TAU); g.fill();   // cloud
+  }
+}
+function drawTile(x, y, s, kind, dim, scale) {
+  const k = scale === undefined ? 1 : scale, w = s * 0.94 * k, px = x + (s - w) / 2, py = y + (s - w) / 2;
+  g.fillStyle = dim ? '#8fa39b' : '#c9b48a'; rrect(px, py + w * 0.09, w, w, w * 0.2); g.fill();
+  g.fillStyle = dim ? '#b9c7c1' : '#fffaf0'; rrect(px, py, w, w, w * 0.2); g.fill();
+  g.globalAlpha *= dim ? 0.55 : 1;
+  icon(kind, px + w / 2, py + w / 2, w * 0.3);
+  g.globalAlpha = 1;
+}
+function burst(x, y, color, n) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, s = u * (15 + Math.random() * 45);
+    parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - u * 20, life: 0.6 + Math.random() * 0.4, color, size: u * (0.6 + Math.random() * 1.2) });
+  }
+}
+function button(str, cx, cy, w, h, color, dark, action, size) {
+  btns.push({ x: cx - w / 2, y: cy - h / 2, w, h, action });
+  g.fillStyle = dark; rrect(cx - w / 2, cy - h / 2 + u * 1, w, h, h / 2); g.fill();
+  g.fillStyle = color; rrect(cx - w / 2, cy - h / 2, w, h, h / 2); g.fill();
+  label(str, cx, cy, size || h * 0.42, '#fff');
+}
+function roundBtn(str, x, y, action, off) {
+  const r = u * 5.5;
+  btns.push({ x: x - r, y: y - r, w: r * 2, h: r * 2, action });
+  g.fillStyle = '#fffaf0'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+  label(str, x, y, u * 5.5, off ? '#b9c7c1' : '#1f6f5c');
+  if (off) { g.strokeStyle = '#ff4d5e'; g.lineWidth = u * 0.8; g.lineCap = 'round'; g.beginPath(); g.moveTo(x - r * 0.5, y + r * 0.5); g.lineTo(x + r * 0.5, y - r * 0.5); g.stroke(); }
+}
+
+// ---- Board geometry
+function geo() {
+  let mx = 0, my = 0;
+  for (const t of tiles) { mx = Math.max(mx, t.x + 2); my = Math.max(my, t.y + 2); }
+  const ax = land ? 8 : 5, aw = land ? 104 : 90, ay = land ? 18 : 22, ah = land ? 62 : 96;
+  const hs = Math.min(aw / mx, ah / my, land ? 5.4 : 7) * u;                       // half-step in pixels
+  const slot = (land ? 9.6 : 12.4) * u, ty = Y(land ? 84 : 124);
+  return { hs, bx: X(ax + aw / 2) - mx * hs / 2, by: Y(ay + ah / 2) - my * hs / 2, slot, tx: X(land ? 60 : 50) - TRAY * slot / 2, ty };
+}
+function tilePos(t, p) { return { x: p.bx + t.x * p.hs, y: p.by + t.y * p.hs - t.z * p.hs * 0.16, s: p.hs * 2 }; }
+
+// ---- Game flow
+function startLevel(n) {
+  level = n; tiles = makeLevel(n); tray = []; flying = []; history = []; parts = [];
+  undos = 2; shuffles = 1; used = 0; revived = false;
+  screen = 'game'; gameplay(true);
+}
+// Tiles of the same kind sit together in the tray, so a new tile slots in after its twins.
+function trayIndex(kind) {
+  let i = tray.length;
+  for (let k = tray.length - 1; k >= 0; k--) if (tray[k].kind === kind) { i = k + 1; break; }
+  return i;
+}
+function pickTile(t) {
+  if (flying.length || tray.length >= TRAY) return;
+  const p = geo(), from = tilePos(t, p);
+  t.gone = true;
+  const i = trayIndex(t.kind);
+  tray.splice(i, 0, { kind: t.kind, tile: t });
+  history.push(t);
+  flying.push({ kind: t.kind, tile: t, x: from.x, y: from.y, s: from.s, t: 0 });
+  sfx.pick();
+}
+function landed(f) {
+  const same = tray.filter(e => e.kind === f.kind);
+  if (same.length >= 3) {
+    const p = geo(), first = tray.findIndex(e => e.kind === f.kind);
+    for (let k = 0; k < 3; k++) burst(p.tx + (first + k + 0.5) * p.slot, p.ty + p.slot / 2, INK[f.kind], 10);
+    tray.splice(first, 3);
+    history = history.filter(t => t.kind !== f.kind || tray.some(e => e.tile === t));
+    sfx.match();
+  }
+  if (tiles.every(t => t.gone) && !tray.length) return win();
+  if (tray.length >= TRAY) { screen = 'fail'; endT = 0; sfx.fail(); gameplay(false); }
+}
+function undoMove() {
+  const t = history[history.length - 1];
+  if (!t || flying.length) return;
+  if (undos <= 0) { showAd('rewarded', ok => { if (ok) undos = 2; }); return; }
+  undos--; used++; history.pop();
+  tray.splice(tray.findIndex(e => e.tile === t), 1); t.gone = false;
+}
+function shuffleBoard() {
+  if (flying.length) return;
+  if (shuffles <= 0) { showAd('rewarded', ok => { if (ok) shuffles = 1; }); return; }
+  shuffles--; used++;
+  const live = tiles.filter(t => !t.gone), kinds = live.map(t => t.kind);
+  for (let i = kinds.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const k = kinds[i]; kinds[i] = kinds[j]; kinds[j] = k; }
+  live.forEach((t, i) => { t.kind = kinds[i]; });
+  sfx.pick();
+}
+// Second chance after a full tray: everything in the tray goes back onto the board.
+function revive() {
+  showAd('rewarded', ok => {
+    if (!ok) return;
+    tray.forEach(e => { e.tile.gone = false; });
+    tray = []; history = []; revived = true; used++;
+    screen = 'game'; gameplay(true);
+  });
+}
+function win() {
+  earned = used === 0 ? 3 : used === 1 ? 2 : 1;
+  save.stars[level] = Math.max(save.stars[level] || 0, earned);
+  if (level < LEVELS.length) save.unlocked = Math.max(save.unlocked, level + 1);
+  persist();
+  screen = 'win'; endT = 0; sfx.win(); gameplay(false);
+  for (let i = 0; i < 40; i++) burst(X(sw * Math.random()), Y(sh * 0.3 * Math.random()), INK[i % INK.length], 1);
+}
+function nextLevel() {
+  const go = () => startLevel(Math.min(LEVELS.length, level + 1));
+  if (level % 2 === 0) showAd('midgame', go); else go();   // an ad break every second level
+}
+
+// ---- Screens
+function background() {
+  const bg = g.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#2a9d7f'); bg.addColorStop(1, '#17594a');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  g.fillStyle = 'rgba(255,255,255,.05)';
+  for (let i = 0; i < 12; i++) { const s = u * (10 + i % 4 * 6); rrect(((i * 173.3 + time * 6) % (W + s * 2)) - s, (i * 121.7) % H, s, s, s * 0.2); g.fill(); }
+}
+function drawMenu() {
+  const cx = X(sw / 2), top = land ? 10 : 26, s = u * (land ? 15 : 19);
+  [0, 3, 5].forEach((k, i) => drawTile(cx + (i - 1.5) * s * 1.08 + s * 0.04, Y(top) + Math.sin(time * 2 + i) * u, s, k));
+  label('TILE', cx, Y(land ? 46 : 74), u * 16, '#fffaf0', 'center', '#134236');
+  label('TRIO', cx, Y(land ? 61 : 92), u * 16, '#ffd23d', 'center', '#134236');
+  const pulse = 1 + Math.sin(time * 4) * 0.03;
+  button('PLAY', cx, Y(land ? 82 : 122), u * 52 * pulse, u * 15 * pulse, '#ff7a59', '#d4573a', () => {
+    if (save.unlocked === 1 && !save.stars[1]) startLevel(1); else { page = Math.floor((save.unlocked - 1) / 20); screen = 'levels'; }
+  });
+  roundBtn('♪', X(sw - 9), Y(9), () => { save.muted = !save.muted; persist(); }, save.muted);
+}
+function drawLevels() {
+  const cx = X(sw / 2), cols = land ? 5 : 4, rows = 20 / cols, pages = LEVELS.length / 20;
+  label('LEVELS', cx, Y(10), u * 8, '#fffaf0');
+  roundBtn('‹', X(9), Y(9), () => { screen = 'menu'; });
+  const gx = land ? 30 : 8, gw = sw - gx * 2, gy = 20, gh = sh - 20 - 20;
+  const cw = gw / cols, ch = gh / rows, s = Math.min(cw, ch) * 0.86 * u;
+  for (let k = 0; k < 20; k++) {
+    const n = page * 20 + k + 1;
+    const x = X(gx + (k % cols + 0.5) * cw), y = Y(gy + (Math.floor(k / cols) + 0.5) * ch), open = n <= save.unlocked;
+    g.fillStyle = 'rgba(0,0,0,.25)'; rrect(x - s / 2, y - s / 2 + u * 0.8, s, s, u * 3); g.fill();
+    g.fillStyle = open ? '#fffaf0' : '#3d8c79'; rrect(x - s / 2, y - s / 2, s, s, u * 3); g.fill();
+    label(String(n), x, y - s * 0.1, s * 0.36, open ? '#1f6f5c' : '#2a705f');
+    const st = save.stars[n] || 0;
+    for (let j = 0; j < 3; j++) star(x + (j - 1) * s * 0.24, y + s * 0.28, s * 0.1, j < st ? '#ffb020' : open ? '#e6dcc6' : '#33806e');
+    if (open) btns.push({ x: x - s / 2, y: y - s / 2, w: s, h: s, action: () => startLevel(n) });
+  }
+  const by = Y(sh - 9);
+  if (page > 0) roundBtn('‹', cx - u * 22, by, () => { page--; });
+  label((page + 1) + ' / ' + pages, cx, by, u * 5, '#fffaf0');
+  if (page < pages - 1) roundBtn('›', cx + u * 22, by, () => { page++; });
+}
+function drawBoard() {
+  const p = geo(), live = tiles.filter(t => !t.gone).sort((a, b) => a.z - b.z || a.y - b.y || a.x - b.x);
+  for (const t of live) { const q = tilePos(t, p); drawTile(q.x, q.y, q.s, t.kind, !isFree(t, tiles)); }
+  // tray
+  g.fillStyle = 'rgba(0,0,0,.25)'; rrect(p.tx - u * 2, p.ty - u * 1.5 + u, TRAY * p.slot + u * 4, p.slot + u * 3, u * 4); g.fill();
+  g.fillStyle = '#134236'; rrect(p.tx - u * 2, p.ty - u * 1.5, TRAY * p.slot + u * 4, p.slot + u * 3, u * 4); g.fill();
+  for (let i = 0; i < TRAY; i++) { g.fillStyle = 'rgba(255,255,255,.08)'; rrect(p.tx + i * p.slot + p.slot * 0.06, p.ty + p.slot * 0.06, p.slot * 0.88, p.slot * 0.88, p.slot * 0.18); g.fill(); }
+  tray.forEach((e, i) => { if (!flying.some(f => f.tile === e.tile)) drawTile(p.tx + i * p.slot, p.ty, p.slot, e.kind); });
+  for (const f of flying) {
+    const i = tray.findIndex(e => e.tile === f.tile), k = Math.min(1, f.t / 0.2), e = k * k * (3 - 2 * k);
+    const tx = p.tx + i * p.slot, s = f.s + (p.slot - f.s) * e;
+    drawTile(f.x + (tx - f.x) * e, f.y + (p.ty - f.y) * e - Math.sin(e * Math.PI) * u * 6, s, f.kind);
+  }
+  // Wordless tutorial on level 1: a bouncing arrow points at a free tile that helps complete a trio.
+  if (level === 1 && screen === 'game' && !flying.length && tray.length < 5) {
+    const free = live.filter(t => isFree(t, tiles));
+    const want = free.find(t => tray.some(e => e.kind === t.kind)) || free.find(t => free.filter(o => o.kind === t.kind).length >= 2) || free[0];
+    if (want) {
+      const q = tilePos(want, p), ax = q.x + q.s / 2, ay = q.y - u * 1 + Math.sin(time * 6) * u * 1.5;
+      g.fillStyle = '#ff7a59';
+      g.beginPath(); g.moveTo(ax, ay); g.lineTo(ax - u * 3.2, ay - u * 4.5); g.lineTo(ax - u * 1.2, ay - u * 4.5);
+      g.lineTo(ax - u * 1.2, ay - u * 9); g.lineTo(ax + u * 1.2, ay - u * 9); g.lineTo(ax + u * 1.2, ay - u * 4.5); g.lineTo(ax + u * 3.2, ay - u * 4.5); g.closePath(); g.fill();
+    }
+  }
+}
+function drawGame() {
+  const cx = X(sw / 2);
+  roundBtn('‹', X(9), Y(9), () => { gameplay(false); page = Math.floor((level - 1) / 20); screen = 'levels'; });
+  label('LEVEL ' + level, cx, Y(7.5), u * 6.5, '#fffaf0');
+  label('TILES LEFT  ' + tiles.filter(t => !t.gone).length, cx, Y(14.5), u * 3.6, '#bfe6da');
+  roundBtn('♪', X(sw - 9), Y(9), () => { save.muted = !save.muted; persist(); }, save.muted);
+  drawBoard();
+  const list = [
+    [undos > 0 ? 'UNDO  ' + undos : '▶  UNDO', '#9b7bff', '#7a5bd6', undoMove, history.length > 0],
+    [shuffles > 0 ? 'SHUFFLE  ' + shuffles : '▶  SHUFFLE', '#ffb020', '#d98a1a', shuffleBoard, true],
+    ['RESTART', '#3d9bff', '#1f6fd0', () => startLevel(level), true]
+  ];
+  list.forEach((it, i) => {
+    const bx = land ? X(137) : cx + (i - 1) * u * 31, by = land ? Y(34 + i * 16) : Y(sh - 10);
+    g.globalAlpha = it[4] ? 1 : 0.45;
+    button(it[0], bx, by, u * (land ? 40 : 29), u * 11, it[1], it[2], it[3], u * 3.6);
+    g.globalAlpha = 1;
+  });
+}
+function drawEnd() {
+  const cx = X(sw / 2), cy = Y(sh / 2), a = Math.min(1, endT / 0.35), won = screen === 'win';
+  drawBoard();
+  g.fillStyle = 'rgba(8,36,29,' + (0.72 * a) + ')'; g.fillRect(0, 0, W, H);
+  if (endT < 0.45) return;
+  const pw = u * 84, ph = u * 82;
+  g.fillStyle = '#fffaf0'; rrect(cx - pw / 2, cy - ph / 2, pw, ph, u * 6); g.fill();
+  label('LEVEL ' + level, cx, cy - u * 32, u * 5, '#7fa89b');
+  label(won ? 'CLEARED!' : 'TRAY FULL!', cx, cy - u * 23, u * 9, won ? '#1f9d7a' : '#ff4d5e');
+  if (won) {
+    for (let j = 0; j < 3; j++) {
+      const k = Math.max(0, Math.min(1, (endT - 0.55 - j * 0.2) / 0.2));
+      star(cx + (j - 1) * u * 17, cy - u * 7 - (j === 1 ? u * 2 : 0), u * 8 * (j < earned ? 0.6 + 0.4 * k : 1), j < earned && k > 0 ? '#ffb020' : '#e6dcc6');
+    }
+    if (level < LEVELS.length) button('NEXT LEVEL', cx, cy + u * 15, u * 62, u * 13, '#ff7a59', '#d4573a', nextLevel);
+    else label('ALL ' + LEVELS.length + ' LEVELS DONE!', cx, cy + u * 15, u * 5, '#1f9d7a');
+  } else {
+    label('No room left for another tile.', cx, cy - u * 10, u * 3.8, '#7fa89b');
+    if (!revived) button('▶  SECOND CHANCE', cx, cy + u * 4, u * 66, u * 13, '#ff7a59', '#d4573a', revive, u * 4.6);
+  }
+  button('REPLAY', cx - u * 16.5, cy + u * 31, u * 29, u * 10, '#3d9bff', '#1f6fd0', () => startLevel(level), u * 4);
+  button('LEVELS', cx + u * 16.5, cy + u * 31, u * 29, u * 10, '#9b7bff', '#7a5bd6', () => { page = Math.floor((level - 1) / 20); screen = 'levels'; }, u * 4);
+}
+
+// ---- Input
+cv.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (adPlaying) return;
+  initAudio();
+  const x = e.clientX, y = e.clientY;
+  for (let i = btns.length - 1; i >= 0; i--) {
+    const b = btns[i];
+    if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) { sfx.click(); b.action(); return; }
+  }
+  if (screen !== 'game') return;
+  const p = geo(), live = tiles.filter(t => !t.gone).sort((a, b) => b.z - a.z);   // topmost tile under the finger wins
+  for (const t of live) {
+    const q = tilePos(t, p);
+    if (x < q.x || x > q.x + q.s || y < q.y || y > q.y + q.s) continue;
+    if (isFree(t, tiles)) pickTile(t); else sfx.bad();
+    return;
+  }
+});
+cv.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('visibilitychange', () => {
+  if (!ac) return;
+  if (document.hidden) ac.suspend(); else if (!adPlaying) ac.resume();
+});
+
+// ---- Main loop
+function update(dt) {
+  time += dt;
+  for (let i = flying.length - 1; i >= 0; i--) { const f = flying[i]; f.t += dt; if (f.t >= 0.2) { flying.splice(i, 1); landed(f); } }
+  if (screen === 'win' || screen === 'fail') endT += dt;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    p.life -= dt; p.vy += u * 90 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+    if (p.life <= 0) parts.splice(i, 1);
+  }
+}
+function draw() {
+  btns = [];
+  background();
+  if (screen === 'menu') drawMenu();
+  else if (screen === 'levels') drawLevels();
+  else if (screen === 'game') drawGame();
+  else drawEnd();
+  for (const p of parts) {
+    g.globalAlpha = Math.max(0, Math.min(1, p.life * 2));
+    g.fillStyle = p.color; g.beginPath(); g.arc(p.x, p.y, p.size, 0, TAU); g.fill();
+  }
+  g.globalAlpha = 1;
+}
+// A simple bot used by the local hooks: prefers tiles that complete or extend a trio.
+function botPick() {
+  const free = tiles.filter(t => !t.gone && isFree(t, tiles));
+  const score = t => tray.filter(e => e.kind === t.kind).length * 10 + free.filter(o => o.kind === t.kind).length;
+  return free.sort((a, b) => score(b) - score(a))[0];
+}
+// Local test hook: ?level=N opens a level, &picks=K lets the bot take K tiles, &end=win|fail shows that screen.
+if (LOCAL && QS.get('level')) {
+  startLevel(+QS.get('level'));
+  for (let i = 0; i < (+QS.get('picks') || 0); i++) { const t = botPick(); if (!t || tray.length >= TRAY) break; pickTile(t); const f = flying.pop(); landed(f); if (screen !== 'game') break; }
+  if (QS.get('end') === 'win') { persist = () => {}; win(); endT = 2; }
+  if (QS.get('end') === 'fail') { screen = 'fail'; endT = 2; }
+}
+// Local test hook: ?selftest=1 puts the level count and the levels with a broken tile list in the page title.
+if (LOCAL && QS.get('selftest')) document.title = 'selftest:' + LEVELS.length + ':' + LEVELS.map((b, i) => {
+  const t = makeLevel(i + 1), c = {};
+  t.forEach(o => { c[o.kind] = (c[o.kind] || 0) + 1; });
+  return t.length && Object.keys(c).every(k => k >= 0 && k < KINDS && c[k] % 3 === 0) ? 0 : i + 1;
+}).filter(Boolean).join(',');
+// Local trailer renderer: the bot plays a few levels at a fixed 30 fps and each frame is posted
+// to the local capture server.
+async function demoLoop() {
+  const dt = 1 / 30, tour = [2, 14, 26];
+  let n = 0, mt = 0, li = 0;
+  persist = () => {};
+  const snap = async () => {
+    update(dt); draw();
+    const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.93));
+    await fetch('/frame?v=' + DEMO + '&n=' + String(n++).padStart(4, '0'), { method: 'POST', body: blob });
+  };
+  screen = 'menu';
+  for (let i = 0; i < 36; i++) await snap();
+  startLevel(tour[0]);
+  while (n < 516) {
+    mt += dt;
+    if (screen === 'game' && !flying.length && mt > 0.32) { mt = 0; const t = botPick(); if (t) pickTile(t); }
+    if ((screen === 'win' || screen === 'fail') && endT > 1.7) { if (++li >= tour.length) break; startLevel(tour[li]); }
+    await snap();
+  }
+  await fetch('/frame?v=' + DEMO + '&n=done', { method: 'POST', body: 'x' });
+}
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  if (!adPlaying) update(dt);
+  draw();
+  requestAnimationFrame(frame);
+}
+if (DEMO) demoLoop(); else requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

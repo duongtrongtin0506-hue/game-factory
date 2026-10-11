@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Boba Sort</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#ffe9f1;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(() => {
+'use strict';
+
+/*ADS*/
+// Local-only helpers (?level=, ?demo=, ?selftest= ...): ignored anywhere but a local test server.
+const QS = new URLSearchParams(LOCAL ? location.search : '');
+const DEMO = QS.get('demo');            // local only: renders an auto-played trailer frame by frame
+
+// ==CORE== (pure puzzle logic: no DOM, so it can be tested on its own)
+const CAP = 4;
+// One string per level, filled in from levels/boba-sort.json by tools/build.py: cups split by '|',
+// each cup bottom to top, one digit per flavour. tools/bobasort.py only lets solvable levels in.
+/*LEVELS*/
+function uniform(t) { return t.every(c => c === t[0]); }
+function isDone(tubes) { return tubes.every(t => t.length === 0 || (t.length === CAP && uniform(t))); }
+function legal(tubes, a, b) {
+  if (a === b || !tubes[a].length || tubes[b].length >= CAP) return false;
+  return !tubes[b].length || tubes[b][tubes[b].length - 1] === tubes[a][tubes[a].length - 1];
+}
+// Depth-first solver with a node budget. Returns a list of [from, to] moves, or null.
+function solve(start, budget) {
+  const t = start.map(x => x.slice()), seen = new Set(), path = [];
+  let nodes = 0;
+  function dfs() {
+    if (isDone(t)) return true;
+    if (++nodes > budget) return false;
+    const key = t.map(x => x.join(',')).sort().join('|');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    const moves = [];
+    for (let a = 0; a < t.length; a++) {
+      const A = t[a];
+      if (!A.length || (A.length === CAP && uniform(A))) continue;
+      let usedEmpty = false;
+      for (let b = 0; b < t.length; b++) {
+        if (!legal(t, a, b)) continue;
+        if (t[b].length) moves.push([a, b, 0]);
+        else if (!usedEmpty && !uniform(A)) { usedEmpty = true; moves.push([a, b, 1]); }
+      }
+    }
+    moves.sort((m, n) => m[2] - n[2]);
+    for (const m of moves) {
+      t[m[1]].push(t[m[0]].pop()); path.push([m[0], m[1]]);
+      if (dfs()) return true;
+      path.pop(); t[m[0]].push(t[m[1]].pop());
+      if (nodes > budget) return false;
+    }
+    return false;
+  }
+  return dfs() ? path : null;
+}
+// ==/CORE==
+
+const FLAVOURS = ['#7a4a2e', '#ff7aa8', '#8fd66b', '#ffc94d', '#9b7bff', '#4dc3ff', '#ff8a4d', '#f6f1e4'];
+const SAVE_KEY = 'bobaSort.save.v1';
+const FONT = 'system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+const TAU = 6.2832;
+
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+let W = 0, H = 0, u = 1, sw = 100, sh = 160, x0 = 0, y0 = 0, land = false;
+
+let save = { unlocked: 1, stars: {}, muted: false };
+try { Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY)) || {}); } catch (e) {}
+function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} }
+
+let screen = 'menu';              // menu | levels | game | win
+let time = 0, page = 0, btns = [], parts = [];
+let level = 1, tubes = [], solution = [], moves = 0, sel = -1, undo = [], undoLeft = 5;
+let anim = null, wrong = { i: -1, t: 0 }, winT = 0, earned = 0, doneFlash = [];
+
+// ---- Audio (synthesised)
+let ac = null;
+function initAudio() {
+  if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (AC) ac = new AC();
+}
+function tone(f1, f2, d, type, vol, delay) {
+  if (save.muted || adPlaying || !ac) return;
+  const t = ac.currentTime + (delay || 0), o = ac.createOscillator(), ga = ac.createGain();
+  o.type = type || 'sine';
+  o.frequency.setValueAtTime(f1, t); o.frequency.exponentialRampToValueAtTime(f2, t + d);
+  ga.gain.setValueAtTime(vol || 0.2, t); ga.gain.exponentialRampToValueAtTime(0.001, t + d);
+  o.connect(ga); ga.connect(ac.destination);
+  o.start(t); o.stop(t + d + 0.02);
+}
+const sfx = {
+  pick:  () => tone(520, 700, 0.07, 'sine', 0.2),
+  drop:  () => tone(380, 190, 0.09, 'triangle', 0.25),
+  bad:   () => tone(170, 110, 0.14, 'sawtooth', 0.12),
+  tube:  () => { tone(660, 660, 0.09, 'sine', 0.2); tone(990, 990, 0.14, 'sine', 0.2, 0.09); },
+  win:   () => [523, 659, 784, 1047].forEach((f, i) => tone(f, f, 0.16, 'triangle', 0.22, i * 0.11)),
+  click: () => tone(600, 600, 0.04, 'square', 0.07)
+};
+
+// ---- Layout: a 100x160 stage in portrait, 160x100 in landscape, centred in the window.
+function resize() {
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  if (DEMO) { W = +QS.get('w') || W; H = +QS.get('h') || H; dpr = 1; cv.style.width = W + 'px'; cv.style.height = H + 'px'; }
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  land = W > H * 1.15;
+  sw = land ? 160 : 100; sh = land ? 100 : 160;
+  u = Math.min(W / sw, H / sh);
+  x0 = (W - sw * u) / 2; y0 = (H - sh * u) / 2;
+}
+window.addEventListener('resize', resize);
+resize();
+const X = v => x0 + v * u, Y = v => y0 + v * u;
+
+// ---- Drawing helpers
+function label(str, x, y, size, color, align, stroke) {
+  g.font = '800 ' + size + 'px ' + FONT;
+  g.textAlign = align || 'center'; g.textBaseline = 'middle';
+  if (stroke) { g.lineWidth = size * 0.16; g.strokeStyle = stroke; g.lineJoin = 'round'; g.strokeText(str, x, y); }
+  g.fillStyle = color; g.fillText(str, x, y);
+}
+function rrect(x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+function star(x, y, r, color) {
+  g.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r;
+    g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+  }
+  g.closePath(); g.fillStyle = color; g.fill();
+}
+function pearl(x, y, r, c) {
+  const col = FLAVOURS[c];
+  g.fillStyle = col; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+  g.lineWidth = r * 0.1; g.strokeStyle = 'rgba(60,30,40,.35)'; g.stroke();
+  g.fillStyle = 'rgba(255,255,255,.55)'; g.beginPath(); g.ellipse(x - r * 0.35, y - r * 0.42, r * 0.26, r * 0.16, -0.6, 0, TAU); g.fill();
+  const ink = c === 7 || c === 3 ? '#5a3a2a' : '#fff';
+  g.fillStyle = ink;
+  g.beginPath(); g.arc(x - r * 0.3, y + r * 0.02, r * 0.1, 0, TAU); g.arc(x + r * 0.3, y + r * 0.02, r * 0.1, 0, TAU); g.fill();
+  g.strokeStyle = ink; g.lineWidth = r * 0.09; g.lineCap = 'round';
+  g.beginPath(); g.arc(x, y + r * 0.12, r * 0.2, 0.25, Math.PI - 0.25); g.stroke();
+}
+function burst(x, y, color, n) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, s = u * (15 + Math.random() * 45);
+    parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - u * 20, life: 0.6 + Math.random() * 0.4, color, size: u * (0.6 + Math.random() * 1.2) });
+  }
+}
+function button(str, cx, cy, w, h, color, dark, action, size) {
+  btns.push({ x: cx - w / 2, y: cy - h / 2, w, h, action });
+  g.fillStyle = dark; rrect(cx - w / 2, cy - h / 2 + u * 1, w, h, h / 2); g.fill();
+  g.fillStyle = color; rrect(cx - w / 2, cy - h / 2, w, h, h / 2); g.fill();
+  label(str, cx, cy, size || h * 0.42, '#fff');
+}
+function roundBtn(str, x, y, action, off) {
+  const r = u * 5.5;
+  btns.push({ x: x - r, y: y - r, w: r * 2, h: r * 2, action });
+  g.fillStyle = '#fff'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+  g.lineWidth = u * 0.6; g.strokeStyle = '#ffb3cc'; g.stroke();
+  label(str, x, y, u * 5.5, off ? '#d9c2cb' : '#e0527f');
+  if (off) { g.strokeStyle = '#e0527f'; g.lineWidth = u * 0.8; g.lineCap = 'round'; g.beginPath(); g.moveTo(x - r * 0.5, y + r * 0.5); g.lineTo(x + r * 0.5, y - r * 0.5); g.stroke(); }
+}
+function cup(x, y, s) {                                // boba cup logo
+  g.fillStyle = '#fff'; g.beginPath(); g.moveTo(x - s * 0.5, y - s * 0.55); g.lineTo(x + s * 0.5, y - s * 0.55); g.lineTo(x + s * 0.36, y + s * 0.7); g.lineTo(x - s * 0.36, y + s * 0.7); g.closePath(); g.fill();
+  g.fillStyle = '#f3c9a0'; g.beginPath(); g.moveTo(x - s * 0.45, y - s * 0.2); g.lineTo(x + s * 0.45, y - s * 0.2); g.lineTo(x + s * 0.36, y + s * 0.7); g.lineTo(x - s * 0.36, y + s * 0.7); g.closePath(); g.fill();
+  g.fillStyle = '#ff7aa8'; rrect(x - s * 0.58, y - s * 0.7, s * 1.16, s * 0.18, s * 0.08); g.fill();
+  g.strokeStyle = '#4dc3ff'; g.lineWidth = s * 0.1; g.lineCap = 'round'; g.beginPath(); g.moveTo(x + s * 0.12, y + s * 0.3); g.lineTo(x + s * 0.34, y - s * 1.05); g.stroke();
+  [[-0.2, 0.5], [0.05, 0.56], [0.24, 0.48], [-0.08, 0.36], [0.16, 0.34]].forEach(p => pearl(x + p[0] * s, y + p[1] * s, s * 0.1, 0));
+}
+
+// ---- Board geometry
+function geo(i) {
+  const n = tubes.length;
+  const rows = !land && n > 5 ? 2 : 1, cols = Math.ceil(n / rows);   // landscape fits all cups in one row
+  const ax = 6, aw = sw - 12, ay = 22, ah = sh - 22 - 20;
+  const cellW = aw / cols, cellH = ah / rows;
+  const d = Math.min(cellW * 0.6, cellH * 0.8 / (CAP + 1.45), 13);
+  const row = Math.floor(i / cols), inRow = row === rows - 1 ? n - cols * (rows - 1) : cols;
+  const cx = ax + (aw - inRow * cellW) / 2 + (i % cols + 0.5) * cellW;
+  const bottom = ay + row * cellH + cellH / 2 + (d * (CAP + 1.45)) / 2;
+  return { cx: X(cx), bottom: Y(bottom), d: d * u, cellW: cellW * u, top: Y(bottom) - d * u * (CAP + 0.3) };
+}
+function ballY(p, k) { return p.bottom - p.d * 0.2 - p.d * (k + 0.5); }
+function tubeAt(x, y) {
+  for (let i = 0; i < tubes.length; i++) {
+    const p = geo(i);
+    if (Math.abs(x - p.cx) < p.cellW / 2 && y > p.top - p.d * 1.6 && y < p.bottom + p.d * 0.4) return i;
+  }
+  return -1;
+}
+
+// ---- Game flow
+function startLevel(n) {
+  level = n; tubes = LEVELS[n - 1].split('|').map(t => [...t].map(Number)); solution = solve(tubes, 40000);
+  moves = 0; sel = -1; undo = []; undoLeft = 5; anim = null; doneFlash = []; parts = [];
+  screen = 'game'; gameplay(true);
+}
+function finished(i) { return tubes[i].length === CAP && uniform(tubes[i]); }
+function doMove(a, b, isUndo) {
+  const pa = geo(a), pb = geo(b), c = tubes[a].pop();
+  const from = { x: pa.cx, y: sel === a ? pa.top - pa.d * 0.7 : ballY(pa, tubes[a].length) };
+  const to = { x: pb.cx, y: ballY(pb, tubes[b].length) };
+  sel = -1;
+  anim = { c, from, to, lift: Math.min(pa.top, pb.top) - pa.d * 0.7, t: 0, dur: 0.22, done() {
+    tubes[b].push(c); sfx.drop();
+    if (!isUndo) {
+      moves++; undo.push([a, b]);
+      if (finished(b)) { sfx.tube(); doneFlash[b] = 1; burst(pb.cx, pb.top, FLAVOURS[c], 22); }
+      if (isDone(tubes)) win();
+    }
+  } };
+}
+function win() {
+  const balls = tubes.reduce((k, t) => k + t.length, 0);
+  earned = moves <= Math.min(solution.length, Math.round(balls * 1.6)) ? 3 : moves <= Math.round(balls * 2.3) ? 2 : 1;
+  save.stars[level] = Math.max(save.stars[level] || 0, earned);
+  if (level < LEVELS.length) save.unlocked = Math.max(save.unlocked, level + 1);
+  persist();
+  screen = 'win'; winT = 0; sfx.win(); gameplay(false);
+  for (let i = 0; i < 40; i++) burst(X(sw * Math.random()), Y(sh * 0.3 * Math.random()), FLAVOURS[1 + i % 6], 1);
+}
+function tapTube(i) {
+  // A tap during a move finishes that move at once, so fast players are never ignored.
+  if (anim) { const a = anim; anim = null; a.done(); if (screen !== 'game') return; }
+  if (sel < 0) {
+    if (tubes[i].length && !finished(i)) { sel = i; sfx.pick(); }
+    return;
+  }
+  if (i === sel) { sel = -1; return; }
+  if (legal(tubes, sel, i)) { doMove(sel, i); return; }
+  wrong = { i, t: 0.3 }; sfx.bad();
+  if (tubes[i].length && !finished(i)) sel = i; else sel = -1;
+}
+function undoMove() {
+  if (anim || !undo.length) return;
+  if (undoLeft <= 0) { showAd('rewarded', ok => { if (ok) undoLeft = 5; }); return; }
+  const m = undo.pop();
+  undoLeft--; moves = Math.max(0, moves - 1); sel = -1;
+  doMove(m[1], m[0], true);
+}
+function nextLevel() {
+  const go = () => startLevel(Math.min(LEVELS.length, level + 1));
+  if (level % 2 === 0) showAd('midgame', go); else go();   // an ad break every second level
+}
+
+// ---- Screens
+function background() {
+  const bg = g.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#ffd6e6'); bg.addColorStop(1, '#fff3d6');
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  g.fillStyle = 'rgba(255,255,255,.45)';
+  for (let i = 0; i < 14; i++) {
+    const x = ((i * 137.5 + time * (4 + i % 3)) % (W + 80)) - 40, y = (i * 97.3) % H;
+    g.beginPath(); g.arc(x, y, u * (2 + i % 4), 0, TAU); g.fill();
+  }
+}
+function drawMenu() {
+  const cx = X(sw / 2);
+  cup(cx, Y(land ? 27 : 42), u * (land ? 20 : 26));
+  label('BOBA', cx, Y(land ? 52 : 80), u * 15, '#fff', 'center', '#e0527f');
+  label('SORT', cx, Y(land ? 66 : 96), u * 15, '#ffc94d', 'center', '#e0527f');
+  const pulse = 1 + Math.sin(time * 4) * 0.03;
+  button('PLAY', cx, Y(land ? 83 : 122), u * 52 * pulse, u * 15 * pulse, '#ff7aa8', '#e0527f', () => {
+    if (save.unlocked === 1 && !save.stars[1]) startLevel(1); else { page = Math.floor((save.unlocked - 1) / 20); screen = 'levels'; }
+  });
+  roundBtn('♪', X(sw - 9), Y(9), () => { save.muted = !save.muted; persist(); }, save.muted);
+}
+function drawLevels() {
+  const cx = X(sw / 2), cols = land ? 5 : 4, rows = 20 / cols;
+  label('LEVELS', cx, Y(10), u * 8, '#e0527f');
+  roundBtn('‹', X(9), Y(9), () => { screen = 'menu'; });
+  const gx = land ? 30 : 8, gw = sw - gx * 2, gy = 20, gh = sh - 20 - 20;
+  const cw = gw / cols, ch = gh / rows, s = Math.min(cw, ch) * 0.86;
+  for (let k = 0; k < 20; k++) {
+    const n = page * 20 + k + 1;
+    const x = X(gx + (k % cols + 0.5) * cw), y = Y(gy + (Math.floor(k / cols) + 0.5) * ch), open = n <= save.unlocked;
+    g.fillStyle = 'rgba(224,82,127,.25)'; rrect(x - s * u / 2, y - s * u / 2 + u * 0.8, s * u, s * u, u * 3); g.fill();
+    g.fillStyle = open ? '#fff' : '#f3d9e2'; rrect(x - s * u / 2, y - s * u / 2, s * u, s * u, u * 3); g.fill();
+    label(String(n), x, y - s * u * 0.1, s * u * 0.36, open ? '#e0527f' : '#cdaab7');
+    const st = save.stars[n] || 0;
+    for (let j = 0; j < 3; j++) star(x + (j - 1) * s * u * 0.24, y + s * u * 0.28, s * u * 0.1, j < st ? '#ffc94d' : '#f1dfe6');
+    if (open) btns.push({ x: x - s * u / 2, y: y - s * u / 2, w: s * u, h: s * u, action: () => startLevel(n) });
+  }
+  const by = Y(sh - 9);
+  if (page > 0) roundBtn('‹', cx - u * 22, by, () => { page--; });
+  label((page + 1) + ' / ' + (LEVELS.length / 20), cx, by, u * 5, '#e0527f');
+  if (page < LEVELS.length / 20 - 1) roundBtn('›', cx + u * 22, by, () => { page++; });
+}
+function drawBoard() {
+  for (let i = 0; i < tubes.length; i++) {
+    const p = geo(i), w = p.d * 1.22, shake = wrong.i === i && wrong.t > 0 ? Math.sin(wrong.t * 60) * p.d * 0.08 : 0;
+    const x = p.cx + shake, done = finished(i);
+    g.fillStyle = done ? 'rgba(255,255,255,.75)' : 'rgba(255,255,255,.5)';
+    g.beginPath(); g.moveTo(x - w / 2, p.top); g.lineTo(x - w / 2, p.bottom - w / 2);
+    g.arc(x, p.bottom - w / 2, w / 2, Math.PI, 0, true); g.lineTo(x + w / 2, p.top); g.closePath(); g.fill();
+    g.lineWidth = u * 0.7; g.strokeStyle = done ? '#ffc94d' : '#fff'; g.stroke();
+    g.strokeStyle = done ? '#ffc94d' : '#fff'; g.lineWidth = u * 1.1; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(x - w / 2 - u * 0.8, p.top); g.lineTo(x + w / 2 + u * 0.8, p.top); g.stroke();
+    tubes[i].forEach((c, k) => {
+      const lifted = sel === i && k === tubes[i].length - 1 && !anim;
+      pearl(x, lifted ? p.top - p.d * 0.7 + Math.sin(time * 8) * p.d * 0.05 : ballY(p, k), p.d * 0.46, c);
+    });
+    if (doneFlash[i] > 0) { g.globalAlpha = doneFlash[i]; star(x, p.top - p.d * 0.8, p.d * 0.5 * (1.4 - doneFlash[i] * 0.4), '#ffc94d'); g.globalAlpha = 1; }
+  }
+  if (anim) {
+    const k = Math.min(1, anim.t / anim.dur), e = k * k * (3 - 2 * k);
+    const x = anim.from.x + (anim.to.x - anim.from.x) * e;
+    const base = anim.from.y + (anim.to.y - anim.from.y) * e, y = Math.min(base, anim.lift + (base - anim.lift) * Math.abs(2 * e - 1));
+    pearl(x, y, geo(0).d * 0.46, anim.c);
+  }
+  // Wordless tutorial on level 1: a bouncing arrow shows which cup to tap next.
+  if (level === 1 && moves === 0 && !anim && screen === 'game') {
+    const p = geo(sel < 0 ? solution[0][0] : solution[0][1]), ay = p.top - p.d * (sel < 0 ? 1.1 : 1.9) + Math.sin(time * 6) * u * 1.5;
+    g.fillStyle = '#e0527f';
+    g.beginPath(); g.moveTo(p.cx, ay); g.lineTo(p.cx - u * 3.2, ay - u * 4.5); g.lineTo(p.cx - u * 1.2, ay - u * 4.5);
+    g.lineTo(p.cx - u * 1.2, ay - u * 9); g.lineTo(p.cx + u * 1.2, ay - u * 9); g.lineTo(p.cx + u * 1.2, ay - u * 4.5); g.lineTo(p.cx + u * 3.2, ay - u * 4.5); g.closePath(); g.fill();
+  }
+}
+function drawGame() {
+  const cx = X(sw / 2);
+  roundBtn('‹', X(9), Y(9), () => { gameplay(false); page = Math.floor((level - 1) / 20); screen = 'levels'; });
+  label('LEVEL ' + level, cx, Y(7.5), u * 6.5, '#e0527f');
+  label('MOVES  ' + moves, cx, Y(14.5), u * 3.8, '#c9839b');
+  roundBtn('♪', X(sw - 9), Y(9), () => { save.muted = !save.muted; persist(); }, save.muted);
+  drawBoard();
+  const by = Y(sh - 10), canUndo = undo.length > 0;
+  g.globalAlpha = canUndo ? 1 : 0.45;
+  button(undoLeft > 0 ? 'UNDO  ' + undoLeft : '▶  +5 UNDO', cx - u * 23, by, u * 40, u * 11, '#9b7bff', '#7a5bd6', undoMove, u * 4.2);
+  g.globalAlpha = 1;
+  button('RESTART', cx + u * 23, by, u * 40, u * 11, '#4dc3ff', '#2f9fd8', () => startLevel(level), u * 4.2);
+}
+function drawWin() {
+  const cx = X(sw / 2), cy = Y(sh / 2), a = Math.min(1, winT / 0.35);
+  drawBoard();
+  g.fillStyle = 'rgba(90,40,60,' + (0.55 * a) + ')'; g.fillRect(0, 0, W, H);
+  if (winT < 0.5) return;
+  const pw = u * 84, ph = u * 82;
+  g.fillStyle = '#fff'; rrect(cx - pw / 2, cy - ph / 2, pw, ph, u * 6); g.fill();
+  label('LEVEL ' + level, cx, cy - u * 32, u * 5, '#c9839b');
+  label('COMPLETE!', cx, cy - u * 23, u * 9, '#e0527f');
+  for (let j = 0; j < 3; j++) {
+    const k = Math.max(0, Math.min(1, (winT - 0.6 - j * 0.2) / 0.2));
+    star(cx + (j - 1) * u * 17, cy - u * 7 - (j === 1 ? u * 2 : 0), u * 8 * (j < earned ? 0.6 + 0.4 * k : 1), j < earned && k > 0 ? '#ffc94d' : '#f1dfe6');
+  }
+  label('MOVES  ' + moves, cx, cy + u * 6, u * 4.2, '#c9839b');
+  if (level < LEVELS.length) button('NEXT LEVEL', cx, cy + u * 17, u * 62, u * 13, '#ff7aa8', '#e0527f', nextLevel);
+  else label('ALL ' + LEVELS.length + ' LEVELS DONE!', cx, cy + u * 17, u * 5, '#e0527f');
+  button('REPLAY', cx - u * 16.5, cy + u * 32, u * 29, u * 10, '#4dc3ff', '#2f9fd8', () => startLevel(level), u * 4);
+  button('LEVELS', cx + u * 16.5, cy + u * 32, u * 29, u * 10, '#9b7bff', '#7a5bd6', () => { page = Math.floor((level - 1) / 20); screen = 'levels'; }, u * 4);
+}
+
+// ---- Input
+cv.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (adPlaying) return;
+  initAudio();
+  const x = e.clientX, y = e.clientY;
+  for (let i = btns.length - 1; i >= 0; i--) {
+    const b = btns[i];
+    if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) { sfx.click(); b.action(); return; }
+  }
+  if (screen === 'game') { const i = tubeAt(x, y); if (i >= 0) tapTube(i); else sel = -1; }
+});
+cv.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('visibilitychange', () => {
+  if (!ac) return;
+  if (document.hidden) ac.suspend(); else if (!adPlaying) ac.resume();
+});
+
+// ---- Main loop
+function update(dt) {
+  time += dt;
+  if (anim) { anim.t += dt; if (anim.t >= anim.dur) { const a = anim; anim = null; a.done(); } }
+  if (wrong.t > 0) wrong.t -= dt;
+  if (screen === 'win') winT += dt;
+  for (let i = 0; i < doneFlash.length; i++) if (doneFlash[i] > 0) doneFlash[i] -= dt * 1.2;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    p.life -= dt; p.vy += u * 90 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+    if (p.life <= 0) parts.splice(i, 1);
+  }
+}
+function draw() {
+  btns = [];
+  background();
+  if (screen === 'menu') drawMenu();
+  else if (screen === 'levels') drawLevels();
+  else if (screen === 'game') drawGame();
+  else drawWin();
+  for (const p of parts) {
+    g.globalAlpha = Math.max(0, Math.min(1, p.life * 2));
+    g.fillStyle = p.color; g.beginPath(); g.arc(p.x, p.y, p.size, 0, TAU); g.fill();
+  }
+  g.globalAlpha = 1;
+}
+// Local test hook: ?level=N opens a level, &solve=K plays the first K solution moves, &win=1 finishes it.
+if (LOCAL && QS.get('level')) {
+  startLevel(+QS.get('level'));
+  const k = QS.get('win') ? solution.length : +QS.get('solve') || 0;
+  for (let i = 0; i < k; i++) { const m = solution[i]; tubes[m[1]].push(tubes[m[0]].pop()); moves++; undo.push(m); }
+  if (QS.get('win')) { win(); winT = 2; }
+}
+// Local test hook: ?selftest=1 puts the level count and the levels the solver above cannot finish in the page title.
+if (LOCAL && QS.get('selftest')) document.title = 'selftest:' + LEVELS.length + ':' + LEVELS.map((b, i) => solve(b.split('|').map(t => [...t].map(Number)), 40000) ? 0 : i + 1).filter(Boolean).join(',');
+// Local trailer renderer: solves a few levels on screen at a fixed 30 fps and posts each frame
+// to the local capture server.
+async function demoLoop() {
+  const dt = 1 / 30, tour = [3, 14, 40];
+  let n = 0, mt = 0, mi = 0, li = 0;
+  persist = () => {};
+  const snap = async () => {
+    update(dt); draw();
+    const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.93));
+    await fetch('/frame?v=' + DEMO + '&n=' + String(n++).padStart(4, '0'), { method: 'POST', body: blob });
+  };
+  screen = 'menu';
+  for (let i = 0; i < 36; i++) await snap();
+  startLevel(tour[0]);
+  while (n < 516) {
+    mt += dt;
+    if (screen === 'game' && !anim && mt > 0.3 && mi < solution.length) {
+      mt = 0;
+      if (sel < 0) sel = solution[mi][0]; else { doMove(solution[mi][0], solution[mi][1]); mi++; }
+    }
+    if (screen === 'win' && winT > 1.7) { if (++li >= tour.length) break; startLevel(tour[li]); mi = 0; }
+    await snap();
+  }
+  await fetch('/frame?v=' + DEMO + '&n=done', { method: 'POST', body: 'x' });
+}
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  if (!adPlaying) update(dt);
+  draw();
+  requestAnimationFrame(frame);
+}
+if (DEMO) demoLoop(); else requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

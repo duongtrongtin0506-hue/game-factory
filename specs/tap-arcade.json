@@ -18,5 +18,9 @@
       "cosmetic"
     ],
     "never_sell": "anything required to win"
+  },
+  "portal_ids": {
+    "gamemonetize": "54aklszb2p8z2rj4v43ksinbxbg1fzfj",
+    "gamedistribution": ""
   }
 }

@@ -16,22 +16,27 @@ canvas{display:block;width:100%;height:100%}
 'use strict';
 
 // ============================================================================
-// Ads. PORTAL is a build flag: each portal gets its own zip with its own SDK.
-//   'gamemonetize'  GameMonetize HTML5 SDK (needs GAME_ID from their dashboard)
-//   'crazygames'    CrazyGames SDK v3 (no id; only works on their domain)
-//   'none'          no SDK, no ads (itch.io, self-hosting, local testing)
+// Ads: one source for every game (web/ads.js). tools/build.py pastes this file into each game
+// in place of its ADS marker and fills in PORTAL and GAME_ID for the portal being packaged:
+//   'gamemonetize'      GameMonetize HTML5 SDK (GAME_ID = game hash from their dashboard)
+//   'gamedistribution'  GameDistribution HTML5 SDK (GAME_ID from their dashboard)
+//   'crazygames'        CrazyGames SDK v3 (no id; only works on their domain)
+//   'none'              no SDK, no ads (itch.io, self-hosting, local testing)
+// A game calls showAd(type, done), gameplay(on) and happy(), reads adPlaying to freeze and mute
+// while an ad is on screen, and may define onPortalReady() to run once the SDK is up.
+// SDK calls follow the pages listed in NGHIEN-CUU.md (checked 2026-10-12).
 // ============================================================================
 const PORTAL = 'gamemonetize';
 const GAME_ID = '54aklszb2p8z2rj4v43ksinbxbg1fzfj';
-// No ads when opened from disk or a local test server.
+// No SDK and no ads when opened from disk or a local test server.
 const LOCAL = /^(localhost|127\.0\.0\.1|)$/.test(location.hostname);
-// Local-only helpers: ?play=<id> opens a game, ?demo=<name> renders an auto-played trailer.
-const QS = new URLSearchParams(LOCAL ? location.search : '');
-const DEMO = QS.get('demo');
+// Rewarded ads come first: the player asked for them, so they are never held back. Midgame ads
+// are skipped when any ad ended less than this many ms ago.
+const MIDGAME_GAP = 60000;
 
-let adPlaying = false, adDone = null, adTimer = 0, cg = null;
+let adPlaying = false, adDone = null, adType = '', adTimer = 0, adEnd = 0, rewardSeen = false, cg = null;
 function finishAd(ok) {
-  clearTimeout(adTimer); adPlaying = false;
+  clearTimeout(adTimer); adPlaying = false; adEnd = Date.now();
   const f = adDone; adDone = null;
   if (f) f(ok !== false);
 }
@@ -40,25 +45,36 @@ function loadScript(src, id, onload) {
   s.id = id; s.src = src; s.onload = onload || null;
   document.head.appendChild(s);
 }
-if (!LOCAL && PORTAL === 'gamemonetize') {
-  window.SDK_OPTIONS = {
-    gameId: GAME_ID,
-    onEvent(a) {
-      if (a.name === 'SDK_GAME_PAUSE') { clearTimeout(adTimer); adPlaying = true; }  // ad on screen: freeze + mute
-      else if (a.name === 'SDK_GAME_START') finishAd(true);
-    }
-  };
+// GameMonetize and GameDistribution report ads through the same event names.
+function portalEvent(e) {
+  if (e.name === 'SDK_GAME_PAUSE') { clearTimeout(adTimer); adPlaying = true; }            // ad on screen: freeze + mute
+  else if (e.name === 'SDK_REWARDED_WATCH_COMPLETE') rewardSeen = true;
+  else if (e.name === 'SDK_GAME_START') finishAd(PORTAL !== 'gamedistribution' || adType !== 'rewarded' || rewardSeen);
+  else if (e.name === 'SDK_READY' && typeof onPortalReady === 'function') onPortalReady();
+}
+if (!LOCAL && PORTAL === 'gamemonetize' && GAME_ID) {
+  window.SDK_OPTIONS = { gameId: GAME_ID, onEvent: portalEvent };
   loadScript('https://api.gamemonetize.com/sdk.js', 'gamemonetize-sdk');
+}
+if (!LOCAL && PORTAL === 'gamedistribution' && GAME_ID) {
+  window.GD_OPTIONS = { gameId: GAME_ID, onEvent: portalEvent };
+  loadScript('https://html5.api.gamedistribution.com/main.min.js', 'gamedistribution-jssdk');
 }
 if (!LOCAL && PORTAL === 'crazygames') {
   loadScript('https://sdk.crazygames.com/crazygames-sdk-v3.js', 'crazygames-sdk', () => {
-    window.CrazyGames.SDK.init().then(() => { cg = window.CrazyGames.SDK; loadCloudSave(); }).catch(() => {});
+    window.CrazyGames.SDK.init().then(() => {
+      cg = window.CrazyGames.SDK;
+      if (typeof onPortalReady === 'function') onPortalReady();
+    }).catch(() => {});
   });
 }
-// type: 'midgame' | 'rewarded'. Calls done(ok) afterwards; ok is false only when a
-// rewarded ad was blocked by an adblocker, so the reward must not be given.
+// type: 'midgame' | 'rewarded'. Calls done(ok) afterwards. ok is false only for a rewarded ad
+// whose reward must not be given: blocked by an adblocker (CrazyGames) or not watched to the
+// end (GameDistribution). With no SDK, or no ad to show, the game simply carries on.
 function showAd(type, done) {
   if (adDone) return;
+  if (type !== 'rewarded' && Date.now() - adEnd < MIDGAME_GAP) return done(true);
+  adType = type; rewardSeen = false;
   if (cg) {
     adDone = done;
     cg.ad.requestAd(type, {
@@ -66,19 +82,33 @@ function showAd(type, done) {
       adFinished: () => finishAd(true),
       adError: e => finishAd(!(type === 'rewarded' && e && e.code === 'adblock'))
     });
+  } else if (window.gdsdk && window.gdsdk.showAd) {
+    // Carry on after 4s if no ad starts (no fill / blocked); a rewarded ad that never ran pays nothing.
+    adDone = done; adTimer = setTimeout(() => finishAd(type !== 'rewarded'), 4000);
+    const p = type === 'rewarded' ? window.gdsdk.showAd('rewarded') : window.gdsdk.showAd();
+    if (p && p.catch) p.catch(() => { if (!adPlaying) finishAd(type !== 'rewarded'); });
   } else if (window.sdk && window.sdk.showBanner) {
-    // GameMonetize has one ad format; continue after 4s if no ad starts (no fill / blocked).
+    // GameMonetize has one ad format; carry on after 4s if no ad starts.
     adDone = done; adTimer = setTimeout(finishAd, 4000);
     window.sdk.showBanner();
   } else done(true);
 }
-function adBreak(done) { showAd('midgame', () => done()); }
-function rewardedAd(onReward) { showAd('rewarded', ok => { if (ok) onReward(); }); }
 // Tells the portal when real gameplay starts and stops (CrazyGames requirement).
 function gameplay(on) {
   if (!cg) return;
   try { if (on) cg.game.gameplayStart(); else cg.game.gameplayStop(); } catch (e) {}
 }
+// A big moment (three stars, a new best): CrazyGames may celebrate it.
+function happy() {
+  if (cg) { try { cg.game.happytime(); } catch (e) {} }
+}
+// Local-only helpers (?level=, ?demo=, ?selftest= ...): ignored anywhere but a local test server.
+const QS = new URLSearchParams(LOCAL ? location.search : '');
+const DEMO = QS.get('demo');
+function adBreak(done) { showAd('midgame', () => done()); }
+function rewardedAd(onReward) { showAd('rewarded', ok => { if (ok) onReward(); }); }
+// Runs once the portal SDK is ready (see web/ads.js).
+function onPortalReady() { if (cg) loadCloudSave(); }
 
 const COLORS = [
   { name: 'RED',    c: '#ff4d5e' },
@@ -301,14 +331,61 @@ function addScore(n, x, y, color) {
   if (stage >= 0 && starsFor(stage, score) > before) { sfx.gold(); burst(x0 + cw / 2, u * 9, '#ffd23d', 18); }
 }
 
-// ---- Journey: 45 stages (the 9 games x 5 tiers). A stage is a normal run of one game with
-// three score goals; one star clears it and opens the next stage.
-const STAGES = 45;
+// ---- Journey: a stage is a normal run of one game with three score goals; one star clears it
+// and opens the next stage. Each stage is a string '<game id>:<1 star>,<2 stars>,<3 stars>' from
+// levels/tap-arcade.json (checked by tools/taparcade.py).
+const LEVELS = [
+  'balloon:8,13,19',
+  'mole:8,13,19',
+  'number:8,13,19',
+  'stroop:6,10,14',
+  'memory:6,10,14',
+  'math:6,10,14',
+  'odd:6,10,14',
+  'simon:5,8,12',
+  'catch:8,13,19',
+  'balloon:11,18,26',
+  'mole:11,18,26',
+  'number:11,18,26',
+  'stroop:9,14,22',
+  'memory:9,14,22',
+  'math:9,14,22',
+  'odd:9,14,22',
+  'simon:7,11,17',
+  'catch:11,18,26',
+  'balloon:14,22,34',
+  'mole:14,22,34',
+  'number:14,22,34',
+  'stroop:11,18,26',
+  'memory:11,18,26',
+  'math:11,18,26',
+  'odd:11,18,26',
+  'simon:9,14,22',
+  'catch:14,22,34',
+  'balloon:17,27,41',
+  'mole:17,27,41',
+  'number:17,27,41',
+  'stroop:14,22,34',
+  'memory:14,22,34',
+  'math:14,22,34',
+  'odd:14,22,34',
+  'simon:12,19,29',
+  'catch:17,27,41',
+  'balloon:21,34,50',
+  'mole:21,34,50',
+  'number:21,34,50',
+  'stroop:17,27,41',
+  'memory:17,27,41',
+  'math:17,27,41',
+  'odd:17,27,41',
+  'simon:14,22,34',
+  'catch:21,34,50'
+];
+const STAGES = LEVELS.length;
 let stage = -1, stageStars = 0, stageBonus = 0;
 function stageInfo(i) {
-  const game = GAMES[i % GAMES.length], tier = Math.floor(i / GAMES.length);
-  const t1 = Math.round(MISSION_TARGET[game.id] * (0.5 + 0.22 * tier));
-  return { game, goals: [t1, Math.round(t1 * 1.6), Math.round(t1 * 2.4)] };
+  const [id, goals] = LEVELS[i].split(':');
+  return { game: GAMES.find(x => x.id === id), goals: goals.split(',').map(Number) };
 }
 function starsFor(i, s) { return stageInfo(i).goals.filter(goal => s >= goal).length; }
 function stageOpen(i) { return i === 0 || (save.journey[i - 1] || 0) >= 1; }
@@ -932,6 +1009,11 @@ const HELP = {
   catch:   ['Drag to move the basket.', 'Catch everything except bombs!']
 };
 ensureMissions();
+// Local test hook: ?selftest=1 puts the stage count and the stages with an unknown game or goals out of order in the page title.
+if (LOCAL && QS.get('selftest')) document.title = 'selftest:' + STAGES + ':' + LEVELS.map((b, i) => {
+  const s = stageInfo(i), g = s.goals;
+  return s.game && g.length === 3 && g[0] > 0 && g[0] < g[1] && g[1] < g[2] && (i >= GAMES.length || s.game === GAMES[i]) ? 0 : i + 1;
+}).filter(Boolean).join(',');
 // Local test hook: ?play=<game id> opens a game directly, &over=1 jumps to its game-over screen.
 if (LOCAL) {
   const st = QS.get('stage') ? +QS.get('stage') - 1 : undefined;

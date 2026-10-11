@@ -16,20 +16,27 @@ canvas{display:block;width:100%;height:100%}
 'use strict';
 
 // ============================================================================
-// Ads. PORTAL is a build flag: each portal gets its own zip with its own SDK.
-//   'gamemonetize'  GameMonetize HTML5 SDK (needs GAME_ID from their dashboard)
-//   'crazygames'    CrazyGames SDK v3 (no id; only works on their domain)
-//   'none'          no SDK, no ads
+// Ads: one source for every game (web/ads.js). tools/build.py pastes this file into each game
+// in place of its ADS marker and fills in PORTAL and GAME_ID for the portal being packaged:
+//   'gamemonetize'      GameMonetize HTML5 SDK (GAME_ID = game hash from their dashboard)
+//   'gamedistribution'  GameDistribution HTML5 SDK (GAME_ID from their dashboard)
+//   'crazygames'        CrazyGames SDK v3 (no id; only works on their domain)
+//   'none'              no SDK, no ads (itch.io, self-hosting, local testing)
+// A game calls showAd(type, done), gameplay(on) and happy(), reads adPlaying to freeze and mute
+// while an ad is on screen, and may define onPortalReady() to run once the SDK is up.
+// SDK calls follow the pages listed in NGHIEN-CUU.md (checked 2026-10-12).
 // ============================================================================
 const PORTAL = 'gamemonetize';
 const GAME_ID = '';
+// No SDK and no ads when opened from disk or a local test server.
 const LOCAL = /^(localhost|127\.0\.0\.1|)$/.test(location.hostname);
-const QS = new URLSearchParams(LOCAL ? location.search : '');
-const DEMO = QS.get('demo');            // local only: renders an auto-played trailer frame by frame
+// Rewarded ads come first: the player asked for them, so they are never held back. Midgame ads
+// are skipped when any ad ended less than this many ms ago.
+const MIDGAME_GAP = 60000;
 
-let adPlaying = false, adDone = null, adTimer = 0, cg = null;
+let adPlaying = false, adDone = null, adType = '', adTimer = 0, adEnd = 0, rewardSeen = false, cg = null;
 function finishAd(ok) {
-  clearTimeout(adTimer); adPlaying = false;
+  clearTimeout(adTimer); adPlaying = false; adEnd = Date.now();
   const f = adDone; adDone = null;
   if (f) f(ok !== false);
 }
@@ -38,24 +45,36 @@ function loadScript(src, id, onload) {
   s.id = id; s.src = src; s.onload = onload || null;
   document.head.appendChild(s);
 }
+// GameMonetize and GameDistribution report ads through the same event names.
+function portalEvent(e) {
+  if (e.name === 'SDK_GAME_PAUSE') { clearTimeout(adTimer); adPlaying = true; }            // ad on screen: freeze + mute
+  else if (e.name === 'SDK_REWARDED_WATCH_COMPLETE') rewardSeen = true;
+  else if (e.name === 'SDK_GAME_START') finishAd(PORTAL !== 'gamedistribution' || adType !== 'rewarded' || rewardSeen);
+  else if (e.name === 'SDK_READY' && typeof onPortalReady === 'function') onPortalReady();
+}
 if (!LOCAL && PORTAL === 'gamemonetize' && GAME_ID) {
-  window.SDK_OPTIONS = {
-    gameId: GAME_ID,
-    onEvent(a) {
-      if (a.name === 'SDK_GAME_PAUSE') { clearTimeout(adTimer); adPlaying = true; }
-      else if (a.name === 'SDK_GAME_START') finishAd(true);
-    }
-  };
+  window.SDK_OPTIONS = { gameId: GAME_ID, onEvent: portalEvent };
   loadScript('https://api.gamemonetize.com/sdk.js', 'gamemonetize-sdk');
+}
+if (!LOCAL && PORTAL === 'gamedistribution' && GAME_ID) {
+  window.GD_OPTIONS = { gameId: GAME_ID, onEvent: portalEvent };
+  loadScript('https://html5.api.gamedistribution.com/main.min.js', 'gamedistribution-jssdk');
 }
 if (!LOCAL && PORTAL === 'crazygames') {
   loadScript('https://sdk.crazygames.com/crazygames-sdk-v3.js', 'crazygames-sdk', () => {
-    window.CrazyGames.SDK.init().then(() => { cg = window.CrazyGames.SDK; }).catch(() => {});
+    window.CrazyGames.SDK.init().then(() => {
+      cg = window.CrazyGames.SDK;
+      if (typeof onPortalReady === 'function') onPortalReady();
+    }).catch(() => {});
   });
 }
-// type: 'midgame' | 'rewarded'. done(ok): ok is false only when a rewarded ad was adblocked.
+// type: 'midgame' | 'rewarded'. Calls done(ok) afterwards. ok is false only for a rewarded ad
+// whose reward must not be given: blocked by an adblocker (CrazyGames) or not watched to the
+// end (GameDistribution). With no SDK, or no ad to show, the game simply carries on.
 function showAd(type, done) {
   if (adDone) return;
+  if (type !== 'rewarded' && Date.now() - adEnd < MIDGAME_GAP) return done(true);
+  adType = type; rewardSeen = false;
   if (cg) {
     adDone = done;
     cg.ad.requestAd(type, {
@@ -63,48 +82,142 @@ function showAd(type, done) {
       adFinished: () => finishAd(true),
       adError: e => finishAd(!(type === 'rewarded' && e && e.code === 'adblock'))
     });
+  } else if (window.gdsdk && window.gdsdk.showAd) {
+    // Carry on after 4s if no ad starts (no fill / blocked); a rewarded ad that never ran pays nothing.
+    adDone = done; adTimer = setTimeout(() => finishAd(type !== 'rewarded'), 4000);
+    const p = type === 'rewarded' ? window.gdsdk.showAd('rewarded') : window.gdsdk.showAd();
+    if (p && p.catch) p.catch(() => { if (!adPlaying) finishAd(type !== 'rewarded'); });
   } else if (window.sdk && window.sdk.showBanner) {
+    // GameMonetize has one ad format; carry on after 4s if no ad starts.
     adDone = done; adTimer = setTimeout(finishAd, 4000);
     window.sdk.showBanner();
   } else done(true);
 }
+// Tells the portal when real gameplay starts and stops (CrazyGames requirement).
 function gameplay(on) {
   if (!cg) return;
   try { if (on) cg.game.gameplayStart(); else cg.game.gameplayStop(); } catch (e) {}
 }
+// A big moment (three stars, a new best): CrazyGames may celebrate it.
+function happy() {
+  if (cg) { try { cg.game.happytime(); } catch (e) {} }
+}
+// Local-only helpers (?level=, ?demo=, ?selftest= ...): ignored anywhere but a local test server.
+const QS = new URLSearchParams(LOCAL ? location.search : '');
+const DEMO = QS.get('demo');            // local only: renders an auto-played trailer frame by frame
 
 // ==CORE== (pure puzzle logic: no DOM)
-const LEVELS = 100;
-function rng(seed) {
-  let s = (seed >>> 0) || 1;
-  return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
-}
-function sizeFor(n) {                      // board grows from 3x3 to 6x7; the line from 7 to 38 cells
-  const w = n <= 6 ? 3 : n <= 20 ? 4 : n <= 50 ? 5 : 6, h = n <= 3 ? 3 : n <= 12 ? 4 : n <= 30 ? 5 : n <= 65 ? 6 : 7;
-  return { w, h, len: Math.min(w * h - 1, 7 + Math.floor(n * 0.32)) };
-}
-// A level is one random self-avoiding walk: its cells are the board and the walk itself is a
-// known solution, so every level can be completed. Built from the level number alone.
+const LEVELS = [
+  '3312RUULLD',
+  '3322ULDLUU',
+  '3300RRDLLD',
+  '3412RUULLDR',
+  '3421ULLDRDR',
+  '3400RRDLLDD',
+  '4402DRRRUUUL',
+  '4403RRRULLLU',
+  '4413LUUURRRD',
+  '4432DLLLUUURR',
+  '4400RRRDLLLDD',
+  '4421RULLLDDDR',
+  '4512LDDRURDRUU',
+  '4510LDRRURDDDD',
+  '4524RULLURRUUL',
+  '4504RRRULLLURRR',
+  '4530LLLDRRRDLLD',
+  '4532DDLUULLDRDL',
+  '4502DDRRRULLURRU',
+  '4521RULLLDRDLDDR',
+  '5543DLLLLURULUUR',
+  '5504RRULLURRRRULL',
+  '5544LLLURRRULLLUL',
+  '5512LDDRURDRRULUL',
+  '5500RRRRDLLDDDRRUL',
+  '5521URRDLDRDDLULDL',
+  '5513DLUURRDDRRULUR',
+  '5540LLLDRRRDLLLLUU',
+  '5532RDDLULDLLURURUR',
+  '5504UUUURRRRDLLLDRR',
+  '5641ULLLLDRRRDRDLLU',
+  '5613RDLLDRRRRULURULL',
+  '5631RULLDLULDDRRDLDR',
+  '5631RULLLLDRRDLLDRDR',
+  '5613DDRRULUUUULDDLDDD',
+  '5640LLLLDRRRRDLLLLDRR',
+  '5625RRUUUUULLLLDRRRDL',
+  '5633RDDLULDLLURURUUURR',
+  '5640LLLLDRRRRDLLLLDDDR',
+  '5622RULURRDDDLLLDRDLLU',
+  '5633DRDLLLLURRULLURRULL',
+  '5631RULLLLDRRDRRDLLLULD',
+  '5604UUUURRRRDLLLDRRRDLL',
+  '5605RRRRULLLLURURDRRULUU',
+  '5614LDRRURDRUULLURRUULDL',
+  '5632RDDDLLLLUURDRRULULLU',
+  '5602DDDRRRRULLLURULURULLD',
+  '5600RRRRDLLLLDRRRRDLLLLDD',
+  '5625URDRUUULDLULURULLDDDR',
+  '5610LDRRRRDLLLLDRRRRDDLLLL',
+  '6611LDRRUURRRDLLDRRDLLLLDL',
+  '6633RURUULDLDLDLLDDRURDRUR',
+  '6625ULDLUURRRDRRULUULDLLLU',
+  '6652DDDLLLURRULURURULLDLULL',
+  '6601URRRRRDLDRDLLUULLDRDLDR',
+  '6640RDLDRDDDLLLLLURRRRULLLU',
+  '6643RDDLULDLLLURRURURRUULLDR',
+  '6654DLLLURRURULLDLUURRRULLLL',
+  '6635RRULLLDLLURULUUURDDRDRUR',
+  '6645ULDLLLURRUURULLLURRRRRDLD',
+  '6610LDRRURRRDDLULDLLDRRDLLLUU',
+  '6620DDRUURRDLDRDLLLLLDDRURDRU',
+  '6603UUURRRRRDDDDDLLLLLURRRRULL',
+  '6640RDDDDDLLLLLURRRRULLLLURRUL',
+  '6601URRRRRDLLLLDLDRRURDRURDDDL',
+  '6705DRRRRRUUUUUULLLLLDRRRRDLLLL',
+  '6751ULLLLLDRRRRDRDLLULDLULDDRRR',
+  '6742LURRDDLLLLLDRDRURRRDDLLLLLU',
+  '6703DDDRRRRRULLLURRRULUURULLLLLD',
+  '6730RRDLLLULLDRDLDRRURRRDLLDRRDD',
+  '6713LDRDLDRRRRRULLLURRRULLLURRRU',
+  '6756LLLLLURRRRRULURULLDDLULDLUURR',
+  '6745RDLLULDLLURULURRDRRRULLURRULL',
+  '6740RDLLULLLDRRDRDLLULDDRRRRRDDLL',
+  '6750LLLLLDRDLDRRUURRRDLLDDLLLDDRUR',
+  '6731ULDLULDDRRRRRDLLDRRDDLLLLLURRR',
+  '6730RRDLLLDRRRDLLLLLDRDLDRRUURDDRR',
+  '6730DRURDDLLDLUUULLDRDLDRDLDDRURDR',
+  '6716LURRDRURDRUULLLLLURULUURDRURRRD',
+  '6752DDDDLLLLLURRRRUUULUULLLDRRDLDLU',
+  '6731URRDLDRDLDRDDLULDLLLURRURUULDLD',
+  '6713LDDRURDDRRRULLURRULLLURRRUULDLUL',
+  '6700RRRRRDLLLLLDDDDDRRRRRULLLLURRRRU',
+  '6701URRRRRDLLDRRDLLLUULDLDRDLDDRURDR',
+  '6751ULDLULLLDRRDRRRDLLLLULDDRRRDLLDLU',
+  '6746RUUULDDLDLLLUUUUUURRRRRDDLLDDLDLU',
+  '6734RRDDLULDLLLURRULLURRRRRULLULULLDR',
+  '6753DDDLLLLURRRULLLURRRURUULDLDLLLDDDD',
+  '6724RRRDDLULDLULDLUUUURDRRRRULLLURRRUL',
+  '6720RRRDLLLLULDDRRRDLLLDRRDLLDRRRRRULL',
+  '6744RDDLULDLLLURRURURRULLLDLDLUURULURRD',
+  '6730RRDLDRDLLUULLLDRRDLLDRRRRRDDLULDLUL',
+  '6754DDLLLLLURRRRULLLLUUUURDDDRRURDRUUUL',
+  '6723URDRRDLLLLDRRRRDLLLLLUUUUUURRRRRDDLU',
+  '6743RDLDRDLLUUULURRRUULDLULDLULDDRDLDRRD',
+  '6753DLUURUULDLULLLDRRDRDLLULDDRRRDDLULLD',
+  '6753DDDLLLLLURRRRUULDLLLURRURRRUULDLULDLD',
+  '6720RRRDLLLLULDDRRRRRDLLLLLDRRRRRDDLULLLD',
+  '6704RRDLLDRRRRRULLURRULLLLLURRRULLLURRRRR',
+  '6716LURRDRRRULLURRULLLDLLURULUURDRURRRDDLU'
+];
+// A level is a string: width, height, start column, start row (one digit each), then the sample
+// line as R L D U steps. The cells that line crosses are the board, and the line is what hints
+// replay. tools/oneline.py builds the levels and checks each one before it gets here.
 function makeLevel(n) {
-  const { w, h, len } = sizeFor(n);
-  for (let attempt = 0; attempt < 400; attempt++) {
-    const r = rng(n * 6151 + attempt * 7919 + 5), used = new Set(), path = [];
-    let c = Math.floor(r() * w), q = Math.floor(r() * h);
-    const key = (x, y) => y * w + x;
-    const open = (x, y) => x >= 0 && y >= 0 && x < w && y < h && !used.has(key(x, y));
-    const exits = (x, y) => [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(d => open(x + d[0], y + d[1])).length;
-    used.add(key(c, q)); path.push([c, q]);
-    while (path.length < len) {
-      const opts = [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(d => open(c + d[0], q + d[1]));
-      if (!opts.length) break;
-      // Mostly hug cells with few ways out (keeps the shape compact), sometimes wander.
-      opts.sort((a, b) => exits(c + a[0], q + a[1]) - exits(c + b[0], q + b[1]));
-      const d = r() < 0.7 ? opts[0] : opts[Math.floor(r() * opts.length)];
-      c += d[0]; q += d[1]; used.add(key(c, q)); path.push([c, q]);
-    }
-    if (path.length === len) return { w, h, path };
-  }
-  return null;
+  const s = LEVELS[n - 1], step = { R: [1, 0], L: [-1, 0], D: [0, 1], U: [0, -1] };
+  let x = +s[2], y = +s[3];
+  const path = [[x, y]];
+  for (const ch of s.slice(4)) { x += step[ch][0]; y += step[ch][1]; path.push([x, y]); }
+  return { w: +s[0], h: +s[1], path };
 }
 // ==/CORE==
 
@@ -250,13 +363,13 @@ function useHint() {
 function win() {
   earned = used === 0 ? 3 : used === 1 ? 2 : 1;
   save.stars[level] = Math.max(save.stars[level] || 0, earned);
-  if (level < LEVELS) save.unlocked = Math.max(save.unlocked, level + 1);
+  if (level < LEVELS.length) save.unlocked = Math.max(save.unlocked, level + 1);
   persist();
   dragging = false; screen = 'win'; winT = 0; sfx.win(); gameplay(false);
   for (let i = 0; i < 40; i++) burst(X(sw * Math.random()), Y(sh * 0.3 * Math.random()), hue(i, 40), 1);
 }
 function nextLevel() {
-  const go = () => startLevel(Math.min(LEVELS, level + 1));
+  const go = () => startLevel(Math.min(LEVELS.length, level + 1));
   if (level % 3 === 0) showAd('midgame', go); else go();   // an ad break every third level
 }
 
@@ -285,7 +398,7 @@ function drawMenu() {
   roundBtn('♪', X(sw - 9), Y(9), () => { save.muted = !save.muted; persist(); }, save.muted);
 }
 function drawLevels() {
-  const cx = X(sw / 2), cols = land ? 5 : 4, rows = 20 / cols, pages = LEVELS / 20;
+  const cx = X(sw / 2), cols = land ? 5 : 4, rows = 20 / cols, pages = LEVELS.length / 20;
   label('LEVELS', cx, Y(10), u * 8, '#fff');
   roundBtn('‹', X(9), Y(9), () => { screen = 'menu'; });
   const gx = land ? 30 : 8, gw = sw - gx * 2, gy = 20, gh = sh - 20 - 20;
@@ -364,8 +477,8 @@ function drawWin() {
     const k = Math.max(0, Math.min(1, (winT - 1.1 - j * 0.2) / 0.2));
     star(cx + (j - 1) * u * 17, cy - u * 6 - (j === 1 ? u * 2 : 0), u * 8 * (j < earned ? 0.6 + 0.4 * k : 1), j < earned && k > 0 ? '#ffd23d' : 'rgba(255,255,255,.14)');
   }
-  if (level < LEVELS) button('NEXT LEVEL', cx, cy + u * 14, u * 62, u * 13, '#ff6b9d', '#c9457a', nextLevel);
-  else label('ALL 100 LEVELS DONE!', cx, cy + u * 14, u * 5, '#ffd23d');
+  if (level < LEVELS.length) button('NEXT LEVEL', cx, cy + u * 14, u * 62, u * 13, '#ff6b9d', '#c9457a', nextLevel);
+  else label('ALL ' + LEVELS.length + ' LEVELS DONE!', cx, cy + u * 14, u * 5, '#ffd23d');
   button('REPLAY', cx - u * 16.5, cy + u * 30, u * 29, u * 10, '#5b8cff', '#3a66d6', () => startLevel(level), u * 4);
   button('LEVELS', cx + u * 16.5, cy + u * 30, u * 29, u * 10, '#9b7bff', '#7a5bd6', () => { page = Math.floor((level - 1) / 20); screen = 'levels'; }, u * 4);
 }
@@ -432,6 +545,11 @@ function draw() {
   g.globalAlpha = 1;
 }
 // Local test hook: ?level=N opens a level, &steps=K draws the first K cells, &win=1 finishes it.
+// Local test hook: ?selftest=1 puts the level count and the levels whose sample line leaves the board or crosses itself in the page title.
+if (LOCAL && QS.get('selftest')) document.title = 'selftest:' + LEVELS.length + ':' + LEVELS.map((b, i) => {
+  const l = makeLevel(i + 1), seen = new Set(l.path.map(p => p[0] + ',' + p[1]));
+  return seen.size === l.path.length && l.path.every(p => p[0] >= 0 && p[1] >= 0 && p[0] < l.w && p[1] < l.h) ? 0 : i + 1;
+}).filter(Boolean).join(',');
 if (LOCAL && QS.get('level')) {
   startLevel(+QS.get('level'));
   const k = QS.get('win') ? lv.path.length : +QS.get('steps') || 1;

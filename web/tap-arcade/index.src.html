@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Tap Arcade - Mini Games</title>
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#16254a;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+canvas{display:block;width:100%;height:100%}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+(() => {
+'use strict';
+
+/*ADS*/
+// Local-only helpers (?level=, ?demo=, ?selftest= ...): ignored anywhere but a local test server.
+const QS = new URLSearchParams(LOCAL ? location.search : '');
+const DEMO = QS.get('demo');
+function adBreak(done) { showAd('midgame', () => done()); }
+function rewardedAd(onReward) { showAd('rewarded', ok => { if (ok) onReward(); }); }
+// Runs once the portal SDK is ready (see web/ads.js).
+function onPortalReady() { if (cg) loadCloudSave(); }
+
+const COLORS = [
+  { name: 'RED',    c: '#ff4d5e' },
+  { name: 'BLUE',   c: '#3d9bff' },
+  { name: 'GREEN',  c: '#3ddc84' },
+  { name: 'YELLOW', c: '#ffd23d' },
+  { name: 'PURPLE', c: '#b06cff' },
+  { name: 'ORANGE', c: '#ff9a3d' }
+];
+const MAX_LIVES = 3, SAVE_KEY = 'tapArcade.save.v1';
+const FONT = 'system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+const TAU = 6.2832;
+
+const cv = document.getElementById('c'), g = cv.getContext('2d');
+let W = 0, H = 0, cw = 0, x0 = 0, u = 1, land = false;
+
+// ---- Save data
+let save = { coins: 0, best: {}, unlocked: {}, daily: '', streak: 0, missions: null, journey: {} };
+try { Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY)) || {}); } catch (e) {}
+function persist() {
+  const raw = JSON.stringify(save);
+  try { localStorage.setItem(SAVE_KEY, raw); } catch (e) {}
+  if (cg) { try { cg.data.setItem(SAVE_KEY, raw); } catch (e) {} }
+}
+// CrazyGames Data Module: progress follows the player's CrazyGames account across devices.
+function loadCloudSave() {
+  try {
+    const raw = cg.data.getItem(SAVE_KEY);
+    if (!raw) { cg.data.setItem(SAVE_KEY, JSON.stringify(save)); return; }
+    Object.assign(save, JSON.parse(raw));
+    checkDaily(); ensureMissions();
+  } catch (e) {}
+}
+
+// ---- Shared run state
+let screen = 'hub';            // hub | play | over
+let cur = null;
+let time = 0, elapsed = 0, level = 1, score = 0, lives = MAX_LIVES;
+let revived = false, doubled = false, runCoins = 0, newBest = false, overTime = 0;
+let shake = 0, parts = [], texts = [], clouds = [], btns = [];
+let dailyGift = 0, modal = '', countedScore = 0, missionWon = 0, hubTab = 'journey', jpage = 0;
+
+// ---- Audio (synthesised, no files)
+let ac = null, muted = false;
+function initAudio() {
+  if (ac) { if (ac.state === 'suspended') ac.resume(); return; }
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (AC) ac = new AC();
+}
+function tone(f1, f2, d, type, vol, delay) {
+  if (muted || adPlaying || !ac) return;
+  const t = ac.currentTime + (delay || 0);
+  const o = ac.createOscillator(), ga = ac.createGain();
+  o.type = type || 'triangle';
+  o.frequency.setValueAtTime(f1, t);
+  o.frequency.exponentialRampToValueAtTime(f2, t + d);
+  ga.gain.setValueAtTime(vol || 0.2, t);
+  ga.gain.exponentialRampToValueAtTime(0.001, t + d);
+  o.connect(ga); ga.connect(ac.destination);
+  o.start(t); o.stop(t + d + 0.02);
+}
+const sfx = {
+  pop:   n => tone(520 + Math.min(n || 0, 12) * 40, 260, 0.09, 'triangle', 0.25),
+  flip:  () => tone(700, 500, 0.05, 'sine', 0.15),
+  gold:  () => { tone(660, 660, 0.08, 'sine', 0.2); tone(880, 880, 0.08, 'sine', 0.2, 0.08); tone(1320, 1320, 0.14, 'sine', 0.2, 0.16); },
+  wrong: () => tone(180, 70, 0.28, 'sawtooth', 0.18),
+  bomb:  () => { tone(120, 40, 0.4, 'sawtooth', 0.25); tone(90, 30, 0.4, 'square', 0.15); },
+  swap:  () => { tone(440, 440, 0.07, 'square', 0.1); tone(660, 660, 0.1, 'square', 0.1, 0.08); },
+  over:  () => { tone(440, 440, 0.15, 'triangle', 0.2); tone(330, 330, 0.15, 'triangle', 0.2, 0.16); tone(220, 220, 0.35, 'triangle', 0.2, 0.32); },
+  click: () => tone(600, 600, 0.04, 'square', 0.08)
+};
+
+// ---- Layout
+function resize() {
+  let dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth; H = window.innerHeight;
+  if (DEMO) { W = +QS.get('w') || W; H = +QS.get('h') || H; dpr = 1; cv.style.width = W + 'px'; cv.style.height = H + 'px'; }
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  // Portrait: a 100u-wide column. Landscape (desktop iframes): a 160u x 118u stage,
+  // so text stays readable in 16:9 frames instead of shrinking into a narrow column.
+  land = W > H * 1.25;
+  if (land) { u = Math.min(H / 118, W / 164); cw = u * 160; }
+  else { cw = Math.min(W, H * 0.62); u = cw / 100; }
+  x0 = (W - cw) / 2;
+}
+window.addEventListener('resize', resize);
+resize();
+for (let i = 0; i < 6; i++) {
+  clouds.push({ x: Math.random(), y: 0.08 + Math.random() * 0.7, s: 0.6 + Math.random() * 0.9, v: 0.006 + Math.random() * 0.012 });
+}
+
+// ---- Drawing helpers
+function label(str, x, y, size, color, align, stroke) {
+  g.font = '800 ' + size + 'px ' + FONT;
+  g.textAlign = align || 'center'; g.textBaseline = 'middle';
+  if (stroke) { g.lineWidth = size * 0.16; g.strokeStyle = stroke; g.lineJoin = 'round'; g.strokeText(str, x, y); }
+  g.fillStyle = color; g.fillText(str, x, y);
+}
+function rrect(x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+function heart(x, y, s, color) {
+  g.beginPath();
+  g.moveTo(x, y + s * 0.9);
+  g.bezierCurveTo(x - s * 1.5, y - s * 0.1, x - s * 0.7, y - s * 1.1, x, y - s * 0.3);
+  g.bezierCurveTo(x + s * 0.7, y - s * 1.1, x + s * 1.5, y - s * 0.1, x, y + s * 0.9);
+  g.fillStyle = color; g.fill();
+}
+function star(x, y, r, color) {
+  g.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.45 : r;
+    g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr);
+  }
+  g.closePath(); g.fillStyle = color; g.fill();
+}
+function shape(type, x, y, r, color) {
+  g.fillStyle = color;
+  if (type === 0) { g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill(); }
+  else if (type === 1) { rrect(x - r * 0.85, y - r * 0.85, r * 1.7, r * 1.7, r * 0.2); g.fill(); }
+  else if (type === 2) { g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y + r * 0.8); g.lineTo(x - r, y + r * 0.8); g.closePath(); g.fill(); }
+  else if (type === 3) star(x, y, r * 1.1, color);
+  else heart(x, y + r * 0.1, r * 0.85, color);
+}
+function coin(x, y, r) {
+  g.fillStyle = '#e0a400'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+  g.fillStyle = '#ffd23d'; g.beginPath(); g.arc(x, y, r * 0.78, 0, TAU); g.fill();
+  g.fillStyle = '#e0a400'; g.fillRect(x - r * 0.12, y - r * 0.45, r * 0.24, r * 0.9);
+}
+function burst(x, y, color, n) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, s = u * (20 + Math.random() * 60);
+    parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: 0.5 + Math.random() * 0.3, color, size: u * (0.8 + Math.random() * 1.6) });
+  }
+}
+function floatText(str, x, y, color) { texts.push({ str, x, y, life: 0.9, color: color || '#fff' }); }
+
+// Immediate-mode button: drawn every frame, hit-tested on the next tap.
+function button(str, cx, cy, w, h, color, dark, action) {
+  btns.push({ x: cx - w / 2, y: cy - h / 2, w, h, action });
+  g.fillStyle = dark; rrect(cx - w / 2, cy - h / 2 + u * 1.1, w, h, h / 2); g.fill();
+  g.fillStyle = color; rrect(cx - w / 2, cy - h / 2, w, h, h / 2); g.fill();
+  label(str, cx, cy, h * 0.42, '#fff');
+}
+function roundBtn(str, x, y, action, strike) {
+  const r = u * 5.5;
+  btns.push({ x: x - r, y: y - r, w: r * 2, h: r * 2, action });
+  g.fillStyle = 'rgba(10,25,60,.5)'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+  label(str, x, y, u * 6, strike ? 'rgba(255,255,255,.35)' : '#fff');
+  if (strike) {
+    g.strokeStyle = '#ff6b78'; g.lineWidth = u * 0.9; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(x - r * 0.55, y + r * 0.55); g.lineTo(x + r * 0.55, y - r * 0.55); g.stroke();
+  }
+}
+function pill(str, swatch) {
+  const cx = x0 + cw / 2, pw = u * 70, ph = u * 12, px = cx - pw / 2, py = u * 19;
+  g.fillStyle = 'rgba(10,25,60,.55)'; rrect(px, py, pw, ph, ph / 2); g.fill();
+  if (swatch) { g.fillStyle = swatch; g.beginPath(); g.ellipse(px + u * 8, py + ph / 2, u * 3.4, u * 4.1, 0, 0, TAU); g.fill(); }
+  label(str, cx + (swatch ? u * 4 : 0), py + ph / 2, u * 5, '#fff');
+}
+function timerBar(frac, color) {
+  const cx = x0 + cw / 2, w = u * 58, y = u * 32.5;
+  g.fillStyle = 'rgba(255,255,255,.25)'; rrect(cx - w / 2, y, w, u * 1.6, u * 0.8); g.fill();
+  g.fillStyle = color || '#ffd23d';
+  rrect(cx - w / 2, y, Math.max(u * 1.6, w * Math.max(0, Math.min(1, frac))), u * 1.6, u * 0.8); g.fill();
+}
+function gridCell(cols, rows, i) {
+  const top = u * 38, bottom = H - u * 16;
+  const s = Math.min((cw - u * 8) / cols, (bottom - top) / rows);
+  const ox = x0 + (cw - s * cols) / 2, oy = top + ((bottom - top) - s * rows) / 2;
+  return { x: ox + (i % cols) * s, y: oy + Math.floor(i / cols) * s, s };
+}
+function cellAt(cols, rows, x, y) {
+  for (let i = 0; i < cols * rows; i++) {
+    const c = gridCell(cols, rows, i);
+    if (x >= c.x && x < c.x + c.s && y >= c.y && y < c.y + c.s) return i;
+  }
+  return -1;
+}
+function ri(n) { return Math.floor(Math.random() * n); }
+// Four answer buttons (2x2) along the bottom, shared by the quiz-style games.
+function optRect(i) {
+  if (land) {                                   // one row of four
+    const lw = u * 36, lh = u * 19, lg = u * 3;
+    return { x: x0 + cw / 2 - (4 * lw + 3 * lg) / 2 + i * (lw + lg), y: H - u * 16 - lh, w: lw, h: lh };
+  }
+  const w = u * 44, h = u * 19, gap = u * 4, top = H - u * 16 - h * 2 - gap;
+  return { x: x0 + cw / 2 - w - gap / 2 + (i % 2) * (w + gap), y: top + Math.floor(i / 2) * (h + gap), w, h };
+}
+function optAt(x, y) {
+  for (let i = 0; i < 4; i++) { const r = optRect(i); if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) return i; }
+  return -1;
+}
+function drawOpt(i, color, str) {
+  const r = optRect(i);
+  g.fillStyle = 'rgba(0,0,0,.25)'; rrect(r.x, r.y + u, r.w, r.h, u * 5); g.fill();
+  g.fillStyle = color; rrect(r.x, r.y, r.w, r.h, u * 5); g.fill();
+  if (str) label(str, r.x + r.w / 2, r.y + r.h / 2, u * 9, '#fff');
+}
+// Dark panel above the answer buttons; returns its vertical centre.
+function questionPanel() {
+  const top = u * 40, bottom = optRect(0).y - u * 6;
+  g.fillStyle = 'rgba(10,25,60,.8)'; rrect(x0 + u * 6, top, cw - u * 12, bottom - top, u * 6); g.fill();
+  return (top + bottom) / 2;
+}
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+
+// ---- Run flow
+function addScore(n, x, y, color) {
+  const before = stage >= 0 ? starsFor(stage, score) : 0;
+  score += n; floatText('+' + n, x, y, color);
+  if (stage >= 0 && starsFor(stage, score) > before) { sfx.gold(); burst(x0 + cw / 2, u * 9, '#ffd23d', 18); }
+}
+
+// ---- Journey: a stage is a normal run of one game with three score goals; one star clears it
+// and opens the next stage. Each stage is a string '<game id>:<1 star>,<2 stars>,<3 stars>' from
+// levels/tap-arcade.json (checked by tools/taparcade.py).
+/*LEVELS*/
+const STAGES = LEVELS.length;
+let stage = -1, stageStars = 0, stageBonus = 0;
+function stageInfo(i) {
+  const [id, goals] = LEVELS[i].split(':');
+  return { game: GAMES.find(x => x.id === id), goals: goals.split(',').map(Number) };
+}
+function starsFor(i, s) { return stageInfo(i).goals.filter(goal => s >= goal).length; }
+function stageOpen(i) { return i === 0 || (save.journey[i - 1] || 0) >= 1; }
+function loseLife(str, x, y) {
+  lives--; shake = 0.3;
+  floatText(str, x, y, '#ff6b78');
+  if (lives <= 0) endRun();
+}
+// From the hub a game opens on its how-to-play card; "Play again" skips it.
+function startRun(game, skipIntro, journeyStage) {
+  cur = game; stage = journeyStage === undefined ? -1 : journeyStage;
+  elapsed = 0; level = 1; score = 0; lives = MAX_LIVES;
+  revived = false; doubled = false; newBest = false; countedScore = 0; missionWon = 0; stageBonus = 0;
+  parts = []; texts = [];
+  if (skipIntro) beginPlay(); else screen = 'intro';
+}
+function beginPlay() { screen = 'play'; cur.start(); gameplay(true); }
+function exitToHub() { if (screen === 'play') gameplay(false); screen = 'hub'; }
+function endRun() {
+  screen = 'over'; overTime = 0;
+  runCoins = score; doubled = false;
+  save.coins += runCoins;
+  if (score > (save.best[cur.id] || 0)) { save.best[cur.id] = score; newBest = true; }
+  if (stage >= 0) {
+    stageStars = starsFor(stage, score);
+    const prev = save.journey[stage] || 0;
+    if (stageStars > prev) { const bonus = (stageStars - prev) * 10; stageBonus += bonus; save.coins += bonus; save.journey[stage] = stageStars; }
+  }
+  missionWon += progressMissions();
+  persist(); sfx.over(); gameplay(false);
+}
+function revive() {
+  rewardedAd(() => {
+    save.coins -= runCoins;             // coins are paid out again when the run really ends
+    revived = true; lives = 1; screen = 'play';
+    cur.revive(); persist(); gameplay(true);
+  });
+}
+
+// ---- Daily missions: three small goals, rewards paid automatically at the end of a run.
+const MISSION_TARGET = { balloon: 15, mole: 15, number: 15, stroop: 12, memory: 12, math: 12, odd: 12, simon: 10, catch: 15 };
+function ensureMissions() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (save.missions && save.missions.date === today) return;
+  const open = GAMES.filter(isUnlocked), game = open[ri(open.length)], goal = MISSION_TARGET[game.id];
+  save.missions = { date: today, list: [
+    { kind: 'plays', goal: 5, n: 0, reward: 30, text: 'PLAY 5 ROUNDS' },
+    { kind: 'score', game: game.id, goal, n: 0, reward: 40, text: 'SCORE ' + goal + ' IN ' + game.name },
+    { kind: 'coins', goal: 60, n: 0, reward: 30, text: 'EARN 60 COINS' }
+  ] };
+  persist();
+}
+// Returns the coins won by missions completed in this run. A revived run ends twice,
+// so only the score gained since the previous end is counted.
+function progressMissions() {
+  ensureMissions();
+  let won = 0;
+  for (const m of save.missions.list) {
+    if (m.done) continue;
+    if (m.kind === 'plays') { if (!revived) m.n++; }
+    else if (m.kind === 'score') { if (m.game === cur.id) m.n = Math.max(m.n, score); }
+    else m.n += score - countedScore;
+    if (m.n >= m.goal) { m.n = m.goal; m.done = true; won += m.reward; }
+  }
+  countedScore = score;
+  save.coins += won;
+  return won;
+}
+function doubleCoins() {
+  rewardedAd(() => { save.coins += runCoins; runCoins *= 2; doubled = true; persist(); sfx.gold(); });
+}
+// A game opens in Arcade for free, by coins, or by clearing its first Journey stage.
+function isUnlocked(game) { return game.cost === 0 || !!save.unlocked[game.id] || (save.journey[GAMES.indexOf(game)] || 0) >= 1; }
+
+// Daily reward: grows with a streak of consecutive days, capped at 5.
+function checkDaily() {
+  const today = new Date().toISOString().slice(0, 10);
+  dailyGift = 0;
+  if (save.daily === today) return;
+  const yesterday = new Date(Date.now() - 864e5).toISOString().slice(0, 10);
+  save.streak = save.daily === yesterday ? Math.min(5, (save.streak || 0) + 1) : 1;
+  save.daily = today;
+  dailyGift = 20 * save.streak;
+  persist();
+}
+checkDaily();
+
+// ============================================================================
+// Game 1: Balloon Pop
+// ============================================================================
+const balloonGame = (() => {
+  const TARGET_TIME = 10;
+  let balloons, target, targetTimer, banner, spawnTimer, combo;
+  function activeColors() { return Math.min(COLORS.length, 3 + Math.floor((level - 1) / 2)); }
+  function pickTarget() {
+    const n = activeColors();
+    let t;
+    do { t = Math.floor(Math.random() * n); } while (t === target);
+    target = t; targetTimer = TARGET_TIME; banner = 1.4;
+    for (const b of balloons) b.free = true;   // balloons already on screen never cost a life
+    sfx.swap();
+  }
+  function spawn() {
+    const r = u * (11 + Math.random() * 2.5), rnd = Math.random();
+    let type = 'normal';
+    if (level >= 2 && rnd < 0.07) type = 'bomb'; else if (rnd > 0.955) type = 'gold';
+    balloons.push({
+      x: x0 + r + Math.random() * (cw - 2 * r), y: H + r * 1.6, r, type,
+      ci: Math.random() < 0.42 ? target : Math.floor(Math.random() * activeColors()),
+      vy: H * 0.2 * Math.min(2.4, 1 + (level - 1) * 0.09) * (0.85 + Math.random() * 0.3),
+      ph: Math.random() * TAU, sf: 1 + Math.random() * 1.5, sw: u * (4 + Math.random() * 6), free: false
+    });
+  }
+  function drawBalloon(x, y, r, col, type, ph) {
+    const ry = r * 1.2;
+    g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = Math.max(1, u * 0.35);
+    g.beginPath(); g.moveTo(x, y + ry + r * 0.15);
+    g.quadraticCurveTo(x + Math.sin(time * 2 + ph) * r * 0.35, y + ry + r * 0.8, x, y + ry + r * 1.4); g.stroke();
+    g.fillStyle = col;
+    g.beginPath(); g.moveTo(x, y + ry - 1); g.lineTo(x - r * 0.15, y + ry + r * 0.2); g.lineTo(x + r * 0.15, y + ry + r * 0.2); g.fill();
+    g.beginPath(); g.ellipse(x, y, r, ry, 0, 0, TAU); g.fill();
+    const sh = g.createRadialGradient(x - r * 0.35, y - ry * 0.4, r * 0.05, x, y, ry * 1.05);
+    sh.addColorStop(0, 'rgba(255,255,255,.6)'); sh.addColorStop(0.45, 'rgba(255,255,255,0)'); sh.addColorStop(1, 'rgba(0,0,0,.22)');
+    g.fillStyle = sh; g.fill();
+    if (type === 'gold') star(x, y, r * 0.5, '#fff8d6');
+    else if (type === 'bomb') {
+      g.strokeStyle = '#ff4d5e'; g.lineWidth = r * 0.18; g.lineCap = 'round';
+      const k = r * 0.35;
+      g.beginPath(); g.moveTo(x - k, y - k); g.lineTo(x + k, y + k); g.moveTo(x + k, y - k); g.lineTo(x - k, y + k); g.stroke();
+    }
+  }
+  return {
+    id: 'balloon', name: 'BALLOON POP', cost: 0,
+    icon(x, y, s) { drawBalloon(x, y - s * 0.15, s * 0.5, COLORS[0].c, 'normal', 0); },
+    start() { balloons = []; target = -1; combo = 0; spawnTimer = 0.4; pickTarget(); },
+    auto() {
+      const b = balloons.find(k => k.type !== 'bomb' && (k.type === 'gold' || k.ci === target) && k.y > u * 40 && k.y < H * 0.8);
+      if (b) this.tap(b.x, b.y);
+    },
+    revive() { balloons = []; combo = 0; spawnTimer = 0.6; pickTarget(); },
+    update(dt) {
+      targetTimer -= dt; if (targetTimer <= 0) pickTarget();
+      if (banner > 0) banner -= dt;
+      spawnTimer -= dt;
+      if (spawnTimer <= 0) { spawn(); spawnTimer = Math.max(0.34, 0.95 - level * 0.06); }
+      for (let i = balloons.length - 1; i >= 0; i--) {
+        const b = balloons[i];
+        b.y -= b.vy * dt; b.x += Math.sin(time * b.sf + b.ph) * b.sw * dt;
+        if (b.y < -b.r * 1.6) {
+          balloons.splice(i, 1);
+          if (b.type === 'normal' && b.ci === target && !b.free) {
+            combo = 0; sfx.wrong(); loseLife('MISSED!', b.x, u * 40);
+            if (screen !== 'play') return;
+          }
+        }
+      }
+    },
+    tap(x, y) {
+      for (let i = balloons.length - 1; i >= 0; i--) {
+        const b = balloons[i];
+        const dx = (x - b.x) / (b.r * 1.15), dy = (y - b.y) / (b.r * 1.35);
+        if (dx * dx + dy * dy > 1) continue;
+        balloons.splice(i, 1);
+        if (b.type === 'bomb') {
+          burst(b.x, b.y, '#ff8a3d', 26); burst(b.x, b.y, '#2b2f3a', 14);
+          combo = 0; sfx.bomb(); loseLife('BOOM!', b.x, b.y);
+        } else if (b.type === 'gold') {
+          burst(b.x, b.y, '#ffe27a', 24); addScore(5, b.x, b.y, '#ffe27a'); sfx.gold();
+        } else if (b.ci === target) {
+          const mult = combo >= 10 ? 3 : combo >= 5 ? 2 : 1;
+          combo++; burst(b.x, b.y, COLORS[b.ci].c, 14); addScore(mult, b.x, b.y); sfx.pop(combo);
+        } else {
+          burst(b.x, b.y, COLORS[b.ci].c, 8); combo = 0; sfx.wrong(); loseLife('WRONG!', b.x, b.y);
+        }
+        return;
+      }
+    },
+    draw() {
+      for (const b of balloons) {
+        drawBalloon(b.x, b.y, b.r, b.type === 'gold' ? '#ffc928' : b.type === 'bomb' ? '#2b2f3a' : COLORS[b.ci].c, b.type, b.ph);
+      }
+    },
+    hud() {
+      pill('POP ' + COLORS[target].name, COLORS[target].c);
+      timerBar(targetTimer / TARGET_TIME, COLORS[target].c);
+      if (combo >= 5) label('x' + (combo >= 10 ? 3 : 2), x0 + u * 5, u * 17, u * 5, '#ffe27a', 'left', 'rgba(0,0,0,.25)');
+      if (banner > 0) {
+        g.globalAlpha = Math.min(1, banner / 0.4);
+        const s = 1 + (1 - Math.min(1, (1.4 - banner) / 0.2)) * 0.5;
+        label(COLORS[target].name + '!', x0 + cw / 2, H * 0.45, u * 15 * s, COLORS[target].c, 'center', '#fff');
+        g.globalAlpha = 1;
+      }
+    }
+  };
+})();
+
+// ============================================================================
+// Game 2: Whack-a-Mole
+// ============================================================================
+const moleGame = (() => {
+  let holes, spawnTimer;
+  function geo(i) {
+    const c = gridCell(3, 3, i), r = c.s * 0.3;
+    return { c, r, cx: c.x + c.s / 2, base: c.y + c.s * 0.78 };
+  }
+  function drawMole(cx, base, r, k, type) {
+    const my = base - k * r * 1.5;
+    g.fillStyle = type === 'gold' ? '#ffc928' : type === 'bomb' ? '#2b2f3a' : '#a86b3c';
+    g.beginPath(); g.arc(cx, my, r, Math.PI, 0); g.lineTo(cx + r, my + r * 2); g.lineTo(cx - r, my + r * 2); g.fill();
+    if (type === 'bomb') {
+      g.strokeStyle = '#ff4d5e'; g.lineWidth = r * 0.2; g.lineCap = 'round';
+      const q = r * 0.35;
+      g.beginPath(); g.moveTo(cx - q, my - q + r * 0.1); g.lineTo(cx + q, my + q + r * 0.1);
+      g.moveTo(cx + q, my - q + r * 0.1); g.lineTo(cx - q, my + q + r * 0.1); g.stroke();
+      return;
+    }
+    g.fillStyle = '#fff';
+    g.beginPath(); g.arc(cx - r * 0.38, my - r * 0.2, r * 0.22, 0, TAU); g.arc(cx + r * 0.38, my - r * 0.2, r * 0.22, 0, TAU); g.fill();
+    g.fillStyle = '#222';
+    g.beginPath(); g.arc(cx - r * 0.38, my - r * 0.18, r * 0.1, 0, TAU); g.arc(cx + r * 0.38, my - r * 0.18, r * 0.1, 0, TAU); g.fill();
+    g.fillStyle = '#ff8fa3'; g.beginPath(); g.ellipse(cx, my + r * 0.15, r * 0.2, r * 0.14, 0, 0, TAU); g.fill();
+    if (type === 'gold') star(cx, my - r * 0.7, r * 0.3, '#fff8d6');
+  }
+  function reset() { holes = []; for (let i = 0; i < 9; i++) holes.push({ up: false, t: 0, dur: 1, type: 'normal' }); spawnTimer = 0.6; }
+  return {
+    id: 'mole', name: 'WHACK-A-MOLE', cost: 0,
+    icon(x, y, s) { drawMole(x, y + s * 0.5, s * 0.42, 1, 'normal'); },
+    start: reset, revive: reset,
+    auto() {
+      const i = holes.findIndex(h => h.up && h.type !== 'bomb' && h.t > 0.3);
+      if (i >= 0) { const p = geo(i); this.tap(p.cx, p.base - p.r * 0.8); }
+    },
+    update(dt) {
+      spawnTimer -= dt;
+      if (spawnTimer <= 0) {
+        spawnTimer = Math.max(0.36, 0.9 - level * 0.06);
+        const free = []; holes.forEach((h, i) => { if (!h.up) free.push(i); });
+        if (free.length) {
+          const h = holes[free[Math.floor(Math.random() * free.length)]], rnd = Math.random();
+          h.up = true; h.t = 0; h.dur = Math.max(0.6, 1.4 - level * 0.08);
+          h.type = level >= 2 && rnd < 0.13 ? 'bomb' : rnd > 0.94 ? 'gold' : 'normal';
+        }
+      }
+      for (let i = 0; i < 9; i++) {
+        const h = holes[i];
+        if (!h.up) continue;
+        h.t += dt;
+        if (h.t >= h.dur) {
+          h.up = false;
+          if (h.type === 'normal') {
+            const p = geo(i); sfx.wrong(); loseLife('MISSED!', p.cx, p.base - p.r);
+            if (screen !== 'play') return;
+          }
+        }
+      }
+    },
+    tap(x, y) {
+      for (let i = 0; i < 9; i++) {
+        const h = holes[i], p = geo(i);
+        if (!h.up || Math.hypot(x - p.cx, y - (p.base - p.r * 0.8)) > p.r * 1.6) continue;
+        h.up = false;
+        if (h.type === 'bomb') { burst(p.cx, p.base - p.r, '#ff8a3d', 24); sfx.bomb(); loseLife('BOOM!', p.cx, p.base - p.r); }
+        else if (h.type === 'gold') { burst(p.cx, p.base - p.r, '#ffe27a', 22); addScore(5, p.cx, p.base - p.r, '#ffe27a'); sfx.gold(); }
+        else { burst(p.cx, p.base - p.r, '#c98a55', 12); addScore(1, p.cx, p.base - p.r); sfx.pop(score % 8); }
+        return;
+      }
+    },
+    draw() {
+      const a = gridCell(3, 3, 0);
+      g.fillStyle = 'rgba(52,168,83,.9)'; rrect(a.x - u * 2, a.y - u * 2, a.s * 3 + u * 4, a.s * 3 + u * 4, u * 5); g.fill();
+      for (let i = 0; i < 9; i++) {
+        const h = holes[i], p = geo(i);
+        g.fillStyle = '#3b2a1a'; g.beginPath(); g.ellipse(p.cx, p.base, p.r * 1.3, p.r * 0.45, 0, 0, TAU); g.fill();
+        if (!h.up) continue;
+        const k = Math.max(0, Math.min(1, h.t / 0.12, (h.dur - h.t) / 0.12));
+        g.save(); g.beginPath(); g.rect(p.c.x, p.c.y - p.c.s, p.c.s, p.base - (p.c.y - p.c.s)); g.clip();
+        drawMole(p.cx, p.base, p.r, k, h.type);
+        g.restore();
+      }
+    },
+    hud() { pill('WHACK THE MOLES!'); }
+  };
+})();
+
+// ============================================================================
+// Game 3: Number Rush (tap 1..N in order)
+// ============================================================================
+const numberGame = (() => {
+  let dim, cells, done, next, timer, tmax, round;
+  function board() {
+    dim = Math.min(5, 3 + Math.floor(round / 2));
+    cells = shuffle(Array.from({ length: dim * dim }, (_, i) => i + 1));
+    done = {}; next = 1; tmax = dim * dim * 1.05 + 4; timer = tmax;
+  }
+  return {
+    id: 'number', name: 'NUMBER RUSH', cost: 50,
+    icon(x, y, s) { label('123', x, y, s * 0.7, '#fff', 'center', '#16254a'); },
+    start() { round = 0; board(); },
+    revive() { board(); },
+    auto() { const c = gridCell(dim, dim, cells.indexOf(next)); this.tap(c.x + c.s / 2, c.y + c.s / 2); },
+    update(dt) {
+      timer -= dt;
+      if (timer <= 0) { sfx.wrong(); loseLife('TIME!', x0 + cw / 2, H * 0.5); if (screen === 'play') board(); }
+    },
+    tap(x, y) {
+      const i = cellAt(dim, dim, x, y);
+      if (i < 0 || done[i]) return;
+      const c = gridCell(dim, dim, i), cx = c.x + c.s / 2, cy = c.y + c.s / 2;
+      if (cells[i] !== next) { sfx.wrong(); loseLife('WRONG!', cx, cy); return; }
+      done[i] = true; next++;
+      burst(cx, cy, '#3d9bff', 8); addScore(1, cx, cy); sfx.pop(next % 12);
+      if (next > dim * dim) { addScore(5, x0 + cw / 2, H * 0.5, '#ffe27a'); sfx.gold(); round++; board(); }
+    },
+    draw() {
+      for (let i = 0; i < dim * dim; i++) {
+        const c = gridCell(dim, dim, i), p = c.s * 0.06;
+        g.globalAlpha = done[i] ? 0.25 : 1;
+        g.fillStyle = '#1f6fd0'; rrect(c.x + p, c.y + p + u * 0.8, c.s - 2 * p, c.s - 2 * p, c.s * 0.18); g.fill();
+        g.fillStyle = '#3d9bff'; rrect(c.x + p, c.y + p, c.s - 2 * p, c.s - 2 * p, c.s * 0.18); g.fill();
+        label(String(cells[i]), c.x + c.s / 2, c.y + c.s / 2, c.s * 0.42, '#fff');
+      }
+      g.globalAlpha = 1;
+    },
+    hud() { pill('TAP IN ORDER  •  NEXT: ' + Math.min(next, dim * dim)); timerBar(timer / tmax); }
+  };
+})();
+
+// ============================================================================
+// Game 4: Color Trap (tap the ink colour, not the word)
+// ============================================================================
+const stroopGame = (() => {
+  let word, ink, timer, tmax;
+  function ask() {
+    word = Math.floor(Math.random() * 4);
+    ink = Math.random() < 0.3 ? word : Math.floor(Math.random() * 4);
+    tmax = Math.max(1.2, 3.2 - level * 0.2); timer = tmax;
+  }
+  return {
+    id: 'stroop', name: 'COLOR TRAP', cost: 100,
+    icon(x, y, s) {
+      for (let i = 0; i < 4; i++) { g.fillStyle = COLORS[i].c; rrect(x - s * 0.5 + (i % 2) * s * 0.54, y - s * 0.5 + Math.floor(i / 2) * s * 0.54, s * 0.46, s * 0.46, s * 0.1); g.fill(); }
+    },
+    start: ask, revive: ask,
+    update(dt) {
+      timer -= dt;
+      if (timer <= 0) { sfx.wrong(); loseLife('TOO SLOW!', x0 + cw / 2, H * 0.4); if (screen === 'play') ask(); }
+    },
+    tap(x, y) {
+      const i = optAt(x, y);
+      if (i < 0) return;
+      if (i === ink) { burst(x, y, COLORS[i].c, 12); addScore(1, x, y); sfx.pop(score % 12); ask(); }
+      else { sfx.wrong(); loseLife('WRONG!', x, y); if (screen === 'play') ask(); }
+    },
+    draw() {
+      label(COLORS[word].name, x0 + cw / 2, questionPanel(), u * 17, COLORS[ink].c);
+      for (let i = 0; i < 4; i++) drawOpt(i, COLORS[i].c);
+    },
+    hud() { pill('TAP THE INK COLOUR'); timerBar(timer / tmax); }
+  };
+})();
+
+// ============================================================================
+// Game 6: Math Rush
+// ============================================================================
+const mathGame = (() => {
+  let text, answer, opts, timer, tmax;
+  function ask() {
+    const kind = ri(level >= 3 ? 3 : 2), top = 9 + level * 3;
+    let a, b;
+    if (kind === 0) { a = 1 + ri(top); b = 1 + ri(top); answer = a + b; text = a + ' + ' + b; }
+    else if (kind === 1) { a = 2 + ri(top); b = 1 + ri(a); answer = a - b; text = a + ' − ' + b; }
+    else { a = 2 + ri(8); b = 2 + ri(8); answer = a * b; text = a + ' × ' + b; }
+    const set = new Set([answer]);
+    while (set.size < 4) { const d = answer + ri(11) - 5; if (d >= 0) set.add(d); }
+    opts = shuffle([...set]);
+    tmax = Math.max(1.8, 5 - level * 0.25); timer = tmax;
+  }
+  return {
+    id: 'math', name: 'MATH RUSH', cost: 200,
+    icon(x, y, s) { label('2+3', x, y, s * 0.62, '#ffd23d', 'center', '#16254a'); },
+    start: ask, revive: ask,
+    auto() { const r = optRect(opts.indexOf(answer)); this.tap(r.x + r.w / 2, r.y + r.h / 2); },
+    update(dt) {
+      timer -= dt;
+      if (timer <= 0) { sfx.wrong(); loseLife('TOO SLOW!', x0 + cw / 2, H * 0.4); if (screen === 'play') ask(); }
+    },
+    tap(x, y) {
+      const i = optAt(x, y);
+      if (i < 0) return;
+      if (opts[i] === answer) { burst(x, y, '#3d9bff', 12); addScore(1, x, y); sfx.pop(score % 12); ask(); }
+      else { sfx.wrong(); loseLife('WRONG!', x, y); if (screen === 'play') ask(); }
+    },
+    draw() {
+      label(text + ' = ?', x0 + cw / 2, questionPanel(), u * 13, '#fff');
+      for (let i = 0; i < 4; i++) drawOpt(i, '#3d9bff', String(opts[i]));
+    },
+    hud() { pill('PICK THE ANSWER'); timerBar(timer / tmax); }
+  };
+})();
+
+// ============================================================================
+// Game 7: Odd One Out (one tile is a slightly different shade)
+// ============================================================================
+const oddGame = (() => {
+  let dim, odd, hue, delta, timer, tmax, round;
+  function board() {
+    dim = Math.min(6, 3 + Math.floor(round / 3));
+    odd = ri(dim * dim); hue = ri(360);
+    delta = Math.max(5, 20 - round);
+    tmax = Math.max(2.5, 6 - round * 0.15); timer = tmax;
+  }
+  return {
+    id: 'odd', name: 'ODD ONE OUT', cost: 300,
+    icon(x, y, s) {
+      for (let i = 0; i < 4; i++) { g.fillStyle = i === 1 ? '#ffb3bb' : '#ff4d5e'; rrect(x - s * 0.5 + (i % 2) * s * 0.54, y - s * 0.5 + Math.floor(i / 2) * s * 0.54, s * 0.46, s * 0.46, s * 0.1); g.fill(); }
+    },
+    start() { round = 0; board(); },
+    revive() { board(); },
+    update(dt) {
+      timer -= dt;
+      if (timer <= 0) { sfx.wrong(); loseLife('TIME!', x0 + cw / 2, H * 0.5); if (screen === 'play') board(); }
+    },
+    tap(x, y) {
+      const i = cellAt(dim, dim, x, y);
+      if (i < 0) return;
+      if (i === odd) { burst(x, y, 'hsl(' + hue + ',65%,60%)', 12); addScore(1, x, y); sfx.pop(round % 12); round++; board(); }
+      else { sfx.wrong(); loseLife('WRONG!', x, y); }
+    },
+    draw() {
+      for (let i = 0; i < dim * dim; i++) {
+        const c = gridCell(dim, dim, i), p = c.s * 0.05;
+        g.fillStyle = 'hsl(' + hue + ',65%,' + (i === odd ? 48 + delta : 48) + '%)';
+        rrect(c.x + p, c.y + p, c.s - 2 * p, c.s - 2 * p, c.s * 0.16); g.fill();
+      }
+    },
+    hud() { pill('FIND THE DIFFERENT TILE'); timerBar(timer / tmax); }
+  };
+})();
+
+// ============================================================================
+// Game 8: Pattern (watch the sequence, then repeat it)
+// ============================================================================
+const simonGame = (() => {
+  const FREQ = [330, 415, 494, 659];
+  let seq, phase, idx, t, lit, litT;
+  function step() { return Math.max(0.32, 0.6 - seq.length * 0.02); }
+  function flash(i, d) { lit = i; litT = d; tone(FREQ[i], FREQ[i], 0.22, 'sine', 0.22); }
+  function begin() { phase = 'show'; idx = 0; t = 0.7; }
+  return {
+    id: 'simon', name: 'PATTERN', cost: 400,
+    icon(x, y, s) {
+      for (let i = 0; i < 4; i++) { g.globalAlpha *= i === 2 ? 1 : 0.5; g.fillStyle = COLORS[i].c; g.beginPath(); g.arc(x - s * 0.27 + (i % 2) * s * 0.54, y - s * 0.27 + Math.floor(i / 2) * s * 0.54, s * 0.23, 0, TAU); g.fill(); g.globalAlpha /= i === 2 ? 1 : 0.5; }
+    },
+    start() { seq = [ri(4)]; lit = -1; litT = 0; begin(); },
+    revive() { lit = -1; litT = 0; begin(); },
+    update(dt) {
+      if (litT > 0) { litT -= dt; if (litT <= 0) lit = -1; }
+      if (phase === 'input') return;
+      t -= dt;
+      if (t > 0) return;
+      if (phase === 'next') { seq.push(ri(4)); begin(); }
+      else if (idx < seq.length) { flash(seq[idx], step() * 0.7); idx++; t = step(); }
+      else { phase = 'input'; idx = 0; }
+    },
+    tap(x, y) {
+      if (phase !== 'input') return;
+      const i = cellAt(2, 2, x, y);
+      if (i < 0) return;
+      if (i !== seq[idx]) { lit = i; litT = 0.2; sfx.wrong(); loseLife('WRONG!', x, y); if (screen === 'play') begin(); return; }
+      flash(i, 0.2); idx++;
+      if (idx === seq.length) { addScore(seq.length, x0 + cw / 2, H * 0.5, '#ffe27a'); phase = 'next'; t = 0.8; }
+    },
+    draw() {
+      for (let i = 0; i < 4; i++) {
+        const c = gridCell(2, 2, i), p = c.s * 0.06, on = lit === i;
+        g.fillStyle = 'rgba(0,0,0,.25)'; rrect(c.x + p, c.y + p + u, c.s - 2 * p, c.s - 2 * p, c.s * 0.16); g.fill();
+        g.fillStyle = '#16254a'; rrect(c.x + p, c.y + p, c.s - 2 * p, c.s - 2 * p, c.s * 0.16); g.fill();
+        g.globalAlpha = on ? 1 : 0.45;
+        g.fillStyle = COLORS[i].c; rrect(c.x + p, c.y + p, c.s - 2 * p, c.s - 2 * p, c.s * 0.16); g.fill();
+        g.globalAlpha = 1;
+      }
+    },
+    hud() { pill(phase === 'input' ? 'YOUR TURN  ' + idx + ' / ' + seq.length : 'WATCH...'); }
+  };
+})();
+
+// ============================================================================
+// Game 9: Star Catch (drag the basket)
+// ============================================================================
+const catchGame = (() => {
+  let items, bx, spawnT;
+  function by() { return H - u * 25; }
+  function reset() { items = []; bx = x0 + cw / 2; spawnT = 0.5; }
+  function drawItem(type, x, y, r, ci) {
+    if (type === 'gold') { star(x, y, r * 1.25, '#ffd23d'); return; }
+    g.fillStyle = type === 'bomb' ? '#2b2f3a' : COLORS[ci].c;
+    g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+    if (type === 'bomb') {
+      g.strokeStyle = '#ff4d5e'; g.lineWidth = r * 0.22; g.lineCap = 'round';
+      const k = r * 0.4;
+      g.beginPath(); g.moveTo(x - k, y - k); g.lineTo(x + k, y + k); g.moveTo(x + k, y - k); g.lineTo(x - k, y + k); g.stroke();
+    } else {
+      g.fillStyle = 'rgba(255,255,255,.45)'; g.beginPath(); g.arc(x - r * 0.3, y - r * 0.3, r * 0.3, 0, TAU); g.fill();
+    }
+  }
+  return {
+    id: 'catch', name: 'STAR CATCH', cost: 500,
+    icon(x, y, s) { star(x, y - s * 0.2, s * 0.42, '#ffd23d'); g.fillStyle = '#a86b3c'; rrect(x - s * 0.5, y + s * 0.25, s, s * 0.3, s * 0.08); g.fill(); },
+    start: reset, revive: reset,
+    move(x) { bx = Math.max(x0 + u * 11, Math.min(x0 + cw - u * 11, x)); },
+    tap(x) { this.move(x); },
+    update(dt) {
+      spawnT -= dt;
+      if (spawnT <= 0) {
+        spawnT = Math.max(0.42, 1.0 - level * 0.06);
+        const r = Math.random();
+        items.push({
+          x: x0 + u * 8 + Math.random() * (cw - u * 16), y: -u * 6, ci: ri(COLORS.length),
+          vy: H * 0.28 * Math.min(2.2, 1 + (level - 1) * 0.08) * (0.9 + Math.random() * 0.2),
+          type: level >= 2 && r < 0.18 ? 'bomb' : r > 0.92 ? 'gold' : 'ball'
+        });
+      }
+      for (let i = items.length - 1; i >= 0; i--) {
+        const it = items[i];
+        it.y += it.vy * dt;
+        if (it.y > by() - u * 4 && it.y < by() + u * 6 && Math.abs(it.x - bx) < u * 13) {
+          items.splice(i, 1);
+          if (it.type === 'bomb') { burst(it.x, it.y, '#ff8a3d', 22); sfx.bomb(); loseLife('BOOM!', it.x, it.y - u * 6); }
+          else if (it.type === 'gold') { burst(it.x, it.y, '#ffe27a', 18); addScore(3, it.x, it.y - u * 6, '#ffe27a'); sfx.gold(); }
+          else { burst(it.x, it.y, COLORS[it.ci].c, 10); addScore(1, it.x, it.y - u * 6); sfx.pop(score % 12); }
+        } else if (it.y > by() + u * 9) {
+          items.splice(i, 1);
+          if (it.type === 'ball') { sfx.wrong(); loseLife('MISSED!', it.x, by() - u * 6); }
+        }
+        if (screen !== 'play') return;
+      }
+    },
+    draw() {
+      for (const it of items) drawItem(it.type, it.x, it.y, u * 4.5, it.ci);
+      const y = by();
+      g.fillStyle = '#7a4a26'; g.beginPath(); g.moveTo(bx - u * 12, y); g.lineTo(bx + u * 12, y); g.lineTo(bx + u * 9, y + u * 9); g.lineTo(bx - u * 9, y + u * 9); g.closePath(); g.fill();
+      g.fillStyle = '#a86b3c'; rrect(bx - u * 13, y - u * 1.5, u * 26, u * 3.5, u * 1.7); g.fill();
+    },
+    hud() { pill('CATCH  •  AVOID BOMBS'); }
+  };
+})();
+
+// ============================================================================
+// Game 5: Memory Match
+// ============================================================================
+const memoryGame = (() => {
+  const SIZES = [[3, 4], [4, 4], [4, 5]];
+  let cols, rows, cards, first, second, hideT, preview, timer, tmax, round, nextBoard;
+  function board() {
+    const sz = SIZES[Math.min(round, SIZES.length - 1)];
+    cols = land ? sz[1] : sz[0]; rows = land ? sz[0] : sz[1];   // wide boards in landscape
+    const pairs = cols * rows / 2, ks = [];
+    for (let k = 0; k < pairs; k++) ks.push(k, k);
+    cards = shuffle(ks).map(k => ({ k, open: false, done: false }));
+    first = second = -1; hideT = 0; preview = 1.6; nextBoard = 0;
+    tmax = pairs * 4.5 + 6; timer = tmax;
+  }
+  function face(k, x, y, r) { shape(k % 5, x, y, r, COLORS[k % 6].c); }
+  return {
+    id: 'memory', name: 'MEMORY MATCH', cost: 150,
+    icon(x, y, s) {
+      g.fillStyle = '#fff'; rrect(x - s * 0.55, y - s * 0.45, s * 0.5, s * 0.9, s * 0.1); g.fill(); rrect(x + s * 0.05, y - s * 0.45, s * 0.5, s * 0.9, s * 0.1); g.fill();
+      star(x - s * 0.3, y, s * 0.18, COLORS[3].c); star(x + s * 0.3, y, s * 0.18, COLORS[3].c);
+    },
+    start() { round = 0; board(); },
+    revive() { board(); },
+    update(dt) {
+      if (nextBoard > 0) { nextBoard -= dt; if (nextBoard <= 0) { round++; board(); } return; }
+      if (preview > 0) { preview -= dt; return; }
+      if (hideT > 0) { hideT -= dt; if (hideT <= 0) { cards[first].open = cards[second].open = false; first = second = -1; } }
+      timer -= dt;
+      if (timer <= 0) { sfx.wrong(); loseLife('TIME!', x0 + cw / 2, H * 0.5); if (screen === 'play') board(); }
+    },
+    tap(x, y) {
+      if (preview > 0 || nextBoard > 0) return;
+      const i = cellAt(cols, rows, x, y);
+      if (i < 0) return;
+      if (second >= 0) { cards[first].open = cards[second].open = false; first = second = -1; hideT = 0; }
+      const c = cards[i];
+      if (c.done || c.open) return;
+      c.open = true; sfx.flip();
+      if (first < 0) { first = i; return; }
+      const q = gridCell(cols, rows, i), cx = q.x + q.s / 2, cy = q.y + q.s / 2;
+      if (cards[first].k === c.k) {
+        c.done = cards[first].done = true; first = -1;
+        burst(cx, cy, COLORS[c.k % 6].c, 12); addScore(2, cx, cy); sfx.pop(score % 12);
+        if (cards.every(k => k.done)) { addScore(5, x0 + cw / 2, H * 0.5, '#ffe27a'); sfx.gold(); nextBoard = 0.7; }
+      } else { second = i; hideT = 0.7; }
+    },
+    draw() {
+      for (let i = 0; i < cards.length; i++) {
+        const c = cards[i], q = gridCell(cols, rows, i), p = q.s * 0.06, w = q.s - 2 * p;
+        const up = c.open || c.done || preview > 0;
+        g.globalAlpha = c.done ? 0.45 : 1;
+        g.fillStyle = 'rgba(0,0,0,.2)'; rrect(q.x + p, q.y + p + u * 0.8, w, w, q.s * 0.16); g.fill();
+        g.fillStyle = up ? '#fff' : '#3d6fd8'; rrect(q.x + p, q.y + p, w, w, q.s * 0.16); g.fill();
+        if (up) face(c.k, q.x + q.s / 2, q.y + q.s / 2, q.s * 0.26);
+        else label('?', q.x + q.s / 2, q.y + q.s / 2, q.s * 0.4, 'rgba(255,255,255,.7)');
+      }
+      g.globalAlpha = 1;
+    },
+    hud() { pill(preview > 0 ? 'REMEMBER...' : 'FIND THE PAIRS'); timerBar(timer / tmax); }
+  };
+})();
+
+const GAMES = [balloonGame, moleGame, numberGame, stroopGame, memoryGame, mathGame, oddGame, simonGame, catchGame];
+const HELP = {
+  balloon: ['Pop only the colour shown.', 'Gold star = bonus. Avoid bombs!'],
+  mole:    ['Whack every mole before it hides.', "Don't hit the ones marked X!"],
+  number:  ['Tap the numbers in order: 1, 2, 3...', 'Clear the board before time runs out.'],
+  stroop:  ['Tap the colour of the INK,', 'not what the word says!'],
+  memory:  ['Remember the cards, then', 'find all the matching pairs.'],
+  math:    ['Solve the sum and pick', 'the right answer in time.'],
+  odd:     ['One tile is a different shade.', 'Find it before time runs out!'],
+  simon:   ['Watch the pads light up,', 'then repeat the same order.'],
+  catch:   ['Drag to move the basket.', 'Catch everything except bombs!']
+};
+ensureMissions();
+// Local test hook: ?selftest=1 puts the stage count and the stages with an unknown game or goals out of order in the page title.
+if (LOCAL && QS.get('selftest')) document.title = 'selftest:' + STAGES + ':' + LEVELS.map((b, i) => {
+  const s = stageInfo(i), g = s.goals;
+  return s.game && g.length === 3 && g[0] > 0 && g[0] < g[1] && g[1] < g[2] && (i >= GAMES.length || s.game === GAMES[i]) ? 0 : i + 1;
+}).filter(Boolean).join(',');
+// Local test hook: ?play=<game id> opens a game directly, &over=1 jumps to its game-over screen.
+if (LOCAL) {
+  const st = QS.get('stage') ? +QS.get('stage') - 1 : undefined;
+  const g0 = st !== undefined ? stageInfo(st).game : GAMES.find(x => x.id === QS.get('play'));
+  if (QS.get('hub')) { dailyGift = 0; hubTab = QS.get('hub'); persist = () => {}; for (let i = 0; i < 7; i++) save.journey[i] = 1 + i % 3; }
+  if (g0) { dailyGift = 0; startRun(g0, !QS.get('intro'), st); if (QS.get('over')) { score = +QS.get('over'); persist = () => {}; endRun(); overTime = 1; } }
+}
+// Local trailer renderer: plays a scripted tour at a fixed 30 fps and posts each frame to the
+// local capture server, so the video is smooth regardless of how fast this machine renders.
+async function demoLoop() {
+  const plan = [[1.3, null], [4.2, 'balloon'], [4, 'mole'], [3.5, 'number'], [4, 'math']], dt = 1 / 30;
+  dailyGift = 0; save.coins = 260; persist = () => {};
+  GAMES.forEach(x => { save.unlocked[x.id] = 1; });
+  let pi = 0, pt = 0, bt = 0, n = 0;
+  for (;;) {
+    pt += dt;
+    if (pt >= plan[pi][0]) { pi++; pt = 0; if (pi >= plan.length) break; startRun(GAMES.find(x => x.id === plan[pi][1]), true); }
+    bt += dt;
+    if (screen === 'play' && bt > 0.4) { bt = 0; cur.auto(); }
+    if (screen === 'over') startRun(cur, true);
+    update(dt); draw();
+    const blob = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.93));
+    await fetch('/frame?v=' + DEMO + '&n=' + String(n++).padStart(4, '0'), { method: 'POST', body: blob });
+  }
+  await fetch('/frame?v=' + DEMO + '&n=done', { method: 'POST', body: 'x' });
+}
+
+// ============================================================================
+// Screens
+// ============================================================================
+function drawBackground() {
+  const sky = g.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, '#2b6cd4'); sky.addColorStop(0.6, '#6fc3f7'); sky.addColorStop(1, '#c9ecff');
+  g.fillStyle = sky; g.fillRect(0, 0, W, H);
+  g.fillStyle = 'rgba(255,255,255,.75)';
+  for (const c of clouds) {
+    const x = c.x * W, y = c.y * H, s = c.s * u * 9;
+    g.beginPath();
+    g.arc(x, y, s, 0, TAU); g.arc(x + s * 1.1, y - s * 0.4, s * 1.2, 0, TAU);
+    g.arc(x + s * 2.3, y, s, 0, TAU); g.arc(x + s * 1.1, y + s * 0.3, s * 1.1, 0, TAU);
+    g.fill();
+  }
+}
+function drawCoins(x, y) {
+  const str = String(save.coins);
+  g.font = '800 ' + u * 5.5 + 'px ' + FONT;
+  const w = g.measureText(str).width + u * 13;
+  g.fillStyle = 'rgba(10,25,60,.55)'; rrect(x - w, y - u * 4.5, w, u * 9, u * 4.5); g.fill();
+  coin(x - w + u * 5, y, u * 3);
+  label(str, x - u * 3.5, y, u * 5.5, '#fff', 'right');
+}
+function drawHub() {
+  const cx = x0 + cw / 2;
+  g.fillStyle = 'rgba(10,25,60,.3)'; g.fillRect(0, 0, W, H);
+  label('TAP ARCADE', x0 + u * 5, u * 10, u * 8.5, '#ffd23d', 'left', '#16254a');
+  drawCoins(x0 + cw - u * 4, u * 10);
+
+  [['journey', 'JOURNEY'], ['arcade', 'ARCADE']].forEach((t, i) => {
+    const tw = u * 40, tx = cx + (i ? 1 : -1) * u * 21, ty = u * 20.5, on = hubTab === t[0];
+    g.fillStyle = on ? '#ffd23d' : 'rgba(10,25,60,.5)'; rrect(tx - tw / 2, ty - u * 4, tw, u * 8, u * 4); g.fill();
+    label(t[1], tx, ty, u * 3.8, on ? '#16254a' : '#fff');
+    btns.push({ x: tx - tw / 2, y: ty - u * 4, w: tw, h: u * 8, action: () => { hubTab = t[0]; } });
+  });
+  if (hubTab === 'journey') drawJourney(cx);
+
+  const cardW = u * 29.5, cardH = u * 36, gap = u * (land ? 2 : 3), top = u * 27, cols = land ? 5 : 3;
+  for (let i = 0; i < (hubTab === 'arcade' ? GAMES.length : 0); i++) {
+    const game = GAMES[i];
+    const x = cx - (cols * cardW + (cols - 1) * gap) / 2 + (i % cols) * (cardW + gap), y = top + Math.floor(i / cols) * (cardH + gap);
+    const open = isUnlocked(game);
+    g.fillStyle = 'rgba(0,0,0,.2)'; rrect(x, y + u, cardW, cardH, u * 4); g.fill();
+    g.fillStyle = open ? '#27408f' : '#4a5578'; rrect(x, y, cardW, cardH, u * 4); g.fill();
+    g.globalAlpha = open ? 1 : 0.45;
+    game.icon(x + cardW / 2, y + u * 12, u * 11);
+    g.globalAlpha = 1;
+    label(game.name, x + cardW / 2, y + u * 25.5, u * 3, '#fff');
+    if (open) {
+      label('BEST  ' + (save.best[game.id] || 0), x + cardW / 2, y + u * 32, u * 3, '#ffe27a');
+    } else {
+      coin(x + cardW / 2 - u * 6, y + u * 32, u * 2.2);
+      label(String(game.cost), x + cardW / 2 - u * 2.5, y + u * 32, u * 3.8, '#ffe27a', 'left');
+    }
+    btns.push({ x, y, w: cardW, h: cardH, action: () => {
+      if (open) { startRun(game); return; }
+      if (save.coins >= game.cost) {
+        save.coins -= game.cost; save.unlocked[game.id] = 1; persist();
+        burst(x + cardW / 2, y + cardH / 2, '#ffe27a', 30); floatText('UNLOCKED!', x + cardW / 2, y + cardH / 2, '#ffe27a'); sfx.gold();
+      } else { floatText('NEED ' + (game.cost - save.coins) + ' MORE', x + cardW / 2, y + cardH / 2, '#ff6b78'); sfx.wrong(); }
+    } });
+  }
+
+  const pending = save.missions.list.filter(m => !m.done).length;
+  roundBtn('★', x0 + cw - u * 8, H - u * 8, () => { modal = 'missions'; });
+  if (pending) {
+    g.fillStyle = '#ff4d5e'; g.beginPath(); g.arc(x0 + cw - u * 4, H - u * 12, u * 2.4, 0, TAU); g.fill();
+    label(String(pending), x0 + cw - u * 4, H - u * 12, u * 3, '#fff');
+  }
+
+  if (modal === 'missions' && !dailyGift) {
+    btns = [];                                    // modal: block the cards behind it
+    g.fillStyle = 'rgba(10,25,60,.75)'; g.fillRect(0, 0, W, H);
+    const py = H * 0.5 - u * 44;
+    g.fillStyle = '#27408f'; rrect(cx - u * 44, py, u * 88, u * 88, u * 6); g.fill();
+    label('DAILY MISSIONS', cx, py + u * 10, u * 6.5, '#ffd23d');
+    save.missions.list.forEach((m, i) => {
+      const y = py + u * 20 + i * u * 17;
+      g.fillStyle = m.done ? 'rgba(61,220,132,.25)' : 'rgba(10,25,60,.45)'; rrect(cx - u * 40, y, u * 80, u * 14.5, u * 3); g.fill();
+      label(m.text, cx - u * 37, y + u * 4.8, u * 3.4, '#fff', 'left');
+      g.fillStyle = 'rgba(255,255,255,.2)'; rrect(cx - u * 37, y + u * 9.3, u * 50, u * 2, u); g.fill();
+      g.fillStyle = '#3ddc84'; rrect(cx - u * 37, y + u * 9.3, Math.max(u * 2, u * 50 * m.n / m.goal), u * 2, u); g.fill();
+      if (m.done) label('DONE', cx + u * 28, y + u * 7.2, u * 4, '#3ddc84');
+      else { coin(cx + u * 22, y + u * 7.2, u * 2.4); label('+' + m.reward, cx + u * 26, y + u * 7.2, u * 4, '#ffe27a', 'left'); }
+    });
+    button('CLOSE', cx, py + u * 78, u * 44, u * 11, '#3d9bff', '#1f6fd0', () => { modal = ''; });
+  }
+
+  if (dailyGift) {
+    btns = [];                                    // modal: block the cards behind it
+    g.fillStyle = 'rgba(10,25,60,.75)'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#27408f'; rrect(cx - u * 38, H * 0.5 - u * 30, u * 76, u * 60, u * 6); g.fill();
+    label('DAILY REWARD', cx, H * 0.5 - u * 20, u * 7, '#ffd23d');
+    label('DAY ' + save.streak, cx, H * 0.5 - u * 11, u * 4.5, 'rgba(255,255,255,.8)');
+    coin(cx - u * 12, H * 0.5 + u * 1, u * 5);
+    label('+' + dailyGift, cx + u * 6, H * 0.5 + u * 1, u * 10, '#fff');
+    button('CLAIM', cx, H * 0.5 + u * 18, u * 50, u * 13, '#3ddc84', '#1f9d55', () => {
+      save.coins += dailyGift; dailyGift = 0; persist(); sfx.gold(); burst(cx, H * 0.5, '#ffe27a', 30);
+    });
+  }
+}
+function drawJourney(cx) {
+  const cols = land ? 5 : 3, rows = land ? 3 : 5, tw = u * 29.5, gx = u * 3, top = u * 27;
+  const th = u * (land ? 76 : 119) / rows - u * 2;
+  for (let k = 0; k < cols * rows; k++) {
+    const i = jpage * 15 + k;
+    if (i >= STAGES) break;
+    const info = stageInfo(i), open = stageOpen(i), st = save.journey[i] || 0;
+    const x = cx - (cols * tw + (cols - 1) * gx) / 2 + (k % cols) * (tw + gx), y = top + Math.floor(k / cols) * (th + u * 2);
+    g.fillStyle = 'rgba(0,0,0,.2)'; rrect(x, y + u, tw, th, u * 4); g.fill();
+    g.fillStyle = !open ? '#4a5578' : st ? '#2f5fc4' : '#27408f'; rrect(x, y, tw, th, u * 4); g.fill();
+    g.globalAlpha = open ? 1 : 0.4;
+    info.game.icon(x + tw * 0.27, y + th * 0.46, u * 8);
+    label(String(i + 1), x + tw * 0.69, y + th * 0.36, u * 6.5, '#fff');
+    g.globalAlpha = 1;
+    for (let j = 0; j < 3; j++) star(x + tw * 0.69 + (j - 1) * u * 4.2, y + th * 0.74, u * 1.9, j < st ? '#ffd23d' : 'rgba(255,255,255,.22)');
+    if (open) btns.push({ x, y, w: tw, h: th, action: () => startRun(info.game, false, i) });
+  }
+  const by = H - u * 8, pages = STAGES / 15;
+  if (jpage > 0) roundBtn('‹', cx - u * 20, by, () => { jpage--; });
+  label((jpage + 1) + ' / ' + pages, cx, by, u * 4.5, '#fff', 'center', 'rgba(0,0,0,.25)');
+  if (jpage < pages - 1) roundBtn('›', cx + u * 20, by, () => { jpage++; });
+}
+function drawPlayHud() {
+  label(String(score), x0 + u * 5, u * 9, u * 9, '#fff', 'left', 'rgba(0,0,0,.25)');
+  for (let i = 0; i < MAX_LIVES; i++) heart(x0 + cw - u * 7 - i * u * 9, u * 9, u * 3.4, i < lives ? '#ff4d5e' : 'rgba(255,255,255,.22)');
+  if (stage >= 0) {                              // Journey: three star goals at the top centre
+    const cx = x0 + cw / 2, goals = stageInfo(stage).goals, next = goals.find(goal => score < goal);
+    goals.forEach((goal, j) => star(cx + (j - 1) * u * 7, u * 8, u * 3, score >= goal ? '#ffd23d' : 'rgba(255,255,255,.35)'));
+    if (next) label('★ ' + next, cx, u * 14.5, u * 3.2, '#fff', 'center', 'rgba(0,0,0,.25)');
+  }
+  cur.hud();
+  roundBtn('×', x0 + cw - u * 8, H - u * 8, exitToHub);
+}
+function drawIntro() {
+  const cx = x0 + cw / 2, cy = H * 0.5;
+  g.fillStyle = 'rgba(10,25,60,.45)'; g.fillRect(0, 0, W, H);
+  g.fillStyle = '#27408f'; rrect(cx - u * 44, cy - u * 46, u * 88, u * 92, u * 6); g.fill();
+  cur.icon(cx, cy - u * 27, u * 20);
+  if (stage >= 0) label('STAGE ' + (stage + 1), cx, cy - u * 12, u * 4, '#fff');
+  label(cur.name, cx, cy - u * 5, u * 8, '#ffd23d');
+  HELP[cur.id].forEach((line, i) => label(line, cx, cy + u * 4 + i * u * 6, u * 4.2, '#fff'));
+  if (stage >= 0) stageInfo(stage).goals.forEach((goal, j) => {      // score needed for 1, 2 and 3 stars
+    const gx = cx + (j - 1) * u * 24;
+    for (let k = 0; k <= j; k++) star(gx - u * 6 + (k - j / 2) * u * 3.6, cy + u * 18.5, u * 1.8, '#ffd23d');
+    label(String(goal), gx + u * 5, cy + u * 18.5, u * 4.4, '#fff');
+  });
+  button('START', cx, cy + u * 32, u * 56, u * 14, '#3ddc84', '#1f9d55', beginPlay);
+  roundBtn('×', x0 + cw - u * 8, H - u * 8, exitToHub);
+}
+function drawOver() {
+  const cx = x0 + cw / 2, a = Math.min(1, overTime / 0.4);
+  g.fillStyle = 'rgba(10,25,60,' + (0.88 * a) + ')'; g.fillRect(0, 0, W, H);
+  g.globalAlpha = a;
+  const cleared = stage >= 0 && stageStars > 0;
+  if (stage < 0) label('GAME OVER', cx, H * 0.13, u * 11, '#fff', 'center', '#16254a');
+  else label('STAGE ' + (stage + 1) + (cleared ? ' CLEAR!' : ''), cx, H * 0.13, u * 8.5, cleared ? '#3ddc84' : '#fff', 'center', '#16254a');
+  label(String(score), cx, H * 0.13 + u * 19, u * 20, '#ffd23d', 'center', '#16254a');
+  if (stage < 0) label(newBest ? 'NEW BEST!' : 'BEST  ' + (save.best[cur.id] || 0), cx, H * 0.13 + u * 33, u * 5, newBest ? '#3ddc84' : '#fff');
+  else for (let j = 0; j < 3; j++) star(cx + (j - 1) * u * 10, H * 0.13 + u * 33, u * 4, j < stageStars ? '#ffd23d' : 'rgba(255,255,255,.25)');
+  coin(cx - u * 12, H * 0.13 + u * 43, u * 3.2);
+  label('+' + runCoins + (doubled ? '  (x2)' : ''), cx - u * 6, H * 0.13 + u * 43, u * 6, '#ffe27a', 'left');
+  const extra = [];
+  if (stageBonus) extra.push('STAR BONUS  +' + stageBonus);
+  if (missionWon) extra.push('MISSION COMPLETE  +' + missionWon);
+  (land ? [extra.join('   •   ')] : extra).forEach((line, i) => label(line, cx, H * 0.13 + u * (49.5 + i * 4.2), u * 3.4, '#3ddc84'));
+  g.globalAlpha = 1;
+  if (overTime < 0.6) return;                     // guard against accidental taps
+  const list = [];
+  if (!revived) list.push(['▶  REVIVE', '#ff9a3d', '#c96a12', revive]);
+  if (cleared && stage + 1 < STAGES) list.push(['NEXT STAGE', '#3ddc84', '#1f9d55', () => adBreak(() => startRun(stageInfo(stage + 1).game, false, stage + 1))]);
+  list.push([stage < 0 ? 'PLAY AGAIN' : cleared ? 'REPLAY' : 'TRY AGAIN', cleared ? '#2bb673' : '#3ddc84', '#1f9d55', () => adBreak(() => startRun(cur, true, stage))]);
+  if (!doubled && runCoins > 0) list.push(['▶  DOUBLE COINS', '#b06cff', '#7a3fc4', doubleCoins]);
+  list.push(['HOME', '#3d9bff', '#1f6fd0', exitToHub]);
+  // Stacked in portrait, two columns in landscape where height is short.
+  const y0 = H * 0.13 + u * 58, bw = u * 64, bh = u * 12.5, step = u * 16;
+  list.forEach((b, i) => {
+    const bx = land ? cx + (i % 2 ? 1 : -1) * u * 34 : cx, by = y0 + (land ? Math.floor(i / 2) : i) * step;
+    button(b[0], bx, by, bw, bh, b[1], b[2], b[3]);
+  });
+}
+
+// ---- Input
+cv.addEventListener('pointerdown', e => {
+  e.preventDefault();
+  if (adPlaying) return;
+  initAudio();
+  const x = e.clientX, y = e.clientY;
+  for (let i = btns.length - 1; i >= 0; i--) {
+    const b = btns[i];
+    if (x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h) { sfx.click(); b.action(); return; }
+  }
+  if (screen === 'play') cur.tap(x, y);
+});
+cv.addEventListener('pointermove', e => {
+  if (screen === 'play' && !adPlaying && cur.move) cur.move(e.clientX, e.clientY);
+});
+cv.addEventListener('contextmenu', e => e.preventDefault());
+// Silence the game while the tab is in the background.
+document.addEventListener('visibilitychange', () => {
+  if (!ac) return;
+  if (document.hidden) ac.suspend(); else if (!adPlaying) ac.resume();
+});
+
+// ---- Main loop
+function update(dt) {
+  time += dt;
+  for (const c of clouds) { c.x += c.v * dt; if (c.x > 1.3) c.x = -0.3; }
+  if (screen === 'play') { elapsed += dt; level = 1 + Math.floor(elapsed / 12); cur.update(dt); }
+  else if (screen === 'over') overTime += dt;
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i];
+    p.life -= dt; p.vy += u * 120 * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+    if (p.life <= 0) parts.splice(i, 1);
+  }
+  for (let i = texts.length - 1; i >= 0; i--) {
+    const t = texts[i];
+    t.life -= dt; t.y -= u * 14 * dt;
+    if (t.life <= 0) texts.splice(i, 1);
+  }
+  if (shake > 0) shake -= dt;
+}
+function draw() {
+  btns = [];
+  g.save();
+  if (shake > 0) g.translate((Math.random() - 0.5) * u * 4 * shake / 0.3, (Math.random() - 0.5) * u * 4 * shake / 0.3);
+  drawBackground();
+  if (screen === 'play' || screen === 'over') cur.draw();
+  g.restore();
+
+  if (screen === 'hub') drawHub();
+  else if (screen === 'intro') drawIntro();
+  else if (screen === 'play') drawPlayHud();
+  else drawOver();
+
+  for (const p of parts) {
+    g.globalAlpha = Math.max(0, Math.min(1, p.life * 2.5));
+    g.fillStyle = p.color; g.beginPath(); g.arc(p.x, p.y, p.size, 0, TAU); g.fill();
+  }
+  for (const t of texts) {
+    g.globalAlpha = Math.max(0, Math.min(1, t.life * 2));
+    label(t.str, t.x, t.y, u * 6.5, t.color, 'center', 'rgba(0,0,0,.35)');
+  }
+  g.globalAlpha = 1;
+  roundBtn('♪', x0 + u * 8, H - u * 8, () => { muted = !muted; }, muted);
+}
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  if (!adPlaying) update(dt);
+  draw();
+  requestAnimationFrame(frame);
+}
+if (DEMO) demoLoop(); else requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
