@@ -27,3 +27,6 @@ upload*/
 *.mp4
 *.mov
 *.psd
+
+# Non-game files parked here
+_khong-phai-game/
