@@ -13,7 +13,7 @@ Cập nhật: 2026-10-11. Trạng thái duyệt là lần kiểm tra gần nhấ
 | One Line Fill | Vẽ một nét | 100 | Có | Lời giải có sẵn hợp lệ 100/100; có 2 màn trùng nhau |
 
 Cả 5 game qua `tools/smoke_test.py` (màn hình điện thoại dọc và ngang, không lỗi console) ngày 2026-10-11.
-itch.io và Roblox: chưa có tài khoản, chưa nộp.
+itch.io: có tài khoản và khóa (2026-10-12), chưa có trang game nào. Roblox: chưa có tài khoản.
 
 ## Nộp cổng
 
