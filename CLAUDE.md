@@ -4,6 +4,15 @@ Phạm vi: chỉ game. Không YouTube, không bot.
 Thư mục dự án: `C:\Users\Administrator\Desktop\GAME\web` (khung chat có thể mở ở thư mục khác; mọi việc game làm ở đây).
 Trả lời tiếng Việt, ngắn gọn, tự làm; chỉ hỏi khi cần tài khoản, mật khẩu, tiền. Đầu việc ghi "mức: nhẹ/nặng".
 
+## CHẾ ĐỘ TỰ CHẠY
+
+- Tự làm, không hỏi xin phép, không nhắc lại, không giảng giải, không đưa chủ lệnh để chạy.
+- Lệnh viết kiểu PowerShell: nối bằng `;`, không dùng `&&`.
+- Thiếu tài khoản / trang nền tảng (itch.io…): bỏ qua, ghi ⚪, không báo 🔴.
+- Việc chỉ chủ làm được: gom vào `HUONG-DAN-CHU.md`, nhắc 1 lần/ngày trong Discord #game, không chờ chủ.
+- Trả lời chủ tối đa 3 dòng.
+- Vẫn phải hỏi: tài khoản, mật khẩu, tiền.
+
 GIAI ĐOẠN HIỆN TẠI: 2 (chuẩn hóa)
 VIỆC TIẾP THEO: Boba Sort: viết `tools/bobasort.py` (bộ giải + sinh màn), tách màn ra `levels/boba-sort.json`, game đọc màn từ tệp; làm ở nhánh `chuan-hoa`.
 
@@ -26,7 +35,7 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 - 0 Dọn + GitHub: XONG (kho có mã, `.gitignore` chặn khóa, quét khóa sạch 12/10).
 - 1 Kiểm kê: XONG, `THEO-DOI.md` đủ 5 game (kiểm thử mới ở cỡ điện thoại dọc + ngang, chưa có cỡ máy tính riêng).
 - 2 Chuẩn hóa: ĐANG LÀM. Có: `levels/car-jam.json`. Thiếu: `levels/` + bộ giải cho Boba Sort, Tile Trio, One Line Fill; Tap Arcade (45 chặng Journey) tách ra tệp; `web/ads.js` chung (hiện mỗi game tự chứa lớp quảng cáo, chọn cổng bằng hằng `PORTAL`); đo tải < 5 giây.
-- 3 Máy tự thêm màn: làm trước một phần (Car Jam: bộ giải, hàng chờ, `daily.yml`, `weekly-selftest.yml`, Discord, healthchecks). `daily` đang 🔴 ở bước đăng itch.io vì chưa có trang game (chờ chủ).
+- 3 Máy tự thêm màn: làm trước một phần (Car Jam: bộ giải, hàng chờ, `daily.yml`, `weekly-selftest.yml`, Discord, healthchecks). Chưa có trang itch.io thì `daily` bỏ qua bước đăng, ghi ⚪ (sửa 12/10, chưa chạy thật trên Actions).
 - 4 Đo 14 ngày: chưa bắt đầu, chưa game nào lên sóng.
 - 5 Roblox: chưa làm, chưa có khóa.
 

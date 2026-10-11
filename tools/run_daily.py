@@ -60,7 +60,7 @@ def step_publish():
     elif not shutil.which("butler"):
         done["itch.io"] = "bo qua (may nay khong co butler)"
     else:
-        pushed = 0
+        pushed, missing = 0, []
         for spec in (ROOT / "specs" / f"{g}.json" for g in build.GAMES):
             slug = json.loads(spec.read_text(encoding="utf-8")).get("itch")
             if slug:
@@ -68,9 +68,14 @@ def step_publish():
                                      capture_output=True, timeout=180, env=dict(os.environ, BUTLER_API_KEY=key))
                 if out.returncode:  # butler ghi ly do o cuoi (sai khoa, chua co trang game...): dua vao bao cao de biet sua gi
                     text = (out.stdout + out.stderr).decode("utf-8", "replace").strip()
+                    if "invalid game" in text.lower():  # chu chua tao trang game: viec cua chu, khong phai loi
+                        missing.append(slug)
+                        continue
                     raise RuntimeError(f"itch.io {slug}: {' | '.join(text.splitlines()[-3:])}")
                 pushed += 1
         done["itch.io"] = f"da day {pushed} game"
+        if missing:
+            done["itch.io"] += f"; ⚪ bo qua (chua co trang: {', '.join(missing)})"
     done["Roblox"] = "bo qua (chua co ban Roblox; cho so lieu 14 ngay de chon game)"
     return done
 
