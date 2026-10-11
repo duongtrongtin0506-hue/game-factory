@@ -43,7 +43,7 @@ Làm lại sau khi bị CrazyGames chê chất lượng. Màn chơi giữ nguyê
 
 Ảnh bìa (6 cỡ) và 2 video xem trước mới đã làm ngày 2026-10-11, nằm ở `dist/car-jam/assets`; sinh lại bằng `?demo=cover&w=&h=` và `?demo=<tên>&w=&h=` cùng máy chủ nhận khung hình. Nhánh đã gộp vào `main`.
 
-Còn thiếu trước khi gửi lại CrazyGames: tải bản `dist/car-jam/crazygames` cùng bìa và video lên bản nháp, chủ dự án bấm Submit.
+Trang game bị từ chối trên CrazyGames (xem 2026-10-11) không có nút tải bản mới, chỉ có Preview và Remove game. Gửi lại phải tạo một bài nộp mới. Chưa tạo: chờ chủ dự án chơi thử bản 2 trước.
 
 ## Số liệu
 
