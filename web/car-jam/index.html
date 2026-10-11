@@ -75,7 +75,7 @@ function gameplay(on) {
 
 // ==CORE== (pure puzzle logic: no DOM)
 const N = 6, EXIT_ROW = 2;
-// 100 boards made by tools/gen-levels.js. Each is 36 cells, row by row: '.' is empty and a
+// 100 boards from levels/car-jam.json (tools/carjam.py). Each is 36 cells, row by row: '.' is empty and a
 // letter is a car ('A' is the red car). PAR is the proven minimum number of moves.
 const LEVELS = [
   '.CC.F..EEEF.AA..IGBB..IGDJJ...D.HH..',
@@ -954,6 +954,8 @@ if (LOCAL && QS.get('level')) {
 }
 if (LOCAL && QS.get('coins')) { persist = () => {}; save.coins = +QS.get('coins'); }
 if (LOCAL && QS.get('screen')) { page = +QS.get('page') || 0; screen = QS.get('screen'); }
+// Local self-test (tools/smoke_test.py): the hint solver must reproduce every level's recorded minimum.
+if (LOCAL && QS.get('selftest')) document.title = 'selftest:' + LEVELS.length + ':' + LEVELS.map((b, i) => solve(parse(b)).length === PAR[i] ? 0 : i + 1).filter(Boolean).join(',');
 // Local trailer renderer: solves one level on screen, then shows a few moves in each other world,
 // at a fixed 30 fps, and posts each frame to the local capture server.
 async function demoLoop() {

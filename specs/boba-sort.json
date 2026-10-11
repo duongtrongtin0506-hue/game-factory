@@ -1,0 +1,22 @@
+{
+  "name": "Boba Sort",
+  "genre": "color sort puzzle",
+  "levels": 100,
+  "level_source": "in-game seeded generator",
+  "solver": "not yet in tools/",
+  "web": "web/boba-sort/index.html",
+  "itch": null,
+  "roblox": null,
+  "safety": {
+    "gambling": false,
+    "paid_random_items": false,
+    "external_links": false,
+    "personal_data": false,
+    "sell": [
+      "skip level",
+      "hint",
+      "cosmetic"
+    ],
+    "never_sell": "anything required to win"
+  }
+}

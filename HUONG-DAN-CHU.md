@@ -1,37 +1,45 @@
 # Việc chủ dự án cần tự làm
 
-Xếp theo thứ tự gần tiền nhất. Xong việc nào thì báo "làm tiếp".
+Xếp theo thứ tự gần tiền nhất. Xong việc nào thì nhắn Claude câu in đậm ở cuối việc đó. Không gửi mật khẩu hay khóa vào khung chat.
 
-## 1. Gửi bốn game trên CrazyGames
+Khóa của dự án dán vào GitHub Secrets (để máy chủ GitHub chạy hằng ngày dùng được):
+https://github.com/duongtrongtin0506-hue/game-factory/settings/secrets/actions → **New repository secret** → điền Name đúng như ghi dưới, dán giá trị vào Secret → **Add secret**.
 
-1. Mở https://developer.crazygames.com/games
-2. Bấm vào từng game: Tap Arcade, Boba Sort, Car Jam Escape, Tile Trio.
-3. Tích hai ô: đồng ý Terms & Conditions; xác nhận game hợp với người chơi từ 12 tuổi.
-4. Bấm **Submit for approval**.
-5. Nếu bị chặn vì thiếu thanh toán: mở https://developer.crazygames.com/profile/billing và điền thông tin nhận tiền.
+## 1. Chơi thử Car Jam Escape bản 2 (5 phút)
 
-## 2. Đăng nhập GameMonetize trong Chrome
+Mở `C:\Users\Administrator\Desktop\GAME\web\web\car-jam\index.html` bằng Chrome, chơi 5 màn. Thấy ổn thì Claude tạo bài nộp mới trên CrazyGames. Nhắn: **car jam ổn** hoặc mô tả chỗ chưa ổn.
 
-1. Mở https://gamemonetize.com/account/login.php trong Chrome thường.
-2. Đăng nhập bằng email và mật khẩu GameMonetize.
+## 2. Đăng nhập GameMonetize trong Chrome (2 phút)
 
-Sau đó Claude xem được kết quả duyệt Tap Arcade và đăng bốn game còn lại.
+1. Mở https://gamemonetize.com/account/login.php trong Chrome thường, đăng nhập.
+2. Nhắn: **xong gamemonetize**. Claude xem kết quả duyệt Tap Arcade (nộp 2026-10-09).
 
-## 3. Kiểm tra Gmail
+## 3. Webhook Discord kênh #game (2 phút)
 
-Tìm thư từ GameDistribution hoặc Azerion Connect (đăng ký ngày 2026-10-09) và làm theo hướng dẫn kích hoạt.
+1. Server **Máy chủ của net24**: giữ (hoặc chuột phải) kênh **#game** → **Chỉnh sửa kênh** → **Tích hợp** → **Webhook** → **Tạo webhook** → **Sao chép URL webhook**.
+2. Dán vào GitHub Secrets với Name `DISCORD_WEBHOOK`.
+3. Nhắn: **xong discord**.
 
-## 4. Tạo kho GitHub (nếu Claude chưa tạo được)
+Không dùng kênh #dang-tiktok hay server Coinnew24. Nếu đã tạo webhook từ trước: chỉ cần sao chép lại URL và làm bước 2.
 
-1. Mở https://github.com/new khi đang đăng nhập tài khoản `duongtrongtin0506-hue`.
-2. Repository name: `game-factory`. Chọn **Private**. Không tích "Add a README".
-3. Bấm **Create repository**.
-4. Khi Git mở trình duyệt hỏi đăng nhập ở lần đẩy mã đầu tiên: đăng nhập đúng tài khoản trên.
+## 4. healthchecks.io (3 phút, miễn phí)
 
-## 5. Chơi thử trên điện thoại
+1. Mở https://healthchecks.io → tạo check tên `game-factory`, **Period 1 day**, **Grace 6 hours**.
+2. Sao chép **Ping URL**, dán vào GitHub Secrets với Name `HC_PING`.
+3. **Integrations** → **Discord** → chọn server **Máy chủ của net24**, kênh **#game**.
+4. Nhắn: **xong healthchecks**.
 
-Mở từng game trên điện thoại thật một lần; thấy lỗi thì chụp màn hình gửi Claude.
+## 5. Kiểm tra Gmail
 
-## Hoãn lại (chưa cần làm)
+Tìm thư từ GameDistribution hoặc Azerion Connect (đăng ký 2026-10-09), làm theo hướng dẫn kích hoạt. Nhắn: **có thư gamedistribution**.
 
-Webhook Discord, healthchecks.io, khóa Gemini, tài khoản Roblox và itch.io: chỉ cần khi đã có game được duyệt và có người chơi.
+## 6. Tài khoản itch.io (5 phút, miễn phí)
+
+1. Đăng ký tại https://itch.io/register (bạn tự đặt mật khẩu).
+2. Mở https://itch.io/user/settings/api-keys → **Generate new API key** → sao chép.
+3. GitHub Secrets: Name `BUTLER_API_KEY` = khóa vừa sao chép; Name `ITCH_USER` = tên tài khoản itch.io.
+4. Nhắn: **xong itch**.
+
+## Chưa cần làm
+
+Tài khoản và khóa Roblox: chưa thấy dấu vết bạn đã có. Chỉ cần khi đã chọn được game làm bản Roblox, tức là sau khi có 14 ngày số liệu.

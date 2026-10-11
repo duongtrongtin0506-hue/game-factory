@@ -1,43 +1,59 @@
 # game-factory
 
-Kho GitHub riêng tư: `duongtrongtin0506-hue/game-factory` (nhánh `main`).
+Kho GitHub riêng tư: `duongtrongtin0506-hue/game-factory` (nhánh `main`). Không dùng tài khoản iCloud `77nrw8z5hk-sys`.
 Thư mục trên máy: `C:\Users\Administrator\Desktop\GAME\web`.
+Trả lời tiếng Việt, ngắn gọn, tự làm; chỉ hỏi khi cần tài khoản, mật khẩu, tiền. Đầu việc ghi "mức: nhẹ/nặng".
 
 ## Mục tiêu
 
-Làm game HTML5 nhỏ, nhiều màn, đăng lên các cổng game chia doanh thu quảng cáo.
-Mục tiêu gần: có đồng doanh thu đầu tiên. Chủ dự án không trả trước cho bên thứ ba nào.
+Game HTML5 nhỏ nhiều màn, đăng lên cổng game chia doanh thu quảng cáo; sau đó một bản Roblox của game có số liệu tốt nhất.
+Mục tiêu gần: đồng doanh thu đầu tiên. Chủ dự án không trả trước cho bên thứ ba nào.
 
 ## Sơ đồ
 
 | Đường dẫn | Nội dung |
 |---|---|
-| `tap-arcade/index.html` | 9 mini game, chế độ Journey 45 màn |
-| `boba-sort/index.html` | Xếp trân châu, 100 màn |
-| `car-jam/index.src.html` + `car-jam/tools/levels.txt` | Trượt xe, 100 màn; `build.ps1` ghép thành `car-jam/index.html` |
-| `car-jam/tools/gen-levels.js` | Sinh và giải màn Car Jam (BFS) |
-| `tile-trio/index.html` | Ghép ba ô, 100 màn |
-| `one-line/index.html` | Vẽ một nét, 100 màn |
-| `pop-the-balloon/` | Bản thử đầu tiên, không đăng |
-| `build.ps1` | Đóng gói mỗi game cho từng cổng vào `dist/` (không commit) |
-| `THEO-DOI.md` | Trạng thái nộp và duyệt từng game |
-| `HUONG-DAN-CHU.md` | Việc chủ dự án phải tự bấm |
+| `web/<game>/index.html` | 5 game, mỗi game một tệp canvas: tap-arcade, boba-sort, car-jam, tile-trio, one-line (`pop-the-balloon` là bản thử, không đăng) |
+| `web/car-jam/index.src.html` | Nguồn Car Jam; `tools/build.py` ghép màn vào thành `index.html` |
+| `levels/car-jam.json` | Màn Car Jam đang ở trong game (bàn cờ + số bước ít nhất) |
+| `content-queue/car-jam.json` | Màn dự trữ đã qua bộ giải, luôn giữ ≥ 30 |
+| `specs/<game>.json` | Thông số dùng chung web/Roblox; `specs/expiry.json` ghi ngày hết hạn từng khóa |
+| `tools/carjam.py` | Bộ giải BFS, bộ sinh màn, hàng dự trữ (`verify`, `fill`, `take N`) |
+| `tools/build.py` | Đóng gói `dist/<game>/<cổng>/` + zip (cổng: gamemonetize, crazygames, none) |
+| `tools/smoke_test.py` | Playwright cỡ điện thoại dọc + ngang, bắt lỗi console, đối chiếu bộ giải trong game |
+| `tools/run_daily.py` | Trọn quy trình ngày; ghi `TRANG-THAI.md`, `metrics/history.json`; `tools/notify.py` báo Discord + healthchecks |
+| `.github/workflows/daily.yml` | 06:00 giờ VN mỗi ngày |
+| `.github/workflows/weekly-selftest.yml` | Chủ nhật 20:00 giờ VN, không đăng, gửi báo cáo tuần; cũng chạy khi sửa `tools/` hoặc workflow |
+| `THEO-DOI.md` / `NGHIEN-CUU.md` / `HUONG-DAN-CHU.md` | Trạng thái nộp duyệt / nghiên cứu có nguồn / việc chủ phải bấm |
 
-Mỗi game là một tệp HTML duy nhất, vẽ bằng canvas, không có ảnh hay âm thanh ngoài.
-Cổng quảng cáo chọn bằng hằng `PORTAL` trong tệp (`gamemonetize` / `crazygames` / `none`); `build.ps1` đổi hằng này.
-Chạy thử trên máy: mở `index.html`, hoặc phục vụ thư mục qua `http://127.0.0.1` để dùng `?level=N`, `?play=`, `?demo=`.
+Quảng cáo: mỗi game tự chứa lớp quảng cáo, chọn cổng bằng hằng `PORTAL`; `tools/build.py` đổi hằng này. Chưa tách thành `ads.js` chung.
+Chạy thử trên máy: phục vụ thư mục qua `http://127.0.0.1` (launch config `game-web`, cổng 8931, đường dẫn `/web/<game>/`) để dùng `?level=N`, `?play=`, `?demo=`, `?selftest=1`.
+Màn mới sinh bằng thuật toán + bộ giải, không cần Gemini nên không cần khóa và không hết lượt.
 
 ## Quy tắc
 
 - Không làm game thứ 6 khi chưa có số liệu 14 ngày của 5 game hiện có.
 - Không sửa hay nộp lại bản đang chờ duyệt; sửa ở nhánh riêng.
-- Mọi màn mới phải được bộ giải xác nhận giải được.
+- Mọi màn mới phải được bộ giải xác nhận giải được và đo số bước; khoảng 5 màn chèn 1 màn dễ.
 - Không cờ bạc, không hộp quà may rủi, không link ra ngoài, không thu dữ liệu cá nhân.
-- Không ghi mật khẩu hay khóa vào tệp. Bước đồng ý điều khoản và nhập mật khẩu do chủ dự án làm.
+- Không ghi mật khẩu hay khóa vào tệp. Khóa ở GitHub Secrets hoặc `.env` (mẫu: `.env.example`).
+- Phút GitHub Actions miễn phí (2.000/tháng) dùng chung cho mọi kho riêng tư của tài khoản.
+
+## Trạng thái (2026-10-11)
+
+- Chưa game nào lên sóng. CrazyGames từ chối cả 4 game vì chất lượng (2026-10-11). Tap Arcade chờ duyệt ở GameMonetize từ 2026-10-09, chưa xem lại. GameDistribution chờ thư.
+- Car Jam Escape bản 2 đã gộp vào `main`, chưa nộp lại: chờ chủ chơi thử.
+- Quy trình ngày chạy đạt trên máy (5/5 game qua kiểm thử, 100 màn + 40 dự trữ). Trên GitHub Actions: xem `TRANG-THAI.md`.
+- Chưa có khóa nào: Discord, healthchecks, itch.io, Roblox đều đang bị bỏ qua.
 
 ## Việc dở
 
-Xem `THEO-DOI.md` (trạng thái) và `HUONG-DAN-CHU.md` (việc cần chủ dự án).
-
-Hoãn đến khi có game được duyệt: tự động hóa bằng GitHub Actions, báo Discord, healthchecks,
-tạo màn bằng Gemini, bản Roblox, itch.io.
+1. Chờ chủ: xem `HUONG-DAN-CHU.md` (chơi thử Car Jam 2, đăng nhập GameMonetize, webhook #game, healthchecks, itch.io).
+2. Sau khi chủ chơi thử: tạo bài nộp CrazyGames mới cho Car Jam 2 (bài cũ không tải bản mới được).
+3. Bộ giải trong `tools/` cho Boba Sort, Tile Trio, One Line Fill (màn của ba game này đang sinh trong game theo hạt giống) và tách màn ra `levels/`.
+4. Car Jam: `take 20` mới chỉ thêm màn; game cần cảnh cho thế giới thứ 6 và sửa chữ "ALL 100 LEVELS" trước bản cập nhật tháng. Chỉ nộp khi bản hiện tại đã được duyệt.
+5. Đường itch.io trong `run_daily.py` chưa chạy thật (chưa có tài khoản); workflow chưa cài butler.
+6. `roblox/` (Luau + Rojo) chưa làm: chờ số liệu 14 ngày để chọn game.
+7. Tách lớp quảng cáo thành `web/ads.js` chung; thêm SDK GameDistribution khi tài khoản được duyệt.
+8. Nghiên cứu còn thiếu: xem các mục "chưa xác minh" trong `NGHIEN-CUU.md`.
+9. Đo lượt chơi, thời gian chơi, màn bị bỏ nhiều nhất, doanh thu: chưa có nguồn số liệu cho đến khi có game lên sóng.

@@ -1,0 +1,22 @@
+{
+  "name": "Tap Arcade",
+  "genre": "arcade mini games",
+  "levels": 45,
+  "level_source": "in-game (Journey stages)",
+  "solver": null,
+  "web": "web/tap-arcade/index.html",
+  "itch": null,
+  "roblox": null,
+  "safety": {
+    "gambling": false,
+    "paid_random_items": false,
+    "external_links": false,
+    "personal_data": false,
+    "sell": [
+      "skip level",
+      "hint",
+      "cosmetic"
+    ],
+    "never_sell": "anything required to win"
+  }
+}

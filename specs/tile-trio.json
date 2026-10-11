@@ -1,0 +1,22 @@
+{
+  "name": "Tile Trio",
+  "genre": "triple tile match",
+  "levels": 100,
+  "level_source": "in-game seeded generator",
+  "solver": "not yet in tools/",
+  "web": "web/tile-trio/index.html",
+  "itch": null,
+  "roblox": null,
+  "safety": {
+    "gambling": false,
+    "paid_random_items": false,
+    "external_links": false,
+    "personal_data": false,
+    "sell": [
+      "skip level",
+      "hint",
+      "cosmetic"
+    ],
+    "never_sell": "anything required to win"
+  }
+}

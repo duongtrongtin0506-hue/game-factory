@@ -1,0 +1,22 @@
+{
+  "name": "One Line Fill",
+  "genre": "one-stroke path puzzle",
+  "levels": 100,
+  "level_source": "in-game seeded generator",
+  "solver": "not yet in tools/",
+  "web": "web/one-line/index.html",
+  "itch": null,
+  "roblox": null,
+  "safety": {
+    "gambling": false,
+    "paid_random_items": false,
+    "external_links": false,
+    "personal_data": false,
+    "sell": [
+      "skip level",
+      "hint",
+      "cosmetic"
+    ],
+    "never_sell": "anything required to win"
+  }
+}

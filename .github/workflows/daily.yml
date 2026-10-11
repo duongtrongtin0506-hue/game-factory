@@ -1,0 +1,38 @@
+# Moi ngay 06:00 gio VN: kiem man, bo sung hang du tru, build, kiem ban web, dang noi co khoa, bao cao.
+name: daily
+on:
+  schedule:
+    - cron: "0 23 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+concurrency:
+  group: game-factory
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      HC_PING: ${{ secrets.HC_PING }}
+      BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+      ITCH_USER: ${{ secrets.ITCH_USER }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: tools/requirements.txt
+      - run: pip install -r tools/requirements.txt && python -m playwright install --with-deps chromium
+      - run: python tools/run_daily.py
+      - name: Ghi trang thai vao kho
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add TRANG-THAI.md metrics content-queue
+          git diff --cached --quiet || git commit -m "trang thai $(date -u +%F)"
+          git pull --rebase -q && git push -q

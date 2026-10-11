@@ -1,0 +1,38 @@
+{
+  "name": "Car Jam Escape",
+  "genre": "sliding block puzzle",
+  "levels": "levels/car-jam.json",
+  "level_source": "levels/car-jam.json",
+  "solver": "tools/carjam.py",
+  "rules": {
+    "grid": 6,
+    "exit_row": 2,
+    "red_car": "A",
+    "car_lengths": [
+      2,
+      3
+    ],
+    "move": "slide one car any distance",
+    "stars": "3 at minimum moves"
+  },
+  "new_levels": {
+    "min_moves": 8,
+    "queue_min": 30,
+    "pacing": "ascending, one easy level after every four"
+  },
+  "web": "web/car-jam/index.html",
+  "itch": null,
+  "roblox": null,
+  "safety": {
+    "gambling": false,
+    "paid_random_items": false,
+    "external_links": false,
+    "personal_data": false,
+    "sell": [
+      "skip level",
+      "hint",
+      "cosmetic"
+    ],
+    "never_sell": "anything required to win"
+  }
+}

@@ -8,9 +8,12 @@ Cập nhật: 2026-10-11. Trạng thái duyệt là lần kiểm tra gần nhấ
 |---|---|---|---|---|
 | Tap Arcade | Arcade, 9 mini game | 45 (Journey) | Có | Không áp dụng (chơi vô tận) |
 | Boba Sort | Xếp màu | 100 | Có | Có, 100/100 giải được |
-| Car Jam Escape | Trượt khối | 100 | Có | Có, biết số bước ít nhất từng màn |
+| Car Jam Escape | Trượt khối | 100 (+40 dự trữ) | Có | Có: `tools/carjam.py` và bộ giải trong game cho cùng số bước ở 100/100 màn |
 | Tile Trio | Ghép ba ô | 100 | Có | Giải được theo cách dựng màn; máy chơi thử thắng 99/100 |
 | One Line Fill | Vẽ một nét | 100 | Có | Lời giải có sẵn hợp lệ 100/100; có 2 màn trùng nhau |
+
+Cả 5 game qua `tools/smoke_test.py` (màn hình điện thoại dọc và ngang, không lỗi console) ngày 2026-10-11.
+itch.io và Roblox: chưa có tài khoản, chưa nộp.
 
 ## Nộp cổng
 
