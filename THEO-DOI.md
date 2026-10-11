@@ -15,6 +15,20 @@ Cập nhật: 2026-10-11. Trạng thái duyệt là lần kiểm tra gần nhấ
 Cả 5 game qua `tools/smoke_test.py` (màn hình điện thoại dọc và ngang, không lỗi console) ngày 2026-10-11.
 itch.io: có tài khoản và khóa (2026-10-12), chưa có trang game nào. Roblox: chưa có tài khoản.
 
+## Chuẩn giai đoạn 2 (đo 2026-10-12, `tools/smoke_test.py`)
+
+Tải đo trên bản không quảng cáo, giả lập máy yếu (CPU chậm 4 lần) và mạng chậm (1,6 Mbit/s, trễ 150 ms), tính đến lúc có hình. Chưa tính thời gian SDK của cổng tự tải.
+
+| Game | Tải (giới hạn 5 giây) | Hiểu luật trong 10 giây | Điện thoại dọc / ngang / máy tính 1280x720 |
+|---|---|---|---|
+| Tap Arcade | 1,1 giây | Màn giới thiệu trước mỗi trò | Không lỗi |
+| Boba Sort | 0,7 giây | Mũi tên chỉ cốc ở màn 1 | Không lỗi |
+| Car Jam Escape | 0,9 giây | Ngón tay kéo mẫu ở màn 1 | Không lỗi |
+| Tile Trio | 0,9 giây | Mũi tên chỉ quân ở màn 1 | Không lỗi |
+| One Line Fill | 0,7 giây | Chấm mờ chạy trước ở màn 1 | Không lỗi |
+
+"Hiểu luật trong 10 giây" mới xét theo việc game có hướng dẫn ở màn đầu, chưa đo trên người chơi thật.
+
 ## Nộp cổng
 
 | Game | Cổng | Ngày | Trạng thái | SDK đúng cổng |
