@@ -14,7 +14,7 @@ Trả lời tiếng Việt, ngắn gọn, tự làm; chỉ hỏi khi cần tài 
 - Vẫn phải hỏi: tài khoản, mật khẩu, tiền.
 
 GIAI ĐOẠN HIỆN TẠI: 2 (chuẩn hóa)
-VIỆC TIẾP THEO: Boba Sort: viết `tools/bobasort.py` (bộ giải + sinh màn), tách màn ra `levels/boba-sort.json`, game đọc màn từ tệp; làm ở nhánh `chuan-hoa`.
+VIỆC TIẾP THEO: Tile Trio: viết `tools/tiletrio.py` (bộ giải + sinh màn), tách màn ra `levels/tile-trio.json`, game đọc màn từ tệp (`index.src.html` + dấu `/*LEVELS*/` như Boba Sort); làm tiếp ở nhánh `chuan-hoa` (chưa gộp vào `main`, gộp khi xong cả giai đoạn 2).
 
 ## Danh sách game
 
@@ -34,7 +34,7 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 
 - 0 Dọn + GitHub: XONG (kho có mã, `.gitignore` chặn khóa, quét khóa sạch 12/10).
 - 1 Kiểm kê: XONG, `THEO-DOI.md` đủ 5 game (kiểm thử mới ở cỡ điện thoại dọc + ngang, chưa có cỡ máy tính riêng).
-- 2 Chuẩn hóa: ĐANG LÀM. Có: `levels/car-jam.json`. Thiếu: `levels/` + bộ giải cho Boba Sort, Tile Trio, One Line Fill; Tap Arcade (45 chặng Journey) tách ra tệp; `web/ads.js` chung (hiện mỗi game tự chứa lớp quảng cáo, chọn cổng bằng hằng `PORTAL`); đo tải < 5 giây.
+- 2 Chuẩn hóa: ĐANG LÀM. Có: `levels/car-jam.json`; Boba Sort (12/10, nhánh `chuan-hoa`: `tools/bobasort.py`, `levels/boba-sort.json` giữ nguyên 100 màn cũ, 40 màn dự trữ, `run_daily` kiểm cả hai). Thiếu: `levels/` + bộ giải cho Tile Trio, One Line Fill; Tap Arcade (45 chặng Journey) tách ra tệp; `web/ads.js` chung (hiện mỗi game tự chứa lớp quảng cáo, chọn cổng bằng hằng `PORTAL`); đo tải < 5 giây.
 - 3 Máy tự thêm màn: làm trước một phần (Car Jam: bộ giải, hàng chờ, `daily.yml`, `weekly-selftest.yml`, Discord, healthchecks). Chưa có trang itch.io thì `daily` bỏ qua bước đăng, ghi ⚪ (sửa 12/10, chưa chạy thật trên Actions).
 - 4 Đo 14 ngày: chưa bắt đầu, chưa game nào lên sóng.
 - 5 Roblox: chưa làm, chưa có khóa.
@@ -50,11 +50,12 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 | Đường dẫn | Nội dung |
 |---|---|
 | `web/<game>/index.html` | 5 game, mỗi game một tệp canvas (`pop-the-balloon` là bản thử, không đăng) |
-| `web/car-jam/index.src.html` | Nguồn Car Jam; `tools/build.py` ghép màn vào thành `index.html` |
-| `levels/<game>.json` | Màn đang ở trong game (mới có car-jam) |
+| `web/car-jam/index.src.html`, `web/boba-sort/index.src.html` | Nguồn game (sửa ở đây); `tools/build.py` ghép màn vào thành `index.html` |
+| `levels/<game>.json` | Màn đang ở trong game (có car-jam, boba-sort) |
 | `content-queue/<game>.json` | Màn dự trữ đã qua bộ giải, luôn giữ ≥ 30 |
 | `specs/<game>.json` | Thông số dùng chung web/Roblox; `specs/expiry.json` ghi ngày hết hạn từng khóa |
 | `tools/carjam.py` | Bộ giải BFS, bộ sinh màn, hàng dự trữ (`verify`, `fill`, `take N`) |
+| `tools/bobasort.py` | Bộ giải A* (số bước ít nhất), bản chép bộ giải trong game, bộ sinh màn, hàng dự trữ (cùng lệnh; `take N` phải chia hết cho 20) |
 | `tools/build.py` | Đóng gói `dist/<game>/<cổng>/` + zip (cổng: gamemonetize, crazygames, none) |
 | `tools/smoke_test.py` | Playwright cỡ điện thoại dọc + ngang, bắt lỗi console, đối chiếu bộ giải trong game |
 | `tools/run_daily.py` | Trọn quy trình ngày; ghi `TRANG-THAI.md`, `metrics/history.json`; `tools/notify.py` báo Discord + healthchecks |

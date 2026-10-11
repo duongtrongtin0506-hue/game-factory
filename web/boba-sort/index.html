@@ -74,12 +74,111 @@ function gameplay(on) {
 }
 
 // ==CORE== (pure puzzle logic: no DOM, so it can be tested on its own)
-const CAP = 4, LEVELS = 100;
-function rng(seed) {
-  let s = (seed >>> 0) || 1;
-  return () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
-}
-function coloursFor(level) { return level <= 3 ? 3 : level <= 10 ? 4 : level <= 25 ? 5 : level <= 45 ? 6 : level <= 70 ? 7 : 8; }
+const CAP = 4;
+// One string per level, filled in from levels/boba-sort.json by tools/build.py: cups split by '|',
+// each cup bottom to top, one digit per flavour. tools/bobasort.py only lets solvable levels in.
+const LEVELS = [
+  '2001|0021|1221||',
+  '1122|0001|2102||',
+  '1010|2202|0211||',
+  '1312|2312|0100|2033||',
+  '1120|2330|3032|1201||',
+  '3210|1221|0033|2013||',
+  '3302|0011|3132|0221||',
+  '3311|2030|0201|1223||',
+  '3230|0032|3212|0111||',
+  '2113|1302|2021|3003||',
+  '0121|0001|4323|1423|4342||',
+  '4003|4410|2331|2203|1124||',
+  '1240|3203|0434|0411|2312||',
+  '3211|2231|1040|2033|4404||',
+  '4102|1433|0044|1201|3232||',
+  '3403|4041|2141|1020|3322||',
+  '1243|0422|0340|1311|0432||',
+  '2320|2312|3010|4144|3104||',
+  '3313|1032|0241|0442|0241||',
+  '0340|2130|2123|2141|4034||',
+  '4031|2224|1300|0131|4342||',
+  '2024|3112|0312|4043|3104||',
+  '2300|4233|0142|1214|3401||',
+  '0240|1311|1222|3043|0443||',
+  '2421|0004|3231|3104|3142||',
+  '3244|1535|0130|1122|4534|0025||',
+  '2350|4425|5311|2104|3310|5402||',
+  '0150|2203|5312|4313|4054|2145||',
+  '3211|5500|1450|3302|2445|1432||',
+  '5523|3035|4120|2341|4421|0015||',
+  '4352|2103|0120|1105|4254|4353||',
+  '4334|1545|2123|1410|2553|2000||',
+  '0544|4013|3215|5015|4231|2023||',
+  '5031|4324|1412|0213|3450|2055||',
+  '2500|0143|3554|1452|1330|2412||',
+  '1043|5214|2203|5343|0041|5125||',
+  '2430|2435|1015|4050|1254|1332||',
+  '1243|2004|5211|5501|2504|3334||',
+  '3420|1552|2044|0430|3253|1511||',
+  '5431|3055|2303|0221|5124|1404||',
+  '3034|3025|0150|5124|3425|2141||',
+  '4250|4204|4511|3251|0203|3135||',
+  '0533|0432|1042|4510|2453|1512||',
+  '4243|3513|0505|2101|3424|1205||',
+  '1004|3325|3514|1004|2321|5542||',
+  '6030|4340|6414|2055|5516|1262|1323||',
+  '0323|5366|5540|6221|1452|4163|1040||',
+  '6522|3125|3014|2541|0651|0346|4063||',
+  '6225|3163|1055|3654|4203|4411|6200||',
+  '3231|3651|4440|3525|2141|0660|2056||',
+  '6015|4632|0506|2154|4213|4103|6352||',
+  '0632|3305|6426|4142|1234|0155|5106||',
+  '6560|3414|3506|1201|6452|3341|5202||',
+  '3642|0641|3010|6224|3014|5213|6555||',
+  '4262|2116|4345|3650|0365|1040|5231||',
+  '4536|5021|6364|1014|4306|3012|2525||',
+  '0646|1320|4441|0025|6515|2533|3612||',
+  '1201|4102|5625|3363|0053|6144|4256||',
+  '4236|1163|6625|2050|4351|0501|4432||',
+  '4315|2160|4552|6036|2335|4041|0216||',
+  '3112|6020|1122|0355|4366|3405|4564||',
+  '5632|4153|4243|3606|1025|0456|2110||',
+  '1606|2563|2423|0012|5644|5150|4133||',
+  '2456|1106|5536|5224|4041|2316|0330||',
+  '2510|6314|2044|1420|5316|0663|5253||',
+  '6260|1123|3465|5341|4054|1360|5220||',
+  '6063|2431|5301|4242|6510|6305|1542||',
+  '4234|1262|5653|0501|1063|2306|1445||',
+  '2505|4103|5361|6113|0650|4364|4222||',
+  '6031|2034|1146|6255|4123|6452|0305||',
+  '1161|5743|1432|6360|5407|3254|0652|7072||',
+  '0447|4123|0662|5205|1153|3150|7727|3646||',
+  '2711|6303|4024|4165|5107|7605|4567|3322||',
+  '7546|2345|1750|4573|3120|1273|6206|4016||',
+  '1773|6425|4020|5573|1061|0663|2512|4473||',
+  '5021|7606|3367|5513|1240|2317|4670|5424||',
+  '5563|4430|7616|2737|0310|5212|6275|4140||',
+  '7571|3700|4610|5702|5361|2534|3142|6264||',
+  '1772|3405|4374|5562|6132|4623|7650|0110||',
+  '1646|7557|2325|5317|1620|3401|0672|4034||',
+  '6441|6612|3165|1375|2207|4573|4072|3050||',
+  '7720|1062|7162|4751|5546|5163|3302|3404||',
+  '4065|0706|5243|6717|2530|6441|2373|5112||',
+  '3261|4750|7731|4463|4030|5521|2016|2576||',
+  '7700|3320|1565|4647|5641|1427|1063|2352||',
+  '0640|1703|3675|4312|7672|5054|1425|1326||',
+  '3215|0670|3136|2721|6555|7304|4414|6702||',
+  '0431|2275|7240|3556|0140|1563|1247|3766||',
+  '3575|7301|0015|1674|0476|5324|6216|3242||',
+  '4566|1526|4477|7327|0015|1023|5142|3036||',
+  '6411|4732|2630|1503|2417|5500|7736|2465||',
+  '1642|2567|2120|4153|7535|3043|4607|6170||',
+  '3736|0073|0645|4652|4371|0157|5262|1124||',
+  '2176|4346|0540|6103|6323|4177|5275|2150||',
+  '5723|1604|2576|3132|0370|6265|4051|4174||',
+  '0452|1613|5701|5322|5644|0746|6233|7710||',
+  '6057|4232|1745|2045|6311|3767|5126|0034||',
+  '3421|3717|0264|6714|6052|4502|3375|0651||',
+  '4450|6202|1116|5734|2167|5630|7734|3025||',
+  '6127|3247|4553|6273|0151|0305|4247|0616||'
+];
 function uniform(t) { return t.every(c => c === t[0]); }
 function isDone(tubes) { return tubes.every(t => t.length === 0 || (t.length === CAP && uniform(t))); }
 function legal(tubes, a, b) {
@@ -117,23 +216,6 @@ function solve(start, budget) {
     return false;
   }
   return dfs() ? path : null;
-}
-// Every player gets the same 100 levels: the shuffle is seeded by the level number and
-// only shuffles the solver can finish are used, so no level is ever impossible.
-function makeLevel(level) {
-  const n = coloursFor(level);
-  for (let attempt = 0; attempt < 200; attempt++) {
-    const r = rng(level * 7919 + attempt * 104729 + 17), balls = [];
-    for (let c = 0; c < n; c++) for (let i = 0; i < CAP; i++) balls.push(c);
-    for (let i = balls.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); const x = balls[i]; balls[i] = balls[j]; balls[j] = x; }
-    const tubes = [];
-    for (let i = 0; i < n; i++) tubes.push(balls.slice(i * CAP, i * CAP + CAP));
-    tubes.push([], []);
-    if (tubes.some(x => x.length && uniform(x))) continue;      // no tube starts already finished
-    const sol = solve(tubes, 40000);
-    if (sol) return { tubes, solution: sol };
-  }
-  return null;
 }
 // ==/CORE==
 
@@ -279,8 +361,7 @@ function tubeAt(x, y) {
 
 // ---- Game flow
 function startLevel(n) {
-  const lv = makeLevel(n);
-  level = n; tubes = lv.tubes.map(t => t.slice()); solution = lv.solution;
+  level = n; tubes = LEVELS[n - 1].split('|').map(t => [...t].map(Number)); solution = solve(tubes, 40000);
   moves = 0; sel = -1; undo = []; undoLeft = 5; anim = null; doneFlash = []; parts = [];
   screen = 'game'; gameplay(true);
 }
@@ -300,10 +381,10 @@ function doMove(a, b, isUndo) {
   } };
 }
 function win() {
-  const balls = coloursFor(level) * CAP;
+  const balls = tubes.reduce((k, t) => k + t.length, 0);
   earned = moves <= Math.min(solution.length, Math.round(balls * 1.6)) ? 3 : moves <= Math.round(balls * 2.3) ? 2 : 1;
   save.stars[level] = Math.max(save.stars[level] || 0, earned);
-  if (level < LEVELS) save.unlocked = Math.max(save.unlocked, level + 1);
+  if (level < LEVELS.length) save.unlocked = Math.max(save.unlocked, level + 1);
   persist();
   screen = 'win'; winT = 0; sfx.win(); gameplay(false);
   for (let i = 0; i < 40; i++) burst(X(sw * Math.random()), Y(sh * 0.3 * Math.random()), FLAVOURS[1 + i % 6], 1);
@@ -328,7 +409,7 @@ function undoMove() {
   doMove(m[1], m[0], true);
 }
 function nextLevel() {
-  const go = () => startLevel(Math.min(LEVELS, level + 1));
+  const go = () => startLevel(Math.min(LEVELS.length, level + 1));
   if (level % 2 === 0) showAd('midgame', go); else go();   // an ad break every second level
 }
 
@@ -372,8 +453,8 @@ function drawLevels() {
   }
   const by = Y(sh - 9);
   if (page > 0) roundBtn('‹', cx - u * 22, by, () => { page--; });
-  label((page + 1) + ' / ' + (LEVELS / 20), cx, by, u * 5, '#e0527f');
-  if (page < LEVELS / 20 - 1) roundBtn('›', cx + u * 22, by, () => { page++; });
+  label((page + 1) + ' / ' + (LEVELS.length / 20), cx, by, u * 5, '#e0527f');
+  if (page < LEVELS.length / 20 - 1) roundBtn('›', cx + u * 22, by, () => { page++; });
 }
 function drawBoard() {
   for (let i = 0; i < tubes.length; i++) {
@@ -432,8 +513,8 @@ function drawWin() {
     star(cx + (j - 1) * u * 17, cy - u * 7 - (j === 1 ? u * 2 : 0), u * 8 * (j < earned ? 0.6 + 0.4 * k : 1), j < earned && k > 0 ? '#ffc94d' : '#f1dfe6');
   }
   label('MOVES  ' + moves, cx, cy + u * 6, u * 4.2, '#c9839b');
-  if (level < LEVELS) button('NEXT LEVEL', cx, cy + u * 17, u * 62, u * 13, '#ff7aa8', '#e0527f', nextLevel);
-  else label('ALL 100 LEVELS DONE!', cx, cy + u * 17, u * 5, '#e0527f');
+  if (level < LEVELS.length) button('NEXT LEVEL', cx, cy + u * 17, u * 62, u * 13, '#ff7aa8', '#e0527f', nextLevel);
+  else label('ALL ' + LEVELS.length + ' LEVELS DONE!', cx, cy + u * 17, u * 5, '#e0527f');
   button('REPLAY', cx - u * 16.5, cy + u * 32, u * 29, u * 10, '#4dc3ff', '#2f9fd8', () => startLevel(level), u * 4);
   button('LEVELS', cx + u * 16.5, cy + u * 32, u * 29, u * 10, '#9b7bff', '#7a5bd6', () => { page = Math.floor((level - 1) / 20); screen = 'levels'; }, u * 4);
 }
@@ -489,6 +570,8 @@ if (LOCAL && QS.get('level')) {
   for (let i = 0; i < k; i++) { const m = solution[i]; tubes[m[1]].push(tubes[m[0]].pop()); moves++; undo.push(m); }
   if (QS.get('win')) { win(); winT = 2; }
 }
+// Local test hook: ?selftest=1 puts the level count and the levels the solver above cannot finish in the page title.
+if (LOCAL && QS.get('selftest')) document.title = 'selftest:' + LEVELS.length + ':' + LEVELS.map((b, i) => solve(b.split('|').map(t => [...t].map(Number)), 40000) ? 0 : i + 1).filter(Boolean).join(',');
 // Local trailer renderer: solves a few levels on screen at a fixed 30 fps and posts each frame
 // to the local capture server.
 async function demoLoop() {

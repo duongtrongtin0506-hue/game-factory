@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Kiem ban web da build (dist/<game>/none) tren trinh duyet co man hinh dien thoai: python tools/smoke_test.py
 Moi game: mo doc va ngang, cham vai cho, mo man dau va man cuoi qua moc ?level (chi co tac dung tren 127.0.0.1).
-Hong khi: co loi console / loi JavaScript, canvas trong tron, hoac (Car Jam) bo giai trong game ra so buoc khac levels/.
+Hong khi: co loi console / loi JavaScript, canvas trong tron, (Car Jam) bo giai trong game ra so buoc khac levels/, hoac (Boba Sort) bo giai trong game khong giai noi mot man.
 In 1 dong moi game; thoat 1 neu co loi."""
 import functools
 import http.server
@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent
 # game -> cac duong dan thu them sau trang chinh
 CASES = {
     "tap-arcade": ["?stage=1", "?stage=45"],
-    "boba-sort": ["?level=1", "?level=100&win=1"],
+    "boba-sort": ["?level=1", "?level=LAST&win=1"],
     "car-jam": ["?level=1", "?level=LAST&win=1", "?screen=levels"],
     "tile-trio": ["?level=1", "?level=100&end=win"],
     "one-line": ["?level=1", "?level=100&win=1"],
@@ -41,7 +41,7 @@ def run():
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(ROOT / "dist")))
     threading.Thread(target=server.serve_forever, daemon=True).start()
     base = f"http://127.0.0.1:{server.server_address[1]}"
-    car_levels = json.loads((ROOT / "levels" / "car-jam.json").read_text(encoding="utf-8"))
+    counts = {g: len(json.loads((ROOT / "levels" / f"{g}.json").read_text(encoding="utf-8"))) for g in ("car-jam", "boba-sort")}
     results, failed = [], False
     with sync_playwright() as p:
         browser = p.chromium.launch()
@@ -53,22 +53,23 @@ def run():
                 page.on("console", lambda m: errors.append(f"console: {m.text[:160]}") if m.type == "error" else None)
                 page.on("pageerror", lambda e: errors.append(f"js: {str(e)[:160]}"))
                 for path in [""] + extra:
-                    page.goto(f"{base}/{game}/none/index.html{path.replace('LAST', str(len(car_levels)))}")
+                    page.goto(f"{base}/{game}/none/index.html{path.replace('LAST', str(counts.get(game, 0)))}")
                     page.wait_for_timeout(700)
                     if page.evaluate(COLORS) < 4:
                         errors.append(f"canvas trong ({w}x{h} {path or 'trang chinh'})")
                     for x, y in ((0.5, 0.5), (0.5, 0.75), (0.3, 0.4)):
                         page.touchscreen.tap(w * x, h * y)
                         page.wait_for_timeout(150)
-                if game == "car-jam" and w < h:
-                    # bo giai trong game (dung cho goi y) phai ra dung so buoc it nhat ma tools/carjam.py da ghi
+                if game in counts and w < h:
+                    # bo giai trong game (dung cho goi y) phai ra dung so buoc it nhat ma tools/carjam.py da ghi;
+                    # Boba Sort: bo giai trong game phai giai noi moi man
                     page.goto(f"{base}/{game}/none/index.html?selftest=1")
                     page.wait_for_function("document.title.startsWith('selftest:')", timeout=60000)
                     _, count, wrong = page.title().split(":")
-                    if int(count) != len(car_levels):
-                        errors.append("so man trong game khac levels/car-jam.json")
+                    if int(count) != counts[game]:
+                        errors.append(f"so man trong game khac levels/{game}.json")
                     if wrong:
-                        errors.append(f"bo giai trong game lech so buoc o man {wrong[:40]}")
+                        errors.append(f"bo giai trong game sai o man {wrong[:40]}")
                 ctx.close()
             failed = failed or bool(errors)
             results.append(f"{game}: " + ("dat" if not errors else "LOI " + " | ".join(dict.fromkeys(errors))))

@@ -2,9 +2,9 @@
   "name": "Boba Sort",
   "genre": "color sort puzzle",
   "levels": 100,
-  "level_source": "in-game seeded generator",
-  "solver": "not yet in tools/",
-  "web": "web/boba-sort/index.html",
+  "level_source": "levels/boba-sort.json",
+  "solver": "tools/bobasort.py",
+  "web": "web/boba-sort/index.html (built from index.src.html)",
   "itch": null,
   "roblox": null,
   "safety": {

@@ -2,7 +2,7 @@
 """Dong goi moi game cho tung cong: python tools/build.py
   dist/<game>/<cong>/index.html   va   dist/<game>/<game>-<cong>.zip
 Moi goi la index.html cua game voi hang PORTAL doi theo cong ('none' = khong quang cao: itch.io, chay thu).
-Car Jam: ghep levels/car-jam.json vao web/car-jam/index.src.html truoc."""
+Car Jam, Boba Sort: ghep levels/<game>.json vao web/<game>/index.src.html truoc."""
 import json
 import zipfile
 from pathlib import Path
@@ -13,19 +13,22 @@ PORTALS = ["gamemonetize", "crazygames", "none"]
 FLAG = "const PORTAL = 'gamemonetize';"
 
 
-def merge_car_jam():
-    levels = json.loads((ROOT / "levels" / "car-jam.json").read_text(encoding="utf-8"))
-    src = (ROOT / "web" / "car-jam" / "index.src.html").read_text(encoding="utf-8")
+def merge_levels(game, par):
+    """Ghep man vao game. par: co ghi them mang PAR (so buoc it nhat) hay khong."""
+    levels = json.loads((ROOT / "levels" / f"{game}.json").read_text(encoding="utf-8"))
+    src = (ROOT / "web" / game / "index.src.html").read_text(encoding="utf-8")
     if "/*LEVELS*/" not in src:
-        raise SystemExit("Khong thay dau /*LEVELS*/ trong web/car-jam/index.src.html")
-    code = ("const LEVELS = [\n" + ",\n".join(f"  '{r['board']}'" for r in levels) + "\n];\n"
-            "const PAR = [" + ",".join(str(r["moves"]) for r in levels) + "];")
-    (ROOT / "web" / "car-jam" / "index.html").write_text(src.replace("/*LEVELS*/", code), encoding="utf-8", newline="\n")
+        raise SystemExit(f"Khong thay dau /*LEVELS*/ trong web/{game}/index.src.html")
+    code = "const LEVELS = [\n" + ",\n".join(f"  '{r['board']}'" for r in levels) + "\n];"
+    if par:
+        code += "\nconst PAR = [" + ",".join(str(r["moves"]) for r in levels) + "];"
+    (ROOT / "web" / game / "index.html").write_text(src.replace("/*LEVELS*/", code), encoding="utf-8", newline="\n")
     return len(levels)
 
 
 def build():
-    merge_car_jam()
+    merge_levels("car-jam", par=True)
+    merge_levels("boba-sort", par=False)
     out = []
     for game in GAMES:
         src = (ROOT / "web" / game / "index.html").read_text(encoding="utf-8")

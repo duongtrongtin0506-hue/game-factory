@@ -12,6 +12,7 @@ import sys
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
+import bobasort
 import build
 import carjam
 import notify
@@ -20,8 +21,8 @@ ROOT = Path(__file__).resolve().parent.parent
 HISTORY = ROOT / "metrics" / "history.json"
 VN = timezone(timedelta(hours=7))
 FIX = {
-    "kiem man": "chay python tools/carjam.py verify, xoa man sai khoi levels/ hoac content-queue/",
-    "bo sung hang du tru": "chay python tools/carjam.py fill 300 tren may roi commit content-queue/",
+    "kiem man": "chay python tools/carjam.py verify va tools/bobasort.py verify, xoa man sai khoi levels/ hoac content-queue/",
+    "bo sung hang du tru": "chay python tools/carjam.py fill 300 (hoac tools/bobasort.py fill 300) tren may roi commit content-queue/",
     "build": "xem dau PORTAL va /*LEVELS*/ trong web/<game>/index.html",
     "kiem ban web": "chay python tools/smoke_test.py tren may, sua loi console cua game duoc neu ten",
     "dang": "kiem khoa nen tang trong GitHub Secrets (con han khong), chay lai workflow",
@@ -29,17 +30,18 @@ FIX = {
 
 
 def step_verify():
-    problems = carjam.verify()
+    problems = carjam.verify() + bobasort.verify()
     if problems:
         raise RuntimeError("; ".join(problems[:3]))
 
 
 def step_fill():
-    if len(carjam.load(carjam.QUEUE)) < carjam.QUEUE_TARGET:
-        carjam.fill(90)
-    left = len(carjam.load(carjam.QUEUE))
-    if left < carjam.QUEUE_MIN:
-        raise RuntimeError(f"hang du tru Car Jam chi con {left} man (can {carjam.QUEUE_MIN})")
+    for name, tool in (("Car Jam", carjam), ("Boba Sort", bobasort)):
+        if len(tool.load(tool.QUEUE)) < tool.QUEUE_TARGET:
+            tool.fill(90)
+        left = len(tool.load(tool.QUEUE))
+        if left < tool.QUEUE_MIN:
+            raise RuntimeError(f"hang du tru {name} chi con {left} man (can {tool.QUEUE_MIN})")
 
 
 def step_test():
@@ -124,6 +126,7 @@ def main():
         f"- Lần chạy cuối: {now:%Y-%m-%d %H:%M} (giờ VN), {'chạy thử, không đăng' if not publish else 'chạy hằng ngày'}",
         f"- Kết quả: {'🔴 HỎNG ở bước ' + failed + ': ' + detail if failed else '✅ đạt'}",
         f"- Car Jam Escape: {row['levels']} màn trong game, {row['queue']} màn dự trữ đã kiểm (cần ≥ {carjam.QUEUE_MIN})",
+        f"- Boba Sort: {len(bobasort.load(bobasort.LEVELS))} màn trong game, {len(bobasort.load(bobasort.QUEUE))} màn dự trữ đã kiểm (cần ≥ {bobasort.QUEUE_MIN})",
         f"- Kiểm bản web cỡ điện thoại: {row['games_tested']}/{len(build.GAMES)} game đạt",
         "- Đăng: " + ("; ".join(f"{k}: {v}" for k, v in published.items()) or "không đăng lần này"),
         "- Lượt chơi, thời gian chơi, doanh thu: chưa có, chưa game nào lên sóng", "",
