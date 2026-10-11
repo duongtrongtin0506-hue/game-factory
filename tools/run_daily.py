@@ -26,8 +26,8 @@ VN = timezone(timedelta(hours=7))
 FIX = {
     "kiem man": "chay python tools/carjam.py verify, tools/bobasort.py verify, tools/tiletrio.py verify va tools/oneline.py verify, xoa man sai khoi levels/ hoac content-queue/",
     "bo sung hang du tru": "chay python tools/carjam.py fill 300 (hoac tools/bobasort.py, tools/tiletrio.py, tools/oneline.py fill 300) tren may roi commit content-queue/",
-    "build": "xem dau PORTAL va /*LEVELS*/ trong web/<game>/index.html",
-    "kiem ban web": "chay python tools/smoke_test.py tren may, sua loi console cua game duoc neu ten",
+    "build": "xem dau /*LEVELS*/ va /*ADS*/ trong web/<game>/index.src.html, dau /*PORTAL*/ va /*GAME_ID*/ trong web/ads.js",
+    "kiem ban web": "chay node tools/test_ads.js va python tools/smoke_test.py tren may, sua loi duoc neu ten",
     "dang": "kiem khoa nen tang trong GitHub Secrets (con han khong), chay lai workflow",
 }
 
@@ -48,6 +48,10 @@ def step_fill():
 
 
 def step_test():
+    if shutil.which("node"):   # lop quang cao chung, thu voi SDK gia cua tung cong
+        ads = subprocess.run(["node", str(ROOT / "tools" / "test_ads.js")], capture_output=True, timeout=60)
+        if ads.returncode:
+            raise RuntimeError(ads.stdout.decode("utf-8", "replace").strip()[:400] or "tools/test_ads.js hong")
     out = subprocess.run([sys.executable, str(ROOT / "tools" / "smoke_test.py")], capture_output=True, timeout=420)
     text = out.stdout.decode("utf-8", "replace").strip()
     if out.returncode:

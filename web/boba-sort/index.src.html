@@ -15,63 +15,10 @@ canvas{display:block;width:100%;height:100%}
 (() => {
 'use strict';
 
-// ============================================================================
-// Ads. PORTAL is a build flag: each portal gets its own zip with its own SDK.
-//   'gamemonetize'  GameMonetize HTML5 SDK (needs GAME_ID from their dashboard)
-//   'crazygames'    CrazyGames SDK v3 (no id; only works on their domain)
-//   'none'          no SDK, no ads
-// ============================================================================
-const PORTAL = 'gamemonetize';
-const GAME_ID = '';
-const LOCAL = /^(localhost|127\.0\.0\.1|)$/.test(location.hostname);
+/*ADS*/
+// Local-only helpers (?level=, ?demo=, ?selftest= ...): ignored anywhere but a local test server.
 const QS = new URLSearchParams(LOCAL ? location.search : '');
 const DEMO = QS.get('demo');            // local only: renders an auto-played trailer frame by frame
-
-let adPlaying = false, adDone = null, adTimer = 0, cg = null;
-function finishAd(ok) {
-  clearTimeout(adTimer); adPlaying = false;
-  const f = adDone; adDone = null;
-  if (f) f(ok !== false);
-}
-function loadScript(src, id, onload) {
-  const s = document.createElement('script');
-  s.id = id; s.src = src; s.onload = onload || null;
-  document.head.appendChild(s);
-}
-if (!LOCAL && PORTAL === 'gamemonetize' && GAME_ID) {
-  window.SDK_OPTIONS = {
-    gameId: GAME_ID,
-    onEvent(a) {
-      if (a.name === 'SDK_GAME_PAUSE') { clearTimeout(adTimer); adPlaying = true; }
-      else if (a.name === 'SDK_GAME_START') finishAd(true);
-    }
-  };
-  loadScript('https://api.gamemonetize.com/sdk.js', 'gamemonetize-sdk');
-}
-if (!LOCAL && PORTAL === 'crazygames') {
-  loadScript('https://sdk.crazygames.com/crazygames-sdk-v3.js', 'crazygames-sdk', () => {
-    window.CrazyGames.SDK.init().then(() => { cg = window.CrazyGames.SDK; }).catch(() => {});
-  });
-}
-// type: 'midgame' | 'rewarded'. done(ok): ok is false only when a rewarded ad was adblocked.
-function showAd(type, done) {
-  if (adDone) return;
-  if (cg) {
-    adDone = done;
-    cg.ad.requestAd(type, {
-      adStarted: () => { adPlaying = true; },
-      adFinished: () => finishAd(true),
-      adError: e => finishAd(!(type === 'rewarded' && e && e.code === 'adblock'))
-    });
-  } else if (window.sdk && window.sdk.showBanner) {
-    adDone = done; adTimer = setTimeout(finishAd, 4000);
-    window.sdk.showBanner();
-  } else done(true);
-}
-function gameplay(on) {
-  if (!cg) return;
-  try { if (on) cg.game.gameplayStart(); else cg.game.gameplayStop(); } catch (e) {}
-}
 
 // ==CORE== (pure puzzle logic: no DOM, so it can be tested on its own)
 const CAP = 4;

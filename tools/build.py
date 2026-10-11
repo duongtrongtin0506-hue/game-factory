@@ -1,49 +1,57 @@
 # -*- coding: utf-8 -*-
 """Dong goi moi game cho tung cong: python tools/build.py
   dist/<game>/<cong>/index.html   va   dist/<game>/<game>-<cong>.zip
-Moi goi la index.html cua game voi hang PORTAL doi theo cong ('none' = khong quang cao: itch.io, chay thu).
-Ca 5 game: ghep levels/<game>.json vao web/<game>/index.src.html truoc."""
+Nguon moi game la web/<game>/index.src.html. Buoc nay ghep vao do:
+  /*LEVELS*/  man choi tu levels/<game>.json
+  /*ADS*/     lop quang cao chung web/ads.js, voi PORTAL = cong dang dong goi va GAME_ID = ma game o cong do (specs/<game>.json, muc portal_ids)
+web/<game>/index.html la ban cong 'gamemonetize' (de chay thu tren may); cong 'none' = khong quang cao: itch.io, kiem thu."""
 import json
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 GAMES = ["tap-arcade", "boba-sort", "car-jam", "tile-trio", "one-line"]
-PORTALS = ["gamemonetize", "crazygames", "none"]
-FLAG = "const PORTAL = 'gamemonetize';"
+PORTALS = ["gamemonetize", "crazygames", "gamedistribution", "none"]
+PAR = {"car-jam"}   # game can them mang PAR (so buoc it nhat cua tung man)
 
 
-def merge_levels(game, par):
-    """Ghep man vao game. par: co ghi them mang PAR (so buoc it nhat) hay khong."""
+def with_levels(game):
+    """-> (nguon da ghep man, so man)."""
     levels = json.loads((ROOT / "levels" / f"{game}.json").read_text(encoding="utf-8"))
     src = (ROOT / "web" / game / "index.src.html").read_text(encoding="utf-8")
-    if "/*LEVELS*/" not in src:
-        raise SystemExit(f"Khong thay dau /*LEVELS*/ trong web/{game}/index.src.html")
+    for mark in ("/*LEVELS*/", "/*ADS*/"):
+        if src.count(mark) != 1:
+            raise SystemExit(f"Can dung 1 dau {mark} trong web/{game}/index.src.html")
     code = "const LEVELS = [\n" + ",\n".join(f"  '{r['board']}'" for r in levels) + "\n];"
-    if par:
+    if game in PAR:
         code += "\nconst PAR = [" + ",".join(str(r["moves"]) for r in levels) + "];"
-    (ROOT / "web" / game / "index.html").write_text(src.replace("/*LEVELS*/", code), encoding="utf-8", newline="\n")
-    return len(levels)
+    return src.replace("/*LEVELS*/", code), len(levels)
+
+
+def with_ads(src, game, portal):
+    ads = (ROOT / "web" / "ads.js").read_text(encoding="utf-8").strip()
+    ids = json.loads((ROOT / "specs" / f"{game}.json").read_text(encoding="utf-8")).get("portal_ids", {})
+    for mark, value in (("/*PORTAL*/", portal), ("/*GAME_ID*/", ids.get(portal, ""))):
+        if ads.count(mark) != 1:
+            raise SystemExit(f"Can dung 1 dau {mark} trong web/ads.js")
+        ads = ads.replace(mark, value)
+    return src.replace("/*ADS*/", ads)
 
 
 def build():
-    merge_levels("car-jam", par=True)
-    merge_levels("boba-sort", par=False)
-    merge_levels("tile-trio", par=False)
-    merge_levels("one-line", par=False)
-    merge_levels("tap-arcade", par=False)
     out = []
     for game in GAMES:
-        src = (ROOT / "web" / game / "index.html").read_text(encoding="utf-8")
-        if FLAG not in src:
-            raise SystemExit(f"Khong thay hang PORTAL trong web/{game}/index.html")
+        src, _ = with_levels(game)
         for portal in PORTALS:
+            html = with_ads(src, game, portal)
             stage = ROOT / "dist" / game / portal
             stage.mkdir(parents=True, exist_ok=True)
-            (stage / "index.html").write_text(src.replace(FLAG, f"const PORTAL = '{portal}';"), encoding="utf-8", newline="\n")
+            (stage / "index.html").write_text(html, encoding="utf-8", newline="\n")
             with zipfile.ZipFile(ROOT / "dist" / game / f"{game}-{portal}.zip", "w", zipfile.ZIP_DEFLATED) as z:
                 z.write(stage / "index.html", "index.html")
-        out.append(f"{game} {len(src.encode('utf-8')) // 1024}KB")
+            if portal == "gamemonetize":
+                (ROOT / "web" / game / "index.html").write_text(html, encoding="utf-8", newline="\n")
+        out.append(f"{game} {len(html.encode('utf-8')) // 1024}KB")
     return out
 
 

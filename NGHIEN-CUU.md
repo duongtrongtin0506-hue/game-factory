@@ -8,16 +8,20 @@ Tra ngày 2026-10-11 bằng model nhẹ, chỉ ghi điều đọc được trên
 - PEGI 12; tiếng Anh bắt buộc; không tự làm nút toàn màn hình; không quảng bá chéo, không link cửa hàng ứng dụng trong game; chữ và hình đọc được ở devicePixelRatio 1. Nguồn: https://docs.crazygames.com/requirements/gameplay/
 - Full Launch: bắt buộc SDK đầy đủ; người chơi mới vào chơi ngay hoặc sau tối đa 1 lần bấm. Nguồn: như trên
 - Basic Launch: SDK không bắt buộc, không được chạy quảng cáo, chưa có tiền. Trang không nêu điều kiện lên Full Launch. Nguồn: https://docs.crazygames.com/requirements/intro/
-- SDK v3 (gameplayStart/Stop, happytime, loadingStart/Stop, requestAd midgame/rewarded với adStarted/adError/adFinished): chưa xác minh, trang https://docs.crazygames.com/sdk/html5-v3/ trả 404 lúc tra.
+- SDK v3 (tra lại 2026-10-12): nạp https://sdk.crazygames.com/crazygames-sdk-v3.js rồi `await window.CrazyGames.SDK.init()`. Nguồn: https://docs.crazygames.com/sdk/intro/
+- Quảng cáo: `SDK.ad.requestAd('midgame' | 'rewarded', {adStarted, adFinished, adError})`; lỗi có dạng `{code, message}`, mã: `adsDisabledBasicLaunch`, `unfilled`, `adblock`, `adCooldown`, `other`. Basic Launch tắt quảng cáo (trả `adsDisabledBasicLaunch`). Khoảng cách midgame thường 3 phút, rewarded và preroll cũng tính vào. Nguồn: https://docs.crazygames.com/sdk/video-ads/
+- `SDK.game.gameplayStart()`, `gameplayStop()`, `loadingStart()`, `loadingStop()`, `happytime()`. Nguồn: https://docs.crazygames.com/sdk/game/
 - Trang chất lượng chỉ có hướng dẫn chung (tên/hình gây hiểu nhầm, nút dụ bấm quảng cáo, hướng dẫn đầu game không rõ), không liệt kê lý do từ chối. Nguồn: https://docs.crazygames.com/requirements/quality/ . Lý do cụ thể 4 game bị từ chối: chưa xác minh.
 
 ## GameMonetize
 - Chia 45% doanh thu; trả qua PayPal hoặc USDT (ERC20); "Net 30". Nguồn: https://gamemonetize.com/developers
-- Ngưỡng rút tối thiểu và tài liệu SDK chính thức (gameId, showBanner, sự kiện pause/resume): chưa xác minh trên trang công khai. Mã SDK đang dùng trong game lấy từ trang quản trị của tài khoản và đã qua bước Verify của họ.
+- SDK (tra 2026-10-12): `window.SDK_OPTIONS = {gameId, onEvent}`; sự kiện `SDK_READY`, `SDK_GAME_PAUSE` (quảng cáo sẵn sàng: dừng, tắt tiếng), `SDK_GAME_START` (xong: chơi tiếp); gọi `sdk.showBanner()`. Nguồn: https://gamemonetize.com/sdk . Tệp nạp https://api.gamemonetize.com/sdk.js . Nguồn: https://github.com/MonetizeGame/GameMonetize.com-SDK
+- Dạng quảng cáo thưởng riêng: không trang nào nêu, chưa xác minh; `web/ads.js` dùng `showBanner()` cho cả hai loại. Ngưỡng rút tối thiểu: chưa xác minh trên trang công khai.
 
 ## GameDistribution
 - `GD_OPTIONS`: `gameId` (bắt buộc), `onEvent`; nạp https://html5.api.gamedistribution.com/main.min.js một lần. Nguồn: https://github.com/GameDistribution/GD-HTML5/wiki/SDK-Implementation (trang tự ghi một phần đã cũ)
 - Sự kiện: SDK_READY, SDK_ERROR, SDK_GAME_PAUSE (dừng và tắt tiếng), SDK_GAME_START (chơi tiếp), SDK_REWARDED_WATCH_COMPLETE. `gdsdk.showAd()` gọi từ thao tác của người chơi; `showBanner()` đã bỏ. Nguồn: như trên
+- Quảng cáo thưởng (tra 2026-10-12): `gdsdk.showAd('rewarded')` trả Promise; nên `preloadAd('rewarded')` trước nhưng không bắt buộc; chỉ thưởng khi có `SDK_REWARDED_WATCH_COMPLETE`, `.catch` = không thưởng. Nguồn: https://github.com/GameDistribution/GD-HTML5/wiki/Rewarded-Ads . Tên sự kiện khi người chơi bỏ ngang, và `showAd()` thường có trả Promise không: chưa xác minh.
 - Yêu cầu với nhà phát triển và tiêu chí chất lượng: chưa xác minh (trang chính không đọc được).
 
 ## itch.io
