@@ -37,3 +37,15 @@ Nếu itch.io không cho lưu khi chưa có tệp: bấm **Upload files**, chọ
 ## Chưa cần làm
 
 Tài khoản và khóa Roblox: chưa thấy dấu vết bạn đã có. Chỉ cần khi đã chọn được game làm bản Roblox, tức là sau khi có 14 ngày số liệu.
+
+## Bản cập nhật tháng cho cổng web (chỉ làm khi game ĐÃ được cổng duyệt)
+
+Máy tự thêm 20 màn mỗi thứ hai vào Boba Sort, Tile Trio, One Line Fill và tự đẩy lên itch.io. Cổng web (GameMonetize, CrazyGames, GameDistribution) phải nộp tay, mỗi tháng 1 lần, và chỉ với game đang ở trạng thái đã duyệt. Game đang chờ duyệt hoặc bị từ chối: không nộp bản này.
+
+1. Trong khung chat game, nhắn: **bản tháng**. Claude kéo mã mới, build, và báo tệp cần tải của từng game, ví dụ `distoba-sortoba-sort-gamemonetize.zip`.
+2. GameMonetize: đăng nhập → **My Games** → game → **Edit** → tải tệp zip `...-gamemonetize.zip` mới vào ô game file → lưu, gửi duyệt lại.
+3. CrazyGames: Developer Portal → game → **Update game** → tải `dist\<game>\crazygames\index.html` → tải lại ảnh bìa và video (CrazyGames xóa chúng mỗi lần đổi bản) từ `dist\<game>ssets` → gửi.
+4. GameDistribution (khi tài khoản được duyệt): game → **Files** → tải `...-gamedistribution.zip` → gửi duyệt.
+5. Nhắn: **xong bản tháng** kèm tên game và cổng đã nộp. Claude ghi ngày vào `THEO-DOI.md`.
+
+Tên nút trên từng cổng có thể khác đôi chút: phần này viết sẵn theo cách đã nộp lần đầu, chưa nộp bản cập nhật nào thật.

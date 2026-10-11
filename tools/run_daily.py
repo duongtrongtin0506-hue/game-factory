@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 """Lan chay hang ngay (GitHub Actions daily.yml, hoac chay tay): python tools/run_daily.py [--no-publish] [--weekly]
-  1. kiem lai moi man bang bo giai   2. bo sung hang du tru man   3. build   4. kiem ban web tren man hinh dien thoai
+  1. kiem lai moi man bang bo giai   1b. thu hai: chuyen 20 man tu hang du tru vao game (TAKE_GAMES)   2. bo sung hang du tru man
+  3. build   4. kiem lop quang cao + ban web tren dien thoai va may tinh
   5. dang len cac nen tang co khoa (thieu khoa thi bo qua nen tang do)   6. ghi TRANG-THAI.md + metrics/history.json
   7. Discord 1 dong + diem danh healthchecks
-Buoc nao hong thi dung, KHONG dang, bao Discord @here kem cach sua. --weekly gui them bao cao tuan (chu nhat)."""
+Buoc nao hong thi dung, KHONG dang, man vua chuyen duoc tra ve hang du tru, bao Discord @here kem cach sua. --weekly gui them bao cao tuan (chu nhat)."""
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -23,7 +25,11 @@ import tiletrio
 ROOT = Path(__file__).resolve().parent.parent
 HISTORY = ROOT / "metrics" / "history.json"
 VN = timezone(timedelta(hours=7))
+# Game tu them man: man hinh chon man cua 3 game nay tu dai theo so man. Car Jam chua vao: man 101+ can canh the gioi thu 6.
+TAKE_GAMES = (("Boba Sort", bobasort), ("Tile Trio", tiletrio), ("One Line Fill", oneline))
+TAKE_COUNT, TAKE_WEEKDAY = 20, 0   # 20 man = 1 trang chon man; 0 = thu hai
 FIX = {
+    "them man": "chay python tools/<game>.py verify; hang du tru phai con du 20 man",
     "kiem man": "chay python tools/carjam.py verify, tools/bobasort.py verify, tools/tiletrio.py verify va tools/oneline.py verify, xoa man sai khoi levels/ hoac content-queue/",
     "bo sung hang du tru": "chay python tools/carjam.py fill 300 (hoac tools/bobasort.py, tools/tiletrio.py, tools/oneline.py fill 300) tren may roi commit content-queue/",
     "build": "xem dau /*LEVELS*/ va /*ADS*/ trong web/<game>/index.src.html, dau /*PORTAL*/ va /*GAME_ID*/ trong web/ads.js",
@@ -36,6 +42,23 @@ def step_verify():
     problems = carjam.verify() + bobasort.verify() + tiletrio.verify() + oneline.verify() + taparcade.verify()
     if problems:
         raise RuntimeError("; ".join(problems[:3]))
+
+
+def step_take(history, today):
+    """Moi tuan 1 lan (thu hai, hoac lan chay dau tien sau do neu thu hai hong): chuyen TAKE_COUNT man moi game tu hang du tru vao game.
+    -> (so man da chuyen, ban luu cac tep da doi de tra lai neu buoc sau hong)."""
+    recent = any(r.get("took") and (today - date.fromisoformat(r["date"])).days < 7 for r in history)
+    due = today.weekday() == TAKE_WEEKDAY or any(r.get("take_failed") for r in history[-6:])
+    if recent or not due:
+        return 0, {}
+    backup, took = {}, 0
+    for _, tool in TAKE_GAMES:
+        if len(tool.load(tool.QUEUE)) < TAKE_COUNT:
+            continue
+        for path in (tool.LEVELS, tool.QUEUE):
+            backup[path] = path.read_text(encoding="utf-8")
+        took += len(tool.take(TAKE_COUNT))
+    return took, backup
 
 
 def step_fill():
@@ -107,8 +130,16 @@ def main():
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     publish, weekly = "--no-publish" not in sys.argv, "--weekly" in sys.argv
     now = datetime.now(VN)
+    history = json.loads(HISTORY.read_text(encoding="utf-8")) if HISTORY.exists() else []
+    took, backup = 0, {}
+
+    def step_take_now():
+        nonlocal took, backup
+        took, backup = step_take(history, now.date())
+
     steps = [("kiem man", step_verify), ("bo sung hang du tru", step_fill), ("build", build.build), ("kiem ban web", step_test)]
     if publish:
+        steps.insert(1, ("them man", step_take_now))
         steps.append(("dang", step_publish))
     failed, detail, published = None, "", {}
     for name, func in steps:
@@ -119,10 +150,19 @@ def main():
         except Exception as e:  # chay khong nguoi trong: ghi lai roi bao, khong de chet im lang
             failed, detail = name, f"{type(e).__name__}: {str(e)[:300]}"
             break
+    if failed and failed != "dang" and backup:   # man moi chua qua kiem thu: tra lai nhu cu, tuan nay thu lai o lan chay sau
+        for path, text in backup.items():
+            path.write_text(text, encoding="utf-8", newline="\n")
+        build.build()
+        took = -1
 
     row = {"date": now.date().isoformat(), "ok": not failed, "levels": len(carjam.load(carjam.LEVELS)),
            "queue": len(carjam.load(carjam.QUEUE)), "games_tested": 0 if failed else len(build.GAMES)}
-    history = [r for r in (json.loads(HISTORY.read_text(encoding="utf-8")) if HISTORY.exists() else []) if r["date"] != row["date"]]
+    if took > 0 or any(r.get("took") for r in history if r["date"] == row["date"]):   # lan chay lai trong ngay khong lam mat dau da chuyen man
+        row["took"] = took if took > 0 else next(r["took"] for r in history if r["date"] == row["date"] and r.get("took"))
+    elif took < 0:
+        row["take_failed"] = True
+    history = [r for r in history if r["date"] != row["date"]]
     history = (history + [row])[-120:]
     HISTORY.parent.mkdir(exist_ok=True)
     HISTORY.write_text("[\n" + ",\n".join(json.dumps(r) for r in history) + "\n]\n", encoding="utf-8", newline="\n")
@@ -138,6 +178,7 @@ def main():
         f"- One Line Fill: {len(oneline.load(oneline.LEVELS))} màn trong game, {len(oneline.load(oneline.QUEUE))} màn dự trữ đã kiểm (cần ≥ {oneline.QUEUE_MIN})",
         f"- Tap Arcade: {len(taparcade.load(taparcade.LEVELS))} chặng Journey đã kiểm (trò phản xạ, không có hàng dự trữ)",
         f"- Kiểm bản web cỡ điện thoại: {row['games_tested']}/{len(build.GAMES)} game đạt",
+        "- Thêm màn tuần này: " + (f"đã chuyển {row['took']} màn từ hàng dự trữ vào game" if row.get("took") else "màn mới hỏng kiểm thử, đã trả lại" if took < 0 else "không phải hôm nay (mỗi thứ hai 20 màn mỗi game: Boba Sort, Tile Trio, One Line Fill)"),
         "- Đăng: " + ("; ".join(f"{k}: {v}" for k, v in published.items()) or "không đăng lần này"),
         "- Lượt chơi, thời gian chơi, doanh thu: chưa có, chưa game nào lên sóng", "",
         "| Khóa | Có | Hết hạn |", "|---|---|---|", *keys, "",
@@ -148,7 +189,12 @@ def main():
         notify.discord(f"🔴 game-factory hỏng ở bước '{failed}': {detail[:250]} | Sửa: {FIX[failed]}", alert=True)
         notify.ping(failed=True)
     else:
+        skipped = [f"{k}: {v.split('⚪ ')[1] if '⚪' in v else v}" for k, v in published.items() if "bo qua" in v and k != "Roblox"]
+        todo = len(re.findall(r"^## \d", (ROOT / "HUONG-DAN-CHU.md").read_text(encoding="utf-8"), re.M))
         notify.discord(f"✅ game-factory {now:%d/%m}: {row['games_tested']} game qua kiểm thử, Car Jam {row['levels']} màn + {row['queue']} dự trữ"
+                       + (f" | +{took} màn mới vào game" if took > 0 else "")
+                       + (f" | ⚪ {'; '.join(skipped)}" if skipped else "")
+                       + (f" | 📌 chờ chủ: {todo} mục trong HUONG-DAN-CHU.md" if todo and publish else "")
                        + (f" | ⚠️ khóa sắp hết hạn: {', '.join(warn)}" if warn else ""))
         notify.ping()
     if weekly:

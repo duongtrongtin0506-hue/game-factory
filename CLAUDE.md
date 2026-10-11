@@ -14,17 +14,17 @@ Trả lời tiếng Việt, ngắn gọn, tự làm; chỉ hỏi khi cần tài 
 - Vẫn phải hỏi: tài khoản, mật khẩu, tiền.
 
 GIAI ĐOẠN HIỆN TẠI: 3 (máy tự thêm màn)
-VIỆC TIẾP THEO: `git pull` rồi đọc `TRANG-THAI.md` + `metrics/history.json`: lần chạy `daily` 06:00 trên GitHub Actions sau khi gộp nhánh (từ 13/10) có ✅ không; 🔴 thì sửa theo bước lỗi. Đủ 3 ngày ✅ liền thì xong giai đoạn 3. Trong lúc chờ: cho `daily` tự lấy màn từ hàng chờ theo tháng (`take 20` + cảnh thế giới mới của Car Jam), viết hướng dẫn nộp bản cập nhật tháng vào `HUONG-DAN-CHU.md`.
+VIỆC TIẾP THEO: `git pull` rồi đọc `TRANG-THAI.md` + `metrics/history.json`: lần chạy `daily` 06:00 trên GitHub Actions (bản mới, lần đầu 12/10 06:00) có ✅ không; 🔴 thì sửa theo bước lỗi. Đủ 3 ngày ✅ liền (sớm nhất 14/10) thì xong giai đoạn 3 → giai đoạn 4 chỉ bắt đầu khi có game lên sóng. Nếu chưa đủ ngày: Car Jam thêm cảnh thế giới thứ 6 + sửa chữ "ALL 100 LEVELS" để vào `TAKE_GAMES`.
 
 ## Danh sách game
 
 | Tên | Thư mục | Số màn | Cổng đã nộp | Ngày nộp | Trạng thái duyệt |
 |---|---|---|---|---|---|
 | Tap Arcade | `web/tap-arcade` | 45 (Journey) | GameMonetize (bản 5 trò) · CrazyGames | 09/10 · 11/10 | chờ duyệt (xem lần cuối 09/10) · bị từ chối 11/10 |
-| Boba Sort | `web/boba-sort` | 100 | CrazyGames | 11/10 | bị từ chối 11/10 |
+| Boba Sort | `web/boba-sort` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
 | Car Jam Escape | `web/car-jam` | 100 (+40 dự trữ) | CrazyGames (bản 1) | 11/10 | bị từ chối 11/10; bản 2 chưa nộp, chờ chủ chơi thử |
-| Tile Trio | `web/tile-trio` | 100 | CrazyGames | 11/10 | bị từ chối 11/10 |
-| One Line Fill | `web/one-line` | 100 | chưa nộp | - | chưa có ảnh bìa, video |
+| Tile Trio | `web/tile-trio` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
+| One Line Fill | `web/one-line` | 120 | chưa nộp | - | chưa có ảnh bìa, video |
 
 GameDistribution: đăng ký tài khoản 09/10, chờ thư. itch.io: có khóa, chưa có trang game. Chi tiết: `THEO-DOI.md`.
 
@@ -35,7 +35,7 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 - 0 Dọn + GitHub: XONG (kho có mã, `.gitignore` chặn khóa, quét khóa sạch 12/10).
 - 1 Kiểm kê: XONG, `THEO-DOI.md` đủ 5 game.
 - 2 Chuẩn hóa: XONG 12/10, nhánh `chuan-hoa` đã gộp vào `main` (bảng đo ở `THEO-DOI.md`). Có: `levels/car-jam.json`; Boba Sort (12/10, nhánh `chuan-hoa`: `tools/bobasort.py`, `levels/boba-sort.json` giữ nguyên 100 màn cũ, 40 màn dự trữ, `run_daily` kiểm cả hai); Tile Trio (12/10, cùng nhánh: `tools/tiletrio.py`, `levels/tile-trio.json` giữ nguyên 100 màn cũ, 40 màn dự trữ; quy trình ngày chạy trọn trên máy đạt với cả 3 game). One Line Fill (12/10, cùng nhánh: `tools/oneline.py`, `levels/one-line.json` giữ 99 màn cũ, màn 27 trùng màn 26 nên thay bằng màn mới cùng cỡ, 40 màn dự trữ). Tap Arcade (12/10: 45 chặng Journey ở `levels/tap-arcade.json`, `tools/taparcade.py` chỉ kiểm định dạng vì là trò phản xạ, không có hàng dự trữ). Cả 5 game giờ đọc màn từ `levels/`. Lớp quảng cáo chung `web/ads.js` (12/10): một nguồn cho 4 cổng (gamemonetize, gamedistribution, crazygames, none), `tools/build.py` dán vào từng game; quảng cáo thưởng không bị giữ lại, midgame cách nhau ≥ 60 giây; `tools/test_ads.js` thử với SDK giả, chưa thử với SDK thật của cổng nào. Đo tải (0,7–1,1 giây, giới hạn 5) và cỡ máy tính 1280x720 nằm trong `tools/smoke_test.py`.
-- 3 Máy tự thêm màn: làm trước một phần (Car Jam: bộ giải, hàng chờ, `daily.yml`, `weekly-selftest.yml`, Discord, healthchecks). Chưa có trang itch.io thì `daily` bỏ qua bước đăng, ghi ⚪ (sửa 12/10, chưa chạy thật trên Actions).
+- 3 Máy tự thêm màn: ĐANG LÀM. Có: bộ giải + hàng chờ ≥ 30 cho 4 game xếp hình, `daily.yml`, `weekly-selftest.yml`, Discord, healthchecks. Từ 12/10 `run_daily` mỗi thứ hai chuyển 20 màn/game từ hàng chờ vào Boba Sort, Tile Trio, One Line Fill (hỏng kiểm thử thì trả lại, hôm sau làm bù; lần đầu chạy trên máy 12/10: mỗi game 120 màn), workflow commit cả `levels/` + `web/`. Car Jam chưa tự thêm (cần cảnh thế giới 6). Hướng dẫn nộp bản tháng cho cổng web ở cuối `HUONG-DAN-CHU.md`. Còn thiếu: 3 ngày ✅ liền trên Actions. Chưa có trang itch.io thì `daily` bỏ qua bước đăng, ghi ⚪ (sửa 12/10, chưa chạy thật trên Actions).
 - 4 Đo 14 ngày: chưa bắt đầu, chưa game nào lên sóng.
 - 5 Roblox: chưa làm, chưa có khóa.
 
@@ -89,3 +89,4 @@ Chạy thử trên máy: launch config `game-web`, cổng 8931, đường dẫn 
 - 2026-10-11 – Không nộp lại bản cũ lên CrazyGames; làm Car Jam bản 2 trước – cả 4 game bị chê chất lượng chung.
 - 2026-10-11 – Màn mới sinh bằng thuật toán + bộ giải, không dùng Gemini – không cần khóa, không hết lượt, chắc chắn giải được.
 - 2026-10-12 – Dọn giai đoạn 0 chỉ áp dụng cho thư mục game; không xóa CLAUDE.md và không dời tệp trong `Videos\noi-dung-video` – thư mục đó là dự án khác đang chạy theo lịch, dời tệp sẽ làm hỏng nó.
+- 2026-10-12 – Màn mới vào game mỗi thứ hai, 20 màn/game (không phải mỗi ngày); cổng web vẫn gom theo tháng – trang chọn màn chia 20 ô nên phải thêm trọn trang; 20 màn/ngày thì tệp game phình nhanh mà chưa có người chơi.

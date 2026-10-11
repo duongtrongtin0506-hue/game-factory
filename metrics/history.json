@@ -1,4 +1,4 @@
 [
 {"date": "2026-10-11", "ok": true, "levels": 100, "queue": 40, "games_tested": 5},
-{"date": "2026-10-12", "ok": true, "levels": 100, "queue": 40, "games_tested": 5}
+{"date": "2026-10-12", "ok": true, "levels": 100, "queue": 40, "games_tested": 5, "took": 60}
 ]
