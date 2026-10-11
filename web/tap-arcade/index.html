@@ -301,14 +301,61 @@ function addScore(n, x, y, color) {
   if (stage >= 0 && starsFor(stage, score) > before) { sfx.gold(); burst(x0 + cw / 2, u * 9, '#ffd23d', 18); }
 }
 
-// ---- Journey: 45 stages (the 9 games x 5 tiers). A stage is a normal run of one game with
-// three score goals; one star clears it and opens the next stage.
-const STAGES = 45;
+// ---- Journey: a stage is a normal run of one game with three score goals; one star clears it
+// and opens the next stage. Each stage is a string '<game id>:<1 star>,<2 stars>,<3 stars>' from
+// levels/tap-arcade.json (checked by tools/taparcade.py).
+const LEVELS = [
+  'balloon:8,13,19',
+  'mole:8,13,19',
+  'number:8,13,19',
+  'stroop:6,10,14',
+  'memory:6,10,14',
+  'math:6,10,14',
+  'odd:6,10,14',
+  'simon:5,8,12',
+  'catch:8,13,19',
+  'balloon:11,18,26',
+  'mole:11,18,26',
+  'number:11,18,26',
+  'stroop:9,14,22',
+  'memory:9,14,22',
+  'math:9,14,22',
+  'odd:9,14,22',
+  'simon:7,11,17',
+  'catch:11,18,26',
+  'balloon:14,22,34',
+  'mole:14,22,34',
+  'number:14,22,34',
+  'stroop:11,18,26',
+  'memory:11,18,26',
+  'math:11,18,26',
+  'odd:11,18,26',
+  'simon:9,14,22',
+  'catch:14,22,34',
+  'balloon:17,27,41',
+  'mole:17,27,41',
+  'number:17,27,41',
+  'stroop:14,22,34',
+  'memory:14,22,34',
+  'math:14,22,34',
+  'odd:14,22,34',
+  'simon:12,19,29',
+  'catch:17,27,41',
+  'balloon:21,34,50',
+  'mole:21,34,50',
+  'number:21,34,50',
+  'stroop:17,27,41',
+  'memory:17,27,41',
+  'math:17,27,41',
+  'odd:17,27,41',
+  'simon:14,22,34',
+  'catch:21,34,50'
+];
+const STAGES = LEVELS.length;
 let stage = -1, stageStars = 0, stageBonus = 0;
 function stageInfo(i) {
-  const game = GAMES[i % GAMES.length], tier = Math.floor(i / GAMES.length);
-  const t1 = Math.round(MISSION_TARGET[game.id] * (0.5 + 0.22 * tier));
-  return { game, goals: [t1, Math.round(t1 * 1.6), Math.round(t1 * 2.4)] };
+  const [id, goals] = LEVELS[i].split(':');
+  return { game: GAMES.find(x => x.id === id), goals: goals.split(',').map(Number) };
 }
 function starsFor(i, s) { return stageInfo(i).goals.filter(goal => s >= goal).length; }
 function stageOpen(i) { return i === 0 || (save.journey[i - 1] || 0) >= 1; }
@@ -932,6 +979,11 @@ const HELP = {
   catch:   ['Drag to move the basket.', 'Catch everything except bombs!']
 };
 ensureMissions();
+// Local test hook: ?selftest=1 puts the stage count and the stages with an unknown game or goals out of order in the page title.
+if (LOCAL && QS.get('selftest')) document.title = 'selftest:' + STAGES + ':' + LEVELS.map((b, i) => {
+  const s = stageInfo(i), g = s.goals;
+  return s.game && g.length === 3 && g[0] > 0 && g[0] < g[1] && g[1] < g[2] && (i >= GAMES.length || s.game === GAMES[i]) ? 0 : i + 1;
+}).filter(Boolean).join(',');
 // Local test hook: ?play=<game id> opens a game directly, &over=1 jumps to its game-over screen.
 if (LOCAL) {
   const st = QS.get('stage') ? +QS.get('stage') - 1 : undefined;

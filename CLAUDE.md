@@ -14,7 +14,7 @@ Trả lời tiếng Việt, ngắn gọn, tự làm; chỉ hỏi khi cần tài 
 - Vẫn phải hỏi: tài khoản, mật khẩu, tiền.
 
 GIAI ĐOẠN HIỆN TẠI: 2 (chuẩn hóa)
-VIỆC TIẾP THEO: Tap Arcade: tách 45 chặng Journey ra `levels/tap-arcade.json` (`index.src.html` + dấu `/*LEVELS*/`; không cần bộ giải vì là trò phản xạ, chỉ kiểm mục tiêu sao hợp lệ và tăng dần); làm tiếp ở nhánh `chuan-hoa` (chưa gộp vào `main`, gộp khi xong cả giai đoạn 2). Sau đó: `web/ads.js` chung, đo tải < 5 giây.
+VIỆC TIẾP THEO: Lớp quảng cáo chung `web/ads.js` (một nguồn, `tools/build.py` ghép vào từng game theo cổng: gamemonetize, crazygames, gamedistribution, none; ưu tiên quảng cáo thưởng); tra tài liệu SDK mới nhất, ghi nguồn vào `NGHIEN-CUU.md`; nhánh `chuan-hoa`. Sau đó: đo tải < 5 giây, thêm cỡ máy tính vào kiểm thử, rồi gộp `main`.
 
 ## Danh sách game
 
@@ -34,7 +34,7 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 
 - 0 Dọn + GitHub: XONG (kho có mã, `.gitignore` chặn khóa, quét khóa sạch 12/10).
 - 1 Kiểm kê: XONG, `THEO-DOI.md` đủ 5 game (kiểm thử mới ở cỡ điện thoại dọc + ngang, chưa có cỡ máy tính riêng).
-- 2 Chuẩn hóa: ĐANG LÀM. Có: `levels/car-jam.json`; Boba Sort (12/10, nhánh `chuan-hoa`: `tools/bobasort.py`, `levels/boba-sort.json` giữ nguyên 100 màn cũ, 40 màn dự trữ, `run_daily` kiểm cả hai); Tile Trio (12/10, cùng nhánh: `tools/tiletrio.py`, `levels/tile-trio.json` giữ nguyên 100 màn cũ, 40 màn dự trữ; quy trình ngày chạy trọn trên máy đạt với cả 3 game). One Line Fill (12/10, cùng nhánh: `tools/oneline.py`, `levels/one-line.json` giữ 99 màn cũ, màn 27 trùng màn 26 nên thay bằng màn mới cùng cỡ, 40 màn dự trữ). Thiếu: Tap Arcade (45 chặng Journey) tách ra tệp; `web/ads.js` chung (hiện mỗi game tự chứa lớp quảng cáo, chọn cổng bằng hằng `PORTAL`); đo tải < 5 giây.
+- 2 Chuẩn hóa: ĐANG LÀM. Có: `levels/car-jam.json`; Boba Sort (12/10, nhánh `chuan-hoa`: `tools/bobasort.py`, `levels/boba-sort.json` giữ nguyên 100 màn cũ, 40 màn dự trữ, `run_daily` kiểm cả hai); Tile Trio (12/10, cùng nhánh: `tools/tiletrio.py`, `levels/tile-trio.json` giữ nguyên 100 màn cũ, 40 màn dự trữ; quy trình ngày chạy trọn trên máy đạt với cả 3 game). One Line Fill (12/10, cùng nhánh: `tools/oneline.py`, `levels/one-line.json` giữ 99 màn cũ, màn 27 trùng màn 26 nên thay bằng màn mới cùng cỡ, 40 màn dự trữ). Tap Arcade (12/10: 45 chặng Journey ở `levels/tap-arcade.json`, `tools/taparcade.py` chỉ kiểm định dạng vì là trò phản xạ, không có hàng dự trữ). Cả 5 game giờ đọc màn từ `levels/`. Thiếu: `web/ads.js` chung (hiện mỗi game tự chứa lớp quảng cáo, chọn cổng bằng hằng `PORTAL`); đo tải < 5 giây.
 - 3 Máy tự thêm màn: làm trước một phần (Car Jam: bộ giải, hàng chờ, `daily.yml`, `weekly-selftest.yml`, Discord, healthchecks). Chưa có trang itch.io thì `daily` bỏ qua bước đăng, ghi ⚪ (sửa 12/10, chưa chạy thật trên Actions).
 - 4 Đo 14 ngày: chưa bắt đầu, chưa game nào lên sóng.
 - 5 Roblox: chưa làm, chưa có khóa.
@@ -49,9 +49,9 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 
 | Đường dẫn | Nội dung |
 |---|---|
-| `web/<game>/index.html` | 5 game, mỗi game một tệp canvas (`pop-the-balloon` là bản thử, không đăng) |
-| `web/<car-jam, boba-sort, tile-trio, one-line>/index.src.html` | Nguồn game (sửa ở đây); `tools/build.py` ghép màn vào thành `index.html` |
-| `levels/<game>.json` | Màn đang ở trong game (có car-jam, boba-sort, tile-trio, one-line) |
+| `web/<game>/index.html` | Bản đã ghép màn (do `tools/build.py` tạo, không sửa tay): 5 game, mỗi game một tệp canvas (`pop-the-balloon` là bản thử, không đăng) |
+| `web/<game>/index.src.html` (cả 5 game) | Nguồn game (sửa ở đây); `tools/build.py` ghép màn vào thành `index.html` |
+| `levels/<game>.json` | Màn đang ở trong game (cả 5 game) |
 | `content-queue/<game>.json` | Màn dự trữ đã qua bộ giải, luôn giữ ≥ 30 |
 | `specs/<game>.json` | Thông số dùng chung web/Roblox; `specs/expiry.json` ghi ngày hết hạn từng khóa |
 | `tools/carjam.py` | Bộ giải BFS, bộ sinh màn, hàng dự trữ (`verify`, `fill`, `take N`) |

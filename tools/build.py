@@ -2,7 +2,7 @@
 """Dong goi moi game cho tung cong: python tools/build.py
   dist/<game>/<cong>/index.html   va   dist/<game>/<game>-<cong>.zip
 Moi goi la index.html cua game voi hang PORTAL doi theo cong ('none' = khong quang cao: itch.io, chay thu).
-Car Jam, Boba Sort, Tile Trio, One Line Fill: ghep levels/<game>.json vao web/<game>/index.src.html truoc."""
+Ca 5 game: ghep levels/<game>.json vao web/<game>/index.src.html truoc."""
 import json
 import zipfile
 from pathlib import Path
@@ -31,6 +31,7 @@ def build():
     merge_levels("boba-sort", par=False)
     merge_levels("tile-trio", par=False)
     merge_levels("one-line", par=False)
+    merge_levels("tap-arcade", par=False)
     out = []
     for game in GAMES:
         src = (ROOT / "web" / game / "index.html").read_text(encoding="utf-8")

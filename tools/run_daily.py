@@ -17,6 +17,7 @@ import build
 import carjam
 import notify
 import oneline
+import taparcade
 import tiletrio
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -32,7 +33,7 @@ FIX = {
 
 
 def step_verify():
-    problems = carjam.verify() + bobasort.verify() + tiletrio.verify() + oneline.verify()
+    problems = carjam.verify() + bobasort.verify() + tiletrio.verify() + oneline.verify() + taparcade.verify()
     if problems:
         raise RuntimeError("; ".join(problems[:3]))
 
@@ -131,6 +132,7 @@ def main():
         f"- Boba Sort: {len(bobasort.load(bobasort.LEVELS))} màn trong game, {len(bobasort.load(bobasort.QUEUE))} màn dự trữ đã kiểm (cần ≥ {bobasort.QUEUE_MIN})",
         f"- Tile Trio: {len(tiletrio.load(tiletrio.LEVELS))} màn trong game, {len(tiletrio.load(tiletrio.QUEUE))} màn dự trữ đã kiểm (cần ≥ {tiletrio.QUEUE_MIN})",
         f"- One Line Fill: {len(oneline.load(oneline.LEVELS))} màn trong game, {len(oneline.load(oneline.QUEUE))} màn dự trữ đã kiểm (cần ≥ {oneline.QUEUE_MIN})",
+        f"- Tap Arcade: {len(taparcade.load(taparcade.LEVELS))} chặng Journey đã kiểm (trò phản xạ, không có hàng dự trữ)",
         f"- Kiểm bản web cỡ điện thoại: {row['games_tested']}/{len(build.GAMES)} game đạt",
         "- Đăng: " + ("; ".join(f"{k}: {v}" for k, v in published.items()) or "không đăng lần này"),
         "- Lượt chơi, thời gian chơi, doanh thu: chưa có, chưa game nào lên sóng", "",
