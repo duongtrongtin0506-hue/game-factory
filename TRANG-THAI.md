@@ -34,3 +34,4 @@
 - 13/10 22:32 🎮 Xong GitHub App cho kho game-factory + routine đám mây 3 lượt/ngày (lượt đầu 08:00 14/10) · Gói chờ nộp 0 · Việc còn 17 · 📌 chờ chủ điền form tài khoản Playgama, GameDistribution
 - 13/10 22:55 🎮 Xong tài khoản Playgama + One Line Fill lên Sandbox Playgama (playgama.ai/play/3gmcpm4dkz, đã bật boost miễn phí) · Gói chờ nộp 1 (Sprout Merge → Playgama) · Việc còn 19 · 📌 chờ chủ đăng nhập GameDistribution
 - 13/10 23:10 🎮 Xong trang nháp itch.io cho One Line Fill (daily sẽ đẩy tệp); chủ chốt không dùng ngân sách · Gói chờ nộp 1 (Sprout Merge → Playgama, itch.io) · Việc còn 21 · 📌 chờ chủ đăng nhập GameDistribution
+- 13/10 23:20 🎮 Xong GameDistribution: tạo One Line Fill, tải bản dựng, cổng xác nhận SDK quảng cáo · dừng vì hết hạn mức phiên, còn ảnh + Request Activation (xem VIEC_DANG_DO.txt) · Việc còn 22

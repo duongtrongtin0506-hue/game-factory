@@ -3,7 +3,6 @@
 - Submit page: https://developer.gamedistribution.com/
 - Game file: `phat-hanh/gamedistribution/one-line/one-line.zip` (index.html at the root)
 - Covers / video: `assets-goc/one-line/cover-512x512.jpg`, `assets-goc/one-line/cover-512x384.jpg`, `assets-goc/one-line/cover-1920x1080.png`
-- BLOCKED: portal_ids.gamedistribution is empty in specs/one-line.json
 - Note: Can tai khoan da kich hoat va gameId (portal_ids.gamedistribution). Co anh cong yeu cau: chua xac minh, xem CONG.md.
 
 Title: One Line Fill

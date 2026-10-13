@@ -38,7 +38,7 @@ Tải đo trên bản không quảng cáo, giả lập máy yếu (CPU chậm 4 
 | Car Jam Escape (giao diện mới, 120 màn) | bản 1 từ chối 11/10 · gói bản mới | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
 | Boba Sort (giao diện mới) | từ chối 11/10 · gói bản mới | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
 | Tile Trio (giao diện mới) | từ chối 11/10 · gói bản mới | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
-| One Line Fill (giao diện mới) | NỘP 13/10, chờ duyệt (https://developer.crazygames.com/games/32ccf42a-82c6-4ee2-8076-a8d117e15517) | tạm dừng cổng | gói, chờ tài khoản | SANDBOX từ 13/10 (https://playgama.ai/play/3gmcpm4dkz), đã bật Free Starter Boost; cần 100 lượt chơi + 5:00 phút/lượt mới được gửi duyệt | chưa có SDK |
+| One Line Fill (giao diện mới) | NỘP 13/10, chờ duyệt (https://developer.crazygames.com/games/32ccf42a-82c6-4ee2-8076-a8d117e15517) | tạm dừng cổng | game 78002 tạo 13/10, zip đã tải, SDK đã được cổng xác nhận; CÒN ảnh + Request Activation | SANDBOX từ 13/10 (https://playgama.ai/play/3gmcpm4dkz), đã bật Free Starter Boost; cần 100 lượt chơi + 5:00 phút/lượt mới được gửi duyệt | chưa có SDK |
 | Tap Arcade (giao diện mới) | từ chối 11/10 · gói bản mới | bản 5 trò nộp 09/10 → BỊ TỪ CHỐI (xem 13/10) | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
 | Sprout Merge (thư mục `merge-harvest`, game đủ 13/10) | NỘP 13/10, chờ duyệt (https://developer.crazygames.com/games/e3b81012-d6c3-49e0-89e7-905c9b3e8da7) | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
 

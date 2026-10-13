@@ -1,0 +1,4 @@
+13/10 23:20 - dang nop One Line Fill len GameDistribution (dung giua chung vi het han muc phien 5 gio).
+Da xong: tao game (ma 78002, GameId dcf3e25a64da4a51bc4dbe7cd90eacc0 da dien vao specs/one-line.json), tai zip phat-hanh/gamedistribution/one-line/one-line.zip, cong xac nhan SDK (interstitial + rewarded) qua thanh thu trong iframe.
+Con lai: 1) tab ASSETS https://developer.gamedistribution.com/games/78002/assets can anh .jpg 512x384, 512x512, 200x120 (chua co co 200x120: them vao COVERS cua tools/quay.py), nen them 1280x720 va 1280x550; 2) tab CHECKLIST; 3) bam Request Activation.
+Cung lam cho Sprout Merge sau do (tao game moi de lay GameId).
