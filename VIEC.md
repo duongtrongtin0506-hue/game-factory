@@ -41,9 +41,9 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 
 ## 5. Đóng gói cho mọi cổng
 
-- [ ] `tools/build.py`: xuất thêm `phat-hanh/<cổng>/<game>/` gồm zip đúng chuẩn cổng, `mo-ta.md` tiếng Anh (tên, mô tả ngắn/dài, thể loại, thẻ, hướng dẫn chơi, lấy từ mục `store` mới trong `specs/<game>.json`) và ảnh bìa đúng cỡ cổng. Cho zip và ảnh trong `phat-hanh/` lên git (sửa `.gitignore`: `!phat-hanh/**`), chuyển ảnh bìa gốc từ `dist/<game>/assets` sang `assets-goc/<game>/` có trong git (video để ngoài git).
+- [x] 13/10 `tools/build.py` có `release()`: `phat-hanh/<cổng>/<game>/<game>.zip` + `mo-ta.md` cho 5 game × 3 cổng (15 gói), zip có trong git, ảnh bìa dùng chung ở `assets-goc/<game>/` (không chép lặp); `run_daily` và `daily.yml` cập nhật gói mỗi lần build.
 - [ ] Thêm cổng vào `web/ads.js` + `PORTALS` + `tools/test_ads.js` theo `CONG.md`, mỗi cổng một việc: Playgama Bridge; Yandex Games (kèm tiếng Nga + `LoadingAPI.ready()`); Poki; GamePix. Tra lại tài liệu SDK ngay trước khi viết, ghi nguồn.
-- [ ] Viết mục `store` (mô tả tiếng Anh) cho 5 game trong `specs/`.
+- [x] 13/10 Mục `store` (mô tả tiếng Anh) cho 5 game trong `specs/`.
 - [ ] Sau mỗi gói mới: thêm dòng vào CẦN NỘP ở đầu `HUONG-DAN-CHU.md` (game, cổng, đường dẫn zip, link trang nộp) và cập nhật bảng game × cổng trong `THEO-DOI.md`.
 
 ## 6. Bản Roblox cho game thắng
@@ -55,7 +55,7 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [ ] `VAN-HANH.md`: sổ tay tiếp quản (sơ đồ, lệnh chạy, khóa nào ở đâu, lịch tự động, phương án B cho từng cổng, GitHub, Claude, Discord).
 - [ ] `CHI-SO.md` (doanh thu, chi phí, số game sống, số cổng, tỷ lệ tự động) + `tools/run_daily.py --weekly` tự điền số game/cổng/tỷ lệ tự động và gửi bảng game × cổng chủ nhật.
 - [ ] `ASSETS.md`: kê nguồn + giấy phép mọi hình, âm thanh (hiện tất cả tự vẽ bằng canvas và âm thanh tổng hợp trong mã: xác nhận từng game).
-- [ ] `THEO-DOI.md`: đổi mục "Nộp cổng" thành bảng game × cổng (duyệt, lượt chơi, thời gian chơi, quay lại, doanh thu); chủ nhật sinh danh sách CẦN CHÉP SỐ.
+- [x] 13/10 `THEO-DOI.md` có bảng game × cổng. Còn: chủ nhật sinh danh sách CẦN CHÉP SỐ khi có game lên sóng.
 - [ ] Chủ nhật: 7 câu tự vấn vào `NHAT-KY-CAI-TIEN.md` (lần đầu 18/10). Đầu tháng: soi 8 vai. Đầu quý: radar + `THU-NGHIEM.md`.
 - [ ] `run_daily`: thông báo Discord dạng "🎮 Xong … · Gói chờ nộp N · Việc còn N" (đếm `[ ]` trong `VIEC.md` và CẦN NỘP), nhắc việc chờ chủ 1 lần/ngày.
 - [ ] Sửa các câu "chờ số liệu 14 ngày" còn sót trong `HUONG-DAN-CHU.md`, `THEO-DOI.md`.

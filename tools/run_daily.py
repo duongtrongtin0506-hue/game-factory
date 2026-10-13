@@ -138,7 +138,7 @@ def main():
         nonlocal took, backup
         took, backup = step_take(history, now.date())
 
-    steps = [("kiem man", step_verify), ("bo sung hang du tru", step_fill), ("build", build.build), ("kiem ban web", step_test)]
+    steps = [("kiem man", step_verify), ("bo sung hang du tru", step_fill), ("build", lambda: (build.build(), build.release())), ("kiem ban web", step_test)]
     if publish:
         steps.insert(1, ("them man", step_take_now))
         steps.append(("dang", step_publish))
@@ -155,6 +155,7 @@ def main():
         for path, text in backup.items():
             path.write_text(text, encoding="utf-8", newline="\n")
         build.build()
+        build.release()
         took = -1
 
     row = {"date": now.date().isoformat(), "ok": not failed, "levels": len(carjam.load(carjam.LEVELS)),

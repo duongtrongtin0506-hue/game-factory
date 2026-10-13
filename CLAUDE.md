@@ -44,6 +44,7 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 - `web/ads.js`: một lớp quảng cáo cho các cổng (gamemonetize, gamedistribution, crazygames, none); `tools/build.py` dán vào từng game; quảng cáo thưởng không bị giữ lại, midgame cách nhau ≥ 60 giây; `tools/test_ads.js` thử với SDK giả, chưa thử với SDK thật.
 - `daily` 06:00 đạt ✅ 3 ngày liền trên Actions (11–13/10). Mỗi thứ hai `run_daily` chuyển 20 màn/game vào Car Jam, Boba Sort, Tile Trio, One Line Fill (hỏng kiểm thử thì trả lại). Car Jam (13/10): 7 cảnh thế giới, hết cảnh thì lặp lại; 120 màn; đã vào `TAKE_GAMES` nên thứ hai cũng tự thêm 20 màn.
 - `run_daily` giữ nguyên phần `## Nhật ký lượt` ở cuối `TRANG-THAI.md`.
+- 13/10: cả 5 game cũ đã đổi giao diện theo `THIET-KE.md` (Car Jam, Boba Sort, Tile Trio nền giấy; One Line Fill, Tap Arcade nền đêm); ảnh bìa mới ở `assets-goc/<game>/`; `tools/build.py` ghi 15 gói `phat-hanh/<cổng>/<game>/` (zip + `mo-ta.md`, lấy mô tả từ mục `store` trong specs). Sửa giao diện game: sửa `index.src.html` rồi `python tools/build.py`; soát hình bằng `python tools/chup.py <game> "?" "?level=3"` (ảnh ra `_build/anh/`).
 - Chưa có: game nào lên sóng, số liệu, bản Roblox, khóa Roblox.
 ## Chờ chủ (xem `HUONG-DAN-CHU.md`)
 

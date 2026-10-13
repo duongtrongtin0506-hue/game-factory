@@ -38,5 +38,22 @@
   "portal_ids": {
     "gamemonetize": "",
     "gamedistribution": ""
+  },
+  "store": {
+    "title": "Car Jam Escape",
+    "short": "Slide the cars out of the way and drive the red car to the exit.",
+    "long": "The parking lot is jammed and your red car is stuck in the middle. Slide cars, trucks and buses along their lanes to clear a path to the exit. Every level can be solved, and the fewer moves you use, the more stars you earn. Travel through seven worlds, collect coins, unlock new cars in the garage and use a hint when you are stuck. New levels are added regularly.",
+    "how_to_play": "Drag a car along its lane. Cars only move forwards and backwards. Clear the row so the red car can reach the exit on the right.",
+    "controls": "Mouse or touch: drag cars. Keyboard: Z undo, R restart, H hint.",
+    "category": "Puzzle",
+    "tags": [
+      "puzzle",
+      "car",
+      "parking",
+      "logic",
+      "brain",
+      "sliding",
+      "unblock"
+    ]
   }
 }

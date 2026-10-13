@@ -22,5 +22,22 @@
   "portal_ids": {
     "gamemonetize": "",
     "gamedistribution": ""
+  },
+  "store": {
+    "title": "Tile Trio",
+    "short": "Pick three matching tiles to clear them before the tray fills up.",
+    "long": "Tiles are stacked in layers. Tap a free tile to move it to the tray; three of a kind disappear. Clear the whole board to win, but plan ahead: the tray only holds seven tiles. Undo a move or shuffle the board when things get tight. Every level can be cleared.",
+    "how_to_play": "Tap any tile that is not covered by another. Collect three of the same picture in the tray to remove them. The level is lost when the tray is full.",
+    "controls": "Mouse or touch: tap the tiles.",
+    "category": "Puzzle",
+    "tags": [
+      "puzzle",
+      "match 3",
+      "tiles",
+      "mahjong",
+      "triple match",
+      "brain",
+      "relaxing"
+    ]
   }
 }

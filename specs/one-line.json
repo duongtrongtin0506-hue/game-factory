@@ -22,5 +22,22 @@
   "portal_ids": {
     "gamemonetize": "",
     "gamedistribution": ""
+  },
+  "store": {
+    "title": "One Line Fill",
+    "short": "Draw one continuous line that fills every cell of the board.",
+    "long": "A minimalist one-stroke puzzle. Start from the dot and draw a single line through every cell without crossing your own path. Boards grow from tiny shapes to twisting mazes with holes. Stuck? Use a hint to see the next steps. Every level has a solution.",
+    "how_to_play": "Press on the dot and drag through neighbouring cells. Every cell must be visited exactly once. Drag back along the line to undo.",
+    "controls": "Mouse or touch: press and drag.",
+    "category": "Puzzle",
+    "tags": [
+      "puzzle",
+      "one line",
+      "draw",
+      "logic",
+      "brain",
+      "minimal",
+      "maze"
+    ]
   }
 }

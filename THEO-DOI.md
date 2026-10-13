@@ -29,7 +29,22 @@ Tải đo trên bản không quảng cáo, giả lập máy yếu (CPU chậm 4 
 
 "Hiểu luật trong 10 giây" mới xét theo việc game có hướng dẫn ở màn đầu, chưa đo trên người chơi thật.
 
-## Nộp cổng
+## Bảng game × cổng (cập nhật 2026-10-13)
+
+Ô ghi: trạng thái · lượt chơi · thời gian chơi · quay lại · doanh thu (chưa có số thì bỏ trống). "gói" = đã có `phat-hanh/<cổng>/<game>/`, chờ chủ nộp.
+
+| Game | CrazyGames | GameMonetize | GameDistribution | Playgama | Yandex |
+|---|---|---|---|---|---|
+| Car Jam Escape (giao diện mới, 120 màn) | bản 1 từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
+| Boba Sort (giao diện mới) | từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
+| Tile Trio (giao diện mới) | từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
+| One Line Fill (giao diện mới) | gói, chưa nộp lần nào | gói, thiếu GameId | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
+| Tap Arcade (giao diện mới) | từ chối 11/10 · gói bản mới | bản 5 trò nộp 09/10, chờ duyệt | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
+| Merge Harvest (bản thử) | chưa đóng gói | chưa đóng gói | chưa đóng gói | - | - |
+
+Lượt chơi, doanh thu: chưa có, chưa game nào lên sóng.
+
+## Nộp cổng (lịch sử đến 2026-10-11)
 
 | Game | Cổng | Ngày | Trạng thái | SDK đúng cổng |
 |---|---|---|---|---|

@@ -22,5 +22,22 @@
   "portal_ids": {
     "gamemonetize": "54aklszb2p8z2rj4v43ksinbxbg1fzfj",
     "gamedistribution": ""
+  },
+  "store": {
+    "title": "Tap Arcade",
+    "short": "Nine quick reflex mini games in one: pop, whack, count, match and more.",
+    "long": "Nine fast mini games in one place: pop the right balloons, whack moles, tap numbers in order, beat the colour trap, solve quick sums, spot the odd one out, repeat patterns, catch stars and match cards. Play the 45-stage Journey for stars, or chase high scores in Arcade mode. Earn coins, complete daily missions and unlock every game.",
+    "how_to_play": "Each mini game shows its one rule before it starts. Tap fast and correctly; three mistakes end the run.",
+    "controls": "Mouse or touch: tap.",
+    "category": "Arcade",
+    "tags": [
+      "arcade",
+      "mini games",
+      "reflex",
+      "tap",
+      "brain",
+      "casual",
+      "skill"
+    ]
   }
 }

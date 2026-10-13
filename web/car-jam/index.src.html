@@ -748,9 +748,9 @@ window.addEventListener('keydown', e => {
   if (adPlaying || e.repeat) return;
   initAudio();
   if (screen === 'game') {
-    if (k === 'z' || k === 'u') undoMove(); else if (k === 'r') startLevel(level); else if (k === 'h') useHint(); else if (k === 'escape') leaveLevel();
+    if (k === 'z' || k === 'u') undoMove(); else if (k === 'r') startLevel(level); else if (k === 'h') useHint(); else if (k === 'escape' && PORTAL !== 'crazygames') leaveLevel();   // CrazyGames asks games not to use Escape
   } else if (screen === 'win' && winT > 1 && (k === 'enter' || k === ' ') && level < LEVELS.length) nextLevel();
-  else if ((screen === 'levels' || screen === 'shop') && k === 'escape') go('menu');
+  else if ((screen === 'levels' || screen === 'shop') && k === 'escape' && PORTAL !== 'crazygames') go('menu');
 });
 document.addEventListener('visibilitychange', () => {
   if (!ac) return;

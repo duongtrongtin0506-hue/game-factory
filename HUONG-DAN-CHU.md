@@ -4,9 +4,13 @@ Mỗi việc 1 dòng có link; xong thì nhắn Claude câu in đậm (hoặc nh
 
 ## CẦN NỘP (1 lần/tuần)
 
-- [ ] Car Jam Escape (giao diện mới 13/10, 120 màn) → CrazyGames, bài nộp MỚI: https://developer.crazygames.com/ → **Submit game** → tệp `dist\car-jam\crazygames\index.html` (chạy `python tools\build.py` sau khi `git pull`), ảnh bìa 1920x1080 / 800x1200 (cắt từ 1200x1800) / 800x800 + 2 video ở `assets-goc\car-jam`. Nhắn: **đã nộp car jam crazygames**.
-- [ ] Xem kết quả duyệt Tap Arcade trên GameMonetize: https://gamemonetize.com/account/login.php → My Games. Nhắn: **gamemonetize: duyệt / từ chối + lý do**.
+Mỗi gói có sẵn tệp zip và `mo-ta.md` (tên, mô tả, thẻ tiếng Anh để dán, danh sách ảnh bìa/video). Trước khi nộp: `git pull`. Nên nộp 2 game đầu trước, 3 game sau chờ kết quả (cả 4 game cũ từng bị CrazyGames chê chất lượng; nay đã đổi giao diện, nộp dồn một lúc mà bị từ chối tiếp thì hại tài khoản).
 
+- [ ] Car Jam Escape → CrazyGames (bài nộp MỚI): https://developer.crazygames.com/ · `phat-hanh\crazygames\car-jam\car-jam.zip` · mô tả `phat-hanh\crazygames\car-jam\mo-ta.md`. Nhắn: **đã nộp car jam crazygames**.
+- [ ] One Line Fill → CrazyGames (chưa nộp lần nào): https://developer.crazygames.com/ · `phat-hanh\crazygames\one-line\one-line.zip` · `phat-hanh\crazygames\one-line\mo-ta.md`. Nhắn: **đã nộp one line crazygames**.
+- [ ] (sau khi 2 game trên có kết quả) Boba Sort, Tile Trio, Tap Arcade → CrazyGames, bài nộp mới: `phat-hanh\crazygames\<game>\`.
+- [ ] Xem kết quả duyệt Tap Arcade trên GameMonetize: https://gamemonetize.com/account/login.php → My Games. Nhắn: **gamemonetize: duyệt / từ chối + lý do**.
+- [ ] GameMonetize, 4 game còn lại (Car Jam, Boba Sort, Tile Trio, One Line Fill): https://gamemonetize.com/account/ → thêm game mới để lấy GameId của từng game → nhắn **gameid <tên game> <mã>** (mã game không phải mật khẩu) → máy build lại → tải `phat-hanh\gamemonetize\<game>\<game>.zip`.
 ## CẦN TẠO TÀI KHOẢN
 
 - [ ] GameDistribution: tìm thư kích hoạt (đăng ký 09/10) trong Gmail, từ GameDistribution hoặc Azerion. Nhắn: **có thư gamedistribution**.
