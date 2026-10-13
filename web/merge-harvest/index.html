@@ -104,20 +104,27 @@ function happy() {
 }
 // Local-only helpers (?selftest=1, ?fresh=1): ignored anywhere but a local test server.
 const QS = new URLSearchParams(LOCAL ? location.search : '');
+const DEMO = QS.get('demo');            // local only: renders a cover or an auto-played trailer frame by frame
 
 // ==CORE== (pure game rules: no DOM). A state S holds the 5x6 grid of tiers (0 = empty).
 const COLS = 5, ROWS = 6, CELLS = COLS * ROWS, TOP = 10, MAX_SEEDS = 12, SEED_EVERY = 3, MAX_UP = 6;
 const NAMES = ['', 'Seed', 'Sprout', 'Clover', 'Daisy', 'Berry', 'Orange', 'Apple', 'Pumpkin', 'Basket', 'Golden Tree'];
 function newState() {
-  return { grid: new Array(CELLS).fill(0), coins: 0, seeds: MAX_SEEDS, up: 0, delivered: 0, found: 1, order: 3, merges: 0 };
+  return { grid: new Array(CELLS).fill(0), coins: 0, seeds: MAX_SEEDS, up: 0, delivered: 0, found: 1, order: 3, merges: 0, season: 0, since: 0 };
 }
 const empties = S => S.grid.map((t, i) => t ? -1 : i).filter(i => i >= 0);
-const income = S => S.grid.reduce((a, t) => a + (t > 1 ? Math.pow(2, t - 2) * 0.5 : 0), 0);   // coins per second
-const reward = S => Math.round(30 * Math.pow(2, S.order - 2) * (1 + S.delivered / 20));
-const upCost = S => S.up >= MAX_UP ? Infinity : 150 * Math.pow(3, S.up);
+// Each finished season (a delivered Golden Tree) adds half again to everything earned.
+const boost = S => 1 + 0.5 * (S.season || 0);
+const income = S => boost(S) * S.grid.reduce((a, t) => a + (t > 1 ? Math.pow(2, t - 2) * 0.5 : 0), 0);   // coins per second
+const reward = S => Math.round(boost(S) * 30 * Math.pow(2, S.order - 2) * (1 + (S.delivered - (S.since || 0)) / 20));
+const upCost = S => S.up >= MAX_UP ? Infinity : 150 * Math.pow(3, S.up) * Math.pow(4, S.season || 0);   // dearer every season, so saved coins do not skip it
 const seedTier = (S, rnd) => 1 + Math.floor(S.up / 2) + (rnd() < 0.2 + 0.15 * (S.up % 2) ? 1 : 0);
 // Orders climb one tier every three deliveries, but never ask for more than one tier above the best item found.
-const nextOrder = S => Math.min(TOP, S.found + 1, 3 + Math.floor(S.delivered / 3));
+const nextOrder = S => Math.max(3, Math.min(TOP, S.found + 1, 3 + Math.floor((S.delivered - (S.since || 0)) / 3)));
+// Delivering the Golden Tree ends the season: the garden starts over and earns more.
+function seasonUp(S) {
+  S.season = (S.season || 0) + 1; S.since = S.delivered; S.grid.fill(0); S.up = 0; S.found = 1; S.seeds = MAX_SEEDS; S.order = 3;
+}
 function spawn(S, rnd) {
   const free = empties(S);
   if (S.seeds < 1 || !free.length) return -1;
@@ -138,8 +145,9 @@ function move(S, a, b) {
 }
 function deliver(S, i) {
   if (S.grid[i] !== S.order) return 0;
-  const r = reward(S);
-  S.grid[i] = 0; S.coins += r; S.delivered++; S.order = nextOrder(S);
+  const r = reward(S), top = S.order === TOP;
+  S.grid[i] = 0; S.coins += r; S.delivered++;
+  if (top) seasonUp(S); else S.order = nextOrder(S);
   return r;
 }
 function sell(S, i) {
@@ -173,7 +181,7 @@ function botRun(steps) {
     S.coins += income(S);
     if (S.grid.some(t => t < 0 || t > TOP || t !== Math.floor(t)) || !(S.coins >= 0)) { bad.push('state' + n); break; }
   }
-  if (S.found < 5) bad.push('slow' + S.found);
+  if (S.found < 5 && !S.season) bad.push('slow' + S.found);
   if (S.delivered < 3) bad.push('orders' + S.delivered);
   return bad;
 }
@@ -192,17 +200,21 @@ const SAVE_KEY = 'mergeHarvest.save.v1';
 const cv = document.getElementById('c'), g = cv.getContext('2d');
 let W = 0, H = 0, k = 1, ox = 0, oy = 0, land = false, L = {};
 
-let S = newState(), muted = false, lastSave = 0, away = 0;
+let S = newState(), muted = false, lastSave = 0, away = 0, dailyDay = 0, streak = 0;
 try {
   const d = QS.get('fresh') ? null : JSON.parse(localStorage.getItem(SAVE_KEY));
   if (d && d.S && d.S.grid && d.S.grid.length === CELLS) {
-    Object.assign(S, d.S); muted = !!d.muted;
+    Object.assign(S, d.S); muted = !!d.muted; dailyDay = d.dailyDay || 0; streak = d.streak || 0;
     const gone = Math.min(7200, Math.max(0, (Date.now() - (d.at || Date.now())) / 1000));
     S.seeds = Math.min(MAX_SEEDS, S.seeds + gone / SEED_EVERY);
     if (gone > 60) away = Math.floor(income(S) * gone * 0.5);   // coins earned while away, offered on a card
   }
 } catch (e) {}
-function persist() { try { localStorage.setItem(SAVE_KEY, JSON.stringify({ S, muted, at: Date.now() })); } catch (e) {} }
+let persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify({ S, muted, dailyDay, streak, at: Date.now() })); } catch (e) {} };
+// Daily bonus: the first order delivered each day pays extra, more on consecutive days (up to 7).
+function dayKey(back) { const d = new Date(Date.now() - (back || 0) * 864e5); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); }
+const dailyReady = () => dailyDay !== dayKey();
+const SEASONS = ['Spring', 'Summer', 'Autumn', 'Winter'];
 
 // Sound: short synth notes, no audio files.
 let ac = null;
@@ -220,8 +232,10 @@ const chord = (fs, len) => fs.forEach((f, i) => setTimeout(() => note(f, len, 't
 
 // Layout in logical units (8px grid); the canvas scales it to the window.
 function layout() {
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  W = window.innerWidth; H = window.innerHeight; land = W > H * 1.15;
+  const dpr = DEMO ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+  let W0 = window.innerWidth, H0 = window.innerHeight;
+  if (DEMO) { W0 = +QS.get('w') || W0; H0 = +QS.get('h') || H0; cv.style.width = W0 + 'px'; cv.style.height = H0 + 'px'; }
+  W = W0; H = H0; land = W > H * 1.15;
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
   const LW = land ? 800 : 390, LH = land ? 420 : 800;
   k = Math.min(W / LW, H / LH); ox = (W - LW * k) / 2; oy = (H - LH * k) / 2;
@@ -284,7 +298,7 @@ function item(t, x, y, r) {
 }
 
 // Live state of the screen
-let drag = null, fx = [], pops = {}, toast = null, time = 0, coinsShown = S.coins, seedPulse = -9, emptyAt = 0, started = false;
+let drag = null, fx = [], rings = [], pops = {}, toast = null, time = 0, coinsShown = S.coins, seedPulse = -9, emptyAt = 0, started = false;
 function float(s, x, y) { fx.push({ s, x, y, t: 0 }); }
 function center(i) { const r = cellRect(i); return { x: r.x + r.w / 2, y: r.y + r.h / 2 }; }
 function showFound(t) { if (t < 3) return;   // seeds and sprouts come out of the bag: no card for those
@@ -301,9 +315,15 @@ function plant() {
 function drop(from, p) {
   const t = S.grid[from];
   if (inside(p, L.order)) {
-    const r = deliver(S, from);
+    const before = S.season || 0, r = deliver(S, from);
     if (r) {
       float('+' + fmt(r), L.order.x + L.order.w / 2, L.order.y + 8); chord([659, 784, 988], 0.3);
+      if (dailyReady()) {
+        streak = dailyDay === dayKey(1) ? streak + 1 : 1; dailyDay = dayKey();
+        const extra = Math.round(r * 0.5 * Math.min(streak, 7)); S.coins += extra;
+        float('Daily +' + fmt(extra), L.order.x + L.order.w / 2, L.order.y + 32);
+      }
+      if ((S.season || 0) > before) { toast = { season: S.season, at: time }; chord([523, 659, 784, 1047, 1319], 0.4); happy(); }
       if (S.delivered % 4 === 0) showAd('midgame', () => {});   // a natural pause: the order card just changed
     } else note(160, 0.12, 'square', 0.04);
   } else if (inside(p, L.bin)) { const r = sell(S, from); float('+' + r, L.bin.x + L.bin.w / 2, L.bin.y); note(300, 0.1); }
@@ -311,7 +331,7 @@ function drop(from, p) {
     for (let i = 0; i < CELLS; i++) if (inside(p, cellRect(i))) {
       const res = move(S, from, i);
       if (res === 'merge') {
-        pops[i] = time; float('+' + fmt(5 * Math.pow(2, t)), center(i).x, center(i).y - L.cell / 2); note(520 + t * 60, 0.18, 'triangle');
+        pops[i] = time; rings.push({ x: center(i).x, y: center(i).y, t: 0 }); float('+' + fmt(5 * Math.pow(2, t)), center(i).x, center(i).y - L.cell / 2); note(520 + t * 60, 0.18, 'triangle');
         if (t + 1 === S.found && !pops['f' + (t + 1)]) { pops['f' + (t + 1)] = 1; showFound(t + 1); }
       } else if (res === 'move') note(260, 0.06);
       break;
@@ -354,6 +374,7 @@ function update(dt) {
   S.seeds = Math.min(MAX_SEEDS, S.seeds + dt / SEED_EVERY);
   coinsShown += (S.coins - coinsShown) * Math.min(1, dt * 8);
   fx = fx.filter(f => (f.t += dt) < 0.9);
+  rings = rings.filter(r => (r.t += dt) < 0.45);
 }
 
 // First-run hint without words: a soft dot shows where to tap, then where to drag.
@@ -372,7 +393,7 @@ function draw() {
   g.setTransform(k * L.dpr, 0, 0, k * L.dpr, ox * L.dpr, oy * L.dpr);
 
   // Coins: the big number of the screen
-  label('Coins', L.coins.x, L.coins.y + 6);
+  label(S.season ? 'Coins  ·  ' + SEASONS[S.season % 4] + ' ' + (Math.floor(S.season / 4) + 1) + '  ·  x' + boost(S) : 'Coins', L.coins.x, L.coins.y + 6);
   text(fmt(coinsShown), L.coins.x, L.coins.y + 34, 40, C.text, 'left', F.head);
   const inc = income(S); if (inc > 0) text('+' + (inc < 10 ? inc.toFixed(1) : fmt(inc)) + ' / sec', L.coins.x + g.measureText(fmt(coinsShown)).width + 12, L.coins.y + 38, 14, C.soft);
   pill(L.mute); const mx = L.mute.x + 20, my = L.mute.y + 20;
@@ -383,7 +404,7 @@ function draw() {
   const o = L.order, have = S.grid.includes(S.order);
   card(o); if (have) { g.lineWidth = 2; g.strokeStyle = C.accent; rr(o.x + 1, o.y + 1, o.w - 2, o.h - 2, 15); g.stroke(); }
   rr(o.x + 8, o.y + 8, 56, 56, 8); g.fillStyle = C.page; g.fill(); item(S.order, o.x + 36, o.y + 36, 20);
-  label('Order ' + (S.delivered + 1), o.x + 80, o.y + 24);
+  label('Order ' + (S.delivered + 1) + (dailyReady() ? '  ·  daily bonus' : ''), o.x + 80, o.y + 24);
   text(NAMES[S.order], o.x + 80, o.y + 46, 15, C.text);
   text('+' + fmt(reward(S)), o.x + o.w - 16, o.y + 36, 28, C.text, 'right', F.head);
 
@@ -420,6 +441,7 @@ function draw() {
   pill(L.bin); if (drag && inside(drag, L.bin)) { g.lineWidth = 2; g.strokeStyle = C.accent; g.stroke(); }
   label('Sell', L.bin.x + L.bin.w / 2, L.bin.y + L.bin.h / 2, 'center');
 
+  for (const r of rings) { g.globalAlpha = 0.5 * (1 - r.t / 0.45); g.lineWidth = 3; g.strokeStyle = C.accent; g.beginPath(); g.arc(r.x, r.y, L.cell * (0.3 + r.t * 1.2), 0, 6.2832); g.stroke(); g.globalAlpha = 1; }
   hint();
   if (drag) item(S.grid[drag.from], drag.x, drag.y - 8, L.cell * 0.42);
   for (const f of fx) { g.globalAlpha = 1 - f.t / 0.9; text(f.s, f.x, f.y - f.t * 32, 15, C.accent, 'center', F.body, 500); g.globalAlpha = 1; }
@@ -429,7 +451,12 @@ function draw() {
     g.fillStyle = 'rgba(26,26,26,.32)'; g.fillRect(-ox / k, -oy / k, W / k, H / k);
     const w = 294, h = toast ? 264 : 248, r = { x: (L.LW - w) / 2, y: (L.LH - h) / 2, w, h }; card(r, 24);
     const cx = r.x + w / 2;
-    if (toast) {
+    if (toast && toast.season) {
+      label('New season', cx, r.y + 32, 'center'); item(TOP, cx, r.y + 112, 48);
+      text(SEASONS[toast.season % 4], cx, r.y + 196, 40, C.text, 'center', F.head);
+      label('All coins x' + boost(S), cx, r.y + 236, 'center');
+      if (time - toast.at > 6) toast = null;
+    } else if (toast) {
       label('New item', cx, r.y + 32, 'center'); item(toast.t, cx, r.y + 112, 48);
       text(NAMES[toast.t], cx, r.y + 204, 40, C.text, 'center', F.head);
       if (time - toast.at > 4) toast = null;
@@ -443,6 +470,43 @@ function draw() {
   }
 }
 
+// Local cover renderer (?demo=cover&w=&h=): one big basket, the smaller items around it, the title on top.
+async function post(name, blob) { await fetch('/frame?v=' + DEMO + (name === 'cover' || name === 'coverdone' ? '-' + W + 'x' + H : '') + '&n=' + (name === 'coverdone' ? 'done' : name) + (name === 'cover' ? '&ext=png' : ''), { method: 'POST', body: blob }); }
+async function coverShot() {
+  const m = Math.min(W, H), wide = W > H * 1.2, cx = wide ? W * 0.68 : W / 2, cy = wide ? H * 0.52 : H * 0.6, R = m * (wide ? 0.34 : 0.3);
+  g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = C.page; g.fillRect(0, 0, W, H);
+  g.save(); g.shadowColor = 'rgba(0,0,0,.06)'; g.shadowBlur = m * 0.06; g.shadowOffsetY = m * 0.01;
+  g.fillStyle = C.card; rr(cx - R, cy - R, R * 2, R * 2, R * 0.16); g.fill(); g.restore();
+  item(9, cx, cy + R * 0.05, R * 0.62);
+  [[1, -0.72, -0.7], [2, 0.72, -0.72], [4, -0.74, 0.7], [6, 0.74, 0.7], [5, 0, -0.78]].forEach(q => item(q[0], cx + q[1] * R, cy + q[2] * R, R * 0.13));
+  const size = wide ? Math.min(W * 0.075, H * 0.2) : Math.min(W * 0.13, H * 0.1);
+  if (wide) { text('Merge', W * 0.2, H * 0.42, size, C.text, 'center', F.head); text('Harvest', W * 0.2, H * 0.42 + size * 0.95, size, C.text, 'center', F.head); }
+  else text('Merge Harvest', W / 2, H * 0.14, size, C.text, 'center', F.head);
+  await post('cover', await new Promise(r => cv.toBlob(r, 'image/png')));
+  await post('coverdone', 'x');
+}
+// Local trailer renderer: a bot plants, merges and delivers on screen at a fixed 30 fps and posts each frame.
+async function demoLoop() {
+  const dt = 1 / 30;
+  let n = 0, wait = 0;
+  persist = () => {}; S = newState(); S.up = 3; S.coins = 240; away = 0; coinsShown = S.coins; dailyDay = dayKey();
+  while (n < 540) {
+    wait -= dt;
+    if (wait <= 0 && !toast) {
+      const p = pair(S), o = S.grid.indexOf(S.order), busy = CELLS - empties(S).length;
+      S.seeds = MAX_SEEDS;                       // the trailer never waits for the bag
+      if (busy < 9) { plant(); wait = 0.12; }    // keep the board lively before merging
+      else if (o >= 0) { drop(o, { x: L.order.x + 40, y: L.order.y + 36 }); wait = 0.5; }
+      else if (p) { drop(p[0], center(p[1])); wait = 0.3; }
+      else if (empties(S).length) { plant(); wait = 0.16; }
+      else { drop(S.grid.indexOf(Math.min(...S.grid)), { x: L.bin.x + 8, y: L.bin.y + 8 }); wait = 0.3; }
+    }
+    if (toast && time - toast.at > 1.2) toast = null;
+    update(dt); draw();
+    await post(String(n++).padStart(4, '0'), await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.93)));
+  }
+  await post('done', 'x');
+}
 let prev = performance.now();
 function frame(now) {
   const dt = Math.min(0.1, (now - prev) / 1000); prev = now;
@@ -452,7 +516,8 @@ function frame(now) {
 }
 window.addEventListener('resize', layout);
 document.addEventListener('visibilitychange', () => { if (document.hidden) persist(); });
-layout(); requestAnimationFrame(frame);
+layout();
+if (DEMO === 'cover') coverShot(); else if (DEMO) demoLoop(); else requestAnimationFrame(frame);
 })();
 </script>
 </body>

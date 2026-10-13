@@ -2,27 +2,49 @@
   "name": "Merge Harvest",
   "genre": "merge idle",
   "levels": null,
-  "solver": "bot trong game (?selftest=1): 500 nuoc khong ket",
+  "solver": "bot trong game (?selftest=1): 500 nuoc khong ket; tools/merge_sim.js do nhip do (bot toi Golden Tree ~17 phut moi mua)",
   "rules": {
     "grid": "5x6",
     "tiers": 10,
     "move": "drag an item onto the same item to merge; drag to the order card to deliver; drag to Sell to clear",
-    "income": "items of tier 2+ earn coins every second; half rate while away, capped at 2 hours"
+    "income": "items of tier 2+ earn coins every second; half rate while away, capped at 2 hours",
+    "season": "delivering the Golden Tree starts a new season: board and seed upgrades reset, all coins x(1 + 0.5 per season), upgrades cost x4 per season",
+    "daily": "the first order delivered each day pays +50% per streak day, up to 7 days"
   },
   "web": "web/merge-harvest/index.html",
   "itch": null,
   "roblox": null,
-  "status": "ban thu 13/10/2026",
+  "status": "game du 13/10/2026: 10 bac, don hang, mua (lam lai co he so), thuong ngay, xu vang mat",
   "safety": {
     "gambling": false,
     "paid_random_items": false,
     "external_links": false,
     "personal_data": false,
-    "sell": ["seed refill", "double away coins"],
+    "sell": [
+      "seed refill",
+      "double away coins"
+    ],
     "never_sell": "anything required to progress"
   },
   "portal_ids": {
     "gamemonetize": "",
     "gamedistribution": ""
+  },
+  "store": {
+    "title": "Merge Harvest",
+    "short": "Plant seeds, merge them into bigger crops and fill the orders.",
+    "long": "A calm merge and idle garden. Plant seeds, drag two of the same crop together to grow the next one, and deliver what each order asks for. Bigger crops earn coins every second, even while you are away. Discover all ten crops up to the Golden Tree, then start a new season with every coin worth more. Come back daily for a bonus on your first order.",
+    "how_to_play": "Tap Plant seed. Drag a crop onto the same crop to merge. Drag the crop an order asks for onto the order card. Drag anything onto Sell to make room.",
+    "controls": "Mouse or touch: tap and drag. Keyboard: Space plants a seed, M mutes.",
+    "category": "Casual",
+    "tags": [
+      "merge",
+      "idle",
+      "farm",
+      "garden",
+      "casual",
+      "relaxing",
+      "clicker"
+    ]
   }
 }

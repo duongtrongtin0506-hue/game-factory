@@ -40,7 +40,7 @@ Tải đo trên bản không quảng cáo, giả lập máy yếu (CPU chậm 4 
 | Tile Trio (giao diện mới) | từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
 | One Line Fill (giao diện mới) | gói, chưa nộp lần nào | gói, thiếu GameId | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
 | Tap Arcade (giao diện mới) | từ chối 11/10 · gói bản mới | bản 5 trò nộp 09/10, chờ duyệt | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
-| Merge Harvest (bản thử) | chưa đóng gói | chưa đóng gói | chưa đóng gói | - | - |
+| Merge Harvest (game đủ 13/10) | gói, chưa nộp (tra trùng tên trước) | gói, thiếu GameId | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
 
 Lượt chơi, doanh thu: chưa có, chưa game nào lên sóng.
 

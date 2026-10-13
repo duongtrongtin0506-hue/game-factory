@@ -22,7 +22,7 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [x] 13/10 Tile Trio đổi giao diện sang `THIET-KE.md` + `?demo=cover` + ảnh bìa, video mới (`assets-goc/tile-trio`).
 - [x] 13/10 One Line Fill đổi giao diện sang `THIET-KE.md` bản nền đêm (nét vẽ là màu nhấn đỏ) + `?demo=cover` + ảnh bìa, video lần đầu có (`assets-goc/one-line`).
 - [x] 13/10 `tools/quay.py <game>`: chụp ảnh bìa mọi cỡ (CrazyGames, GameMonetize, Playgama, Yandex) + 2 video bằng `?demo=` của game, ra `assets-goc/<game>/`; Car Jam đã chụp lại theo giao diện mới.
-- [ ] Thêm `?demo=cover` + `?demo=<tên>` (cùng giao thức `POST /frame` như Car Jam) cho Merge Harvest và Tap Arcade, rồi chạy `tools/quay.py`.
+- [ ] Tap Arcade: quay lại 2 video theo giao diện mới (`python tools/quay.py tap-arcade`; `?demo=` cũ còn chạy, chưa soát hình).
 
 ## 3. Game đang sống / gần lên sóng
 
@@ -35,8 +35,9 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 ## 4. Game mới từ `Y-TUONG.md`
 
 - [x] 13/10 Bản thử "Merge Harvest" ở `web/merge-harvest/` theo `THIET-KE.md`: lưới 5x6, 10 bậc, đơn hàng, xu theo giây + xu vắng mặt, nâng cấp hạt, bán, lưu tiến trình, tắt tiếng, quảng cáo thưởng (nạp hạt, nhân đôi xu vắng mặt), bot `?selftest=1`; đã vào `build.py` + `smoke_test.py`. ĐẠT.
-- [ ] Merge Harvest thành game đủ: (a) thử thách ngày + chuỗi ngày; (b) sau Golden Tree: "mùa mới" (làm lại, nhận hệ số xu, đổi bảng màu vật theo mùa: thu, đông/Giáng sinh, xuân, hạ); (c) hiệu ứng gộp (vòng sáng mềm, hạt nhỏ) và nhạc nền nhẹ có nút tắt; (d) cân kinh tế bằng bot: tới Golden Tree trong 25–40 phút chơi; (e) tra tên "Merge Harvest" không trùng game có thật, trùng thì đổi; (f) mục `store` trong `specs/merge-harvest.json`. [nặng] cho (b), (d).
-- [ ] Merge Harvest: ảnh bìa các cỡ + 2 video xem trước bằng `?demo=` (theo `THIET-KE.md`: nền giấy ấm, 1 vật lớn ở giữa, tên game serif). [máy 2]
+- [x] 13/10 Merge Harvest thành game đủ: mùa (giao Golden Tree → làm lại, mọi xu x1,5 mỗi mùa, nâng cấp đắt x4), thưởng ngày theo chuỗi, vòng sáng khi gộp, mô tả `store`, `tools/merge_sim.js` (bot tới Golden Tree ~17 phút mỗi mùa; người thật ước 25–35 phút, chưa đo), đã vào `phat-hanh/`.
+- [ ] Merge Harvest: tra tên "Merge Harvest" có trùng game/nhãn hiệu có thật không (trùng thì đổi tên trong `specs`, tiêu đề, ảnh bìa) TRƯỚC khi chủ nộp; nhạc nền nhẹ có nút tắt; đổi màu lá theo mùa.
+- [x] 13/10 Merge Harvest: ảnh bìa mọi cỡ + 2 video (`assets-goc/merge-harvest`), `?demo=cover` và `?demo=<tên>`.
 - [ ] Bản thử ý tưởng kế tiếp theo điểm (Mini Garden Idle hoặc Bolt Jam) sau khi game trên có kết luận. [nặng]
 - [ ] Thứ hai hằng tuần: quét xu hướng → thêm mục tuần vào `XU-HUONG.md`, ≥ 5 ý tưởng mới vào `Y-TUONG.md` (lần tới: 19/10; thử mở thẳng trang New của từng cổng).
 

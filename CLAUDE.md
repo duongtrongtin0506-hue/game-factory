@@ -32,7 +32,7 @@ Trên đám mây (routine, Linux): dùng bash; `pip install -r tools/requirement
 | Car Jam Escape | `web/car-jam` | 120 (+40 dự trữ) | CrazyGames (bản 1) | 11/10 | bị từ chối 11/10; bản giao diện mới có gói, chờ chủ nộp |
 | Tile Trio | `web/tile-trio` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
 | One Line Fill | `web/one-line` | 120 | chưa nộp | - | có gói + ảnh bìa, video; chờ chủ nộp |
-| Merge Harvest | `web/merge-harvest` | vô tận (gộp + idle, 10 bậc) | chưa nộp | - | bản thử 13/10 đạt, đang làm game đủ; mẫu tham chiếu ngôn ngữ thiết kế |
+| Merge Harvest | `web/merge-harvest` | vô tận (gộp + idle, 10 bậc, mùa) | chưa nộp | - | game đủ 13/10, có gói + ảnh bìa, video; phải tra trùng tên trước khi nộp; mẫu tham chiếu ngôn ngữ thiết kế |
 
 GameDistribution: đăng ký tài khoản 09/10, chờ thư. itch.io: có khóa, chưa có trang game. Chi tiết: `THEO-DOI.md`.
 
@@ -45,6 +45,7 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 - `daily` 06:00 đạt ✅ 3 ngày liền trên Actions (11–13/10). Mỗi thứ hai `run_daily` chuyển 20 màn/game vào Car Jam, Boba Sort, Tile Trio, One Line Fill (hỏng kiểm thử thì trả lại). Car Jam (13/10): 7 cảnh thế giới, hết cảnh thì lặp lại; 120 màn; đã vào `TAKE_GAMES` nên thứ hai cũng tự thêm 20 màn.
 - `run_daily` giữ nguyên phần `## Nhật ký lượt` ở cuối `TRANG-THAI.md`.
 - 13/10: cả 5 game cũ đã đổi giao diện theo `THIET-KE.md` (Car Jam, Boba Sort, Tile Trio nền giấy; One Line Fill, Tap Arcade nền đêm); ảnh bìa mới ở `assets-goc/<game>/`; `tools/build.py` ghi 15 gói `phat-hanh/<cổng>/<game>/` (zip + `mo-ta.md`, lấy mô tả từ mục `store` trong specs). Sửa giao diện game: sửa `index.src.html` rồi `python tools/build.py`; soát hình bằng `python tools/chup.py <game> "?" "?level=3"` (ảnh ra `_build/anh/`).
+- 13/10: thử thách ngày ở Car Jam, Boba Sort, Tile Trio, One Line Fill (`?daily=1`); Car Jam có `tools/carjam.py harden` (làm khó hàng dự trữ); Merge Harvest có mùa + thưởng ngày, đo nhịp độ bằng `node tools/merge_sim.js`; 18 gói trong `phat-hanh/`.
 - Chưa có: game nào lên sóng, số liệu, bản Roblox, khóa Roblox.
 
 ## Chờ chủ (xem đầu `HUONG-DAN-CHU.md`)

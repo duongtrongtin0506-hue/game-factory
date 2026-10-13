@@ -7,10 +7,10 @@ Cập nhật tay mỗi chủ nhật (số từ bảng điều khiển cổng do 
 | Chỉ số | Giá trị | Ghi chú |
 |---|---|---|
 | Doanh thu tháng 10 | 0 | chưa game nào lên sóng |
-| Game trong kho | 6 | 5 game đủ + Merge Harvest (bản thử) |
+| Game trong kho | 6 | 6 game đủ (Merge Harvest xong 13/10) |
 | Game đang sống trên cổng | 0 | Tap Arcade bản 5 trò chờ duyệt GameMonetize từ 09/10 |
 | Cổng có tài khoản | 3 + itch.io | CrazyGames, GameMonetize, GameDistribution (chờ kích hoạt) |
-| Gói nộp sẵn sàng | 15 | 5 game × 3 cổng; 10 gói còn thiếu mã game của cổng |
+| Gói nộp sẵn sàng | 18 | 6 game × 3 cổng; 12 gói còn thiếu mã game của cổng |
 | Màn chơi | 525 | Car Jam 120, Boba Sort 120, Tile Trio 120, One Line Fill 120, Tap Arcade 45 chặng |
 | Lần chạy `daily` đạt | 3/3 | 11–13/10 |
 
