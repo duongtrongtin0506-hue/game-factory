@@ -18,6 +18,14 @@ Game mới và game nâng cấp chỉ được nộp khi đủ 8 điều; thiế
 - [ ] [nặng] Bản thử Deck of Letters (ý tưởng 10): tìm danh sách từ tiếng Anh giấy phép mở trước, ghi `ASSETS.md`.
 - [ ] Sau 24 giờ Sandbox (từ 15/10): chép số lượt chơi, thời gian chơi trung bình của One Line Fill và Sprout Merge vào `CHI-SO.md`; game nào dưới 2:00 thì áp điều 4 và 5 ở nhánh riêng.
 
+## 0b. Bán mã nguồn (mũi doanh thu thứ hai, kế hoạch ở `BAN-MA-NGUON.md`)
+
+- [ ] `tools/dong_goi_ban.py <sản phẩm>`: ghi `ban/<sản phẩm>/<sản phẩm>.zip` gồm mã nguồn không nén, `README.md` tiếng Anh, `LICENSE.txt`; sản phẩm đầu: `tap-arcade` (nguồn `web/tap-arcade/index.src.html`, `levels/tap-arcade.json`, `web/ads.js`, `tools/build.py` bản rút gọn chỉ ghép màn + quảng cáo).
+- [ ] Viết `README.md` cho gói Tap Arcade: chạy thử, đổi màu/chữ, thêm trò, gắn quảng cáo từng cổng; khai rõ mã do AI hỗ trợ viết.
+- [ ] Gói "Portal Ads Layer": `web/ads.js` + `tools/test_ads.js` + hướng dẫn từng cổng (lấy từ `CONG.md`, dịch sang tiếng Anh).
+- [ ] [máy 2] Đọc quy định Codester (mục đăng game JavaScript thuần, sản phẩm làm bằng AI, phí rút) tại https://www.codester.com/info/seller và trang điều khoản; thử lại CodeCanyon; ghi vào `BAN-MA-NGUON.md`.
+- [ ] [máy 2] Khi chủ có tài khoản người bán: đăng gói Tap Arcade (ảnh từ `assets-goc/tap-arcade/`, bản chạy thử là trang itch.io).
+
 ## 1. Lỗi làm game hỏng / không đăng được
 
 - [ ] Xem `TRANG-THAI.md` + lần chạy `daily`, `weekly-selftest`, `bao-discord` gần nhất; 🔴 thì sửa theo bước lỗi (việc thường trực, mỗi lượt).

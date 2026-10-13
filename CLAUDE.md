@@ -20,6 +20,8 @@ Trả lời tiếng Việt, ngắn gọn, tự làm; chỉ hỏi khi cần tài 
 
 VIỆC TIẾP THEO: làm `VIEC.md` từ trên xuống (ưu tiên theo mục 4 của kế hoạch). Mỗi lượt: `git pull` → đọc `TRANG-THAI.md` (🔴 thì sửa trước) → làm việc đầu danh sách chưa xong → tích xong, commit + push sau mỗi việc → cuối lượt thêm 1 dòng vào cuối `TRANG-THAI.md` dưới `## Nhật ký lượt` dạng `- DD/MM HH:MM 🎮 Xong … · Gói chờ nộp N · Việc còn N` (giữ 30 dòng mới nhất; `bao-discord.yml` gửi dòng cuối vào Discord #game). Routine đám mây (Sonnet, 08:00/14:00/20:00 giờ VN) bỏ qua việc có nhãn `[nặng]`; khung chat trên máy làm cả `[nặng]`.
 
+Bán mã nguồn (mũi doanh thu thứ hai, chủ dặn 14/10): `BAN-MA-NGUON.md`.
+
 Tệp V3: `KE-HOACH-V3.md` (kế hoạch nguyên văn) · `HIEN-TRANG.md` (cái đã có) · `VIEC.md` (hàng việc) · `CONG.md` (cổng) · `XU-HUONG.md` + `Y-TUONG.md` (thứ hai) · `NHAT-KY-CAI-TIEN.md` (chủ nhật) · `CHI-SO.md` · `VAN-HANH.md` · `ASSETS.md` · `THU-NGHIEM.md` · `phat-hanh/<cổng>/<game>/` (gói nộp).
 
 Trên đám mây (routine, Linux): dùng bash; `pip install -r tools/requirements.txt; python -m playwright install --with-deps chromium` trước khi chạy `tools/run_daily.py --no-publish` hay `tools/smoke_test.py`; không có `.env` và không có trình duyệt đăng nhập cổng nào, nên việc nộp cổng/chép số ghi vào `HUONG-DAN-CHU.md`; không tự gọi Discord (đã có `bao-discord.yml`).
@@ -109,3 +111,4 @@ Chạy thử trên máy: launch config `game-web` (`.claude/launch.json`), cổn
 - 2026-10-13 – Tạm dừng GameMonetize, không lấy GameId cho game khác – cổng từ chối Tap Arcade vì chất lượng, ghi rõ không nhận game làm bằng AI và dọa khóa tài khoản nếu nộp lặp lại; mở lại khi có game được cổng khác duyệt.
 - 2026-10-13 – Đổi tên 3 game trùng tên theo đề xuất (Three of a Tile, Pearl Cup Sort, Red Car Out), đổi ngay trước lần nộp mới của từng game – CrazyGames đòi tên và nội dung nguyên bản; chủ giao máy quyết.
 - 2026-10-14 – Chủ chốt đổi tên ngay cả 3 game: Tile Trio → Three of a Tile, Boba Sort → Pearl Cup Sort, Car Jam Escape → Red Car Out (đã tra lại, không trùng game nào); thư mục, khóa lưu, tên tệp công cụ giữ nguyên để không mất tiến trình người chơi và không phải sửa đường dẫn.
+- 2026-10-14 – Mở mũi bán mã nguồn song song với quảng cáo cổng: giá chợ xem tận nơi là 19–29 USD/game lẻ, gói 89–299 USD, Codester cho người bán 70% và không đòi độc quyền; chỉ bán thứ không nộp cổng (Tap Arcade, bộ sinh màn, lớp quảng cáo) để không tự tạo bản trùng.

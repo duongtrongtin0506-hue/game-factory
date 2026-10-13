@@ -17,6 +17,8 @@ Từ 13/10 khung chat trên máy tự nộp CrazyGames bằng Chrome đang đăn
 
 ## CẦN TẠO TÀI KHOẢN
 
+- [ ] Codester (bán mã nguồn, người bán giữ 70%, không đòi độc quyền): mở https://www.codester.com/info/seller → **Start selling**, tạo tài khoản và khai cách nhận tiền (máy không tự làm hai bước này). Xong nhắn **xong tài khoản codester**. Kế hoạch và giá: `BAN-MA-NGUON.md`.
+
 - [ ] GameDistribution: 13/10 máy đã tìm trong Gmail, chưa có thư nào từ GameDistribution hoặc Azerion (mục Spam chưa xem). Nếu chủ nhớ đã đăng ký xong thì xem Spam; chưa thì đăng ký lại ở https://developer.gamedistribution.com/ (máy không được tự tạo tài khoản). Nhắn: **có thư gamedistribution**.
 - [x] 13/10 Claude GitHub App đã có quyền vào kho `game-factory` (chủ nhập mã xác minh, máy thêm kho); routine đám mây "Game factory - luot tu dong" đã tạo: https://claude.ai/code/routines/trig_01VLA47WPmdk5S1ZJWS1QDub (08:00/14:00/20:00 giờ VN, Sonnet), lượt đầu 08:00 ngày 14/10.
 - [x] 13/10 Playgama: tài khoản xong (chủ đăng nhập Google và bấm gửi form), One Line Fill đã lên Sandbox: https://playgama.ai/play/3gmcpm4dkz.
