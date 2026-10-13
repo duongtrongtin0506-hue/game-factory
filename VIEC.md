@@ -2,6 +2,22 @@
 
 Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm ngày, commit + push; việc mới chèn đúng nhóm ưu tiên. `[nặng]` = cần model mạnh, routine đám mây bỏ qua. `[máy 2]` = cần máy có Chrome/dist/card hình, routine bỏ qua. Việc chỉ chủ làm được → đầu `HUONG-DAN-CHU.md`, không để ở đây. Dòng `[x]` cũ hơn 14 ngày thì xóa.
 
+## 0. Chuẩn ra lò (chủ dặn 14/10: giữ số lượng 2 game/tuần, nâng chất lượng, chọn đề tài theo xu hướng có nguồn)
+
+Game mới và game nâng cấp chỉ được nộp khi đủ 8 điều; thiếu điều nào thì ghi rõ thiếu gì ở dòng việc của game đó:
+1. Đề tài có tín hiệu ở ≥ 2 cổng trong `XU-HUONG.md` (ghi tên cổng) và đã đếm số game cùng loại trên trang thể loại của CrazyGames.
+2. Một nét nhận diện riêng nhìn ảnh bìa là nhận ra (hình hoặc luật), ghi 1 câu vào `specs/<game>.json` mục `store`.
+3. 10 giây đầu chơi được không cần đọc chữ; tên game hiện trong game.
+4. Thiết kế cho phiên ≥ 5 phút: thắng màn đi thẳng màn kế, có mục tiêu dài hơn một màn (mốc Sandbox của Playgama là 5:00).
+5. Âm thanh nhiều lớp + nhạc nền có nút tắt; hiệu ứng ở mọi thao tác chính.
+6. Ảnh bìa mọi cỡ, tên không nằm ở góc trên bên trái; 2 video.
+7. Kiểm thử Chromium + WebKit đạt; SDK được GameDistribution xác nhận trong iframe; chạy được trên Sandbox Playgama.
+8. Tra tên không trùng; màn có bộ giải xác nhận.
+
+- [ ] [nặng] Bản thử Arrow Garden (ý tưởng 9 trong `Y-TUONG.md`): `web/arrow-garden/`, bộ sinh màn dựng ngược + bộ giải `tools/arrow.py`, 60 màn, theo `THIET-KE.md` nền giấy.
+- [ ] [nặng] Bản thử Deck of Letters (ý tưởng 10): tìm danh sách từ tiếng Anh giấy phép mở trước, ghi `ASSETS.md`.
+- [ ] Sau 24 giờ Sandbox (từ 15/10): chép số lượt chơi, thời gian chơi trung bình của One Line Fill và Sprout Merge vào `CHI-SO.md`; game nào dưới 2:00 thì áp điều 4 và 5 ở nhánh riêng.
+
 ## 1. Lỗi làm game hỏng / không đăng được
 
 - [ ] Xem `TRANG-THAI.md` + lần chạy `daily`, `weekly-selftest`, `bao-discord` gần nhất; 🔴 thì sửa theo bước lỗi (việc thường trực, mỗi lượt).
@@ -52,7 +68,7 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [x] 13/10 Tra trùng tên 5 game: bảng ở `ASSETS.md`; Tile Trio, Boba Sort, Car Jam Escape có trùng, đề xuất tên mới đã ghi ở mục CẦN CHỌN đầu `HUONG-DAN-CHU.md`. Khi chủ chọn: đổi tên theo các bước cuối bảng `ASSETS.md`.
 - [ ] Sprout Merge: nhạc nền nhẹ có nút tắt; đổi màu lá theo mùa.
 - [x] 13/10 Merge Harvest: ảnh bìa mọi cỡ + 2 video (`assets-goc/merge-harvest`), `?demo=cover` và `?demo=<tên>`.
-- [ ] Bản thử ý tưởng kế tiếp theo điểm (Mini Garden Idle hoặc Bolt Jam) sau khi game trên có kết luận. [nặng]
+- [x] 14/10 Ý tưởng kế tiếp đã chọn lại theo lần quét trực tiếp: Arrow Garden, Deck of Letters (việc ở mục 0); Bolt Jam hạ ưu tiên vì cổng đã có 3 game ốc vít.
 - [ ] Thứ hai hằng tuần: quét xu hướng → thêm mục tuần vào `XU-HUONG.md`, ≥ 5 ý tưởng mới vào `Y-TUONG.md` (lần tới: 19/10; thử mở thẳng trang New của từng cổng).
 
 ## 5. Đóng gói cho mọi cổng

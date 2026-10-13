@@ -4,6 +4,26 @@ Chấm 1–5 (5 là tốt): Nhu cầu · Ít cạnh tranh · Làm HTML5 ≤ 3 ng
 
 Trạng thái: 💡 mới · 🧪 đang làm bản thử · ✅ đạt, làm game đủ · ❌ bỏ (ghi lý do).
 
+## Tuần 14/10/2026 (nguồn: mục "Quét trực tiếp 14/10/2026" trong `XU-HUONG.md`)
+
+Thêm cột Khác = làm khác được bao nhiêu so với các game cùng loại đang có trên cổng (5 = có nét riêng rõ).
+
+| # | Tên tạm | Tín hiệu (cổng) | Hợp thế mạnh xưởng | Khác | Trạng thái |
+|---|---|---|---|---|---|
+| 9 | Arrow Garden (câu đố mũi tên) | CrazyGames ×2, Playgama trang chủ | Rất hợp: sinh màn + bộ giải, hình tối giản | 4 | 💡 làm bản thử kế tiếp |
+| 10 | Deck of Letters (solitaire ghép chữ) | CrazyGames New + Hot, Poki New | Hợp: chữ serif là hình chính; cần từ điển tiếng Anh giấy phép mở | 4 | 💡 bản thử thứ hai của tuần |
+| 11 | Quiet Shelf (xếp gọn ASMR) | Playgama ×2, Poki, CrazyGames | Vừa: cần nhiều hình vật thể | 3 | 💡 |
+| 12 | Kiln & Clay (idle "+1 mỗi giây" chủ đề gốm) | CrazyGames New nhiều, Poki | Vừa: đã có khung idle của Sprout Merge | 3 | 💡 |
+| 13 | Paper Golf (golf vật lý nền giấy) | CrazyGames Hot ×4 | Kém hơn: chưa có bộ vật lý, khó kiểm bằng bộ giải | 3 | 💡 để sau |
+
+9. **Arrow Garden** – Bàn đầy mũi tên; chạm một mũi tên thì nó trượt theo hướng của nó ra khỏi bàn nếu đường trống; gỡ hết là thắng, chạm sai mất một mạng. Bộ sinh màn dựng ngược (đặt mũi tên theo thứ tự gỡ) nên luôn giải được; bộ giải đo số mũi tên bị khóa lúc đầu làm độ khó. Nét riêng: mũi tên là nét cọ một màu nhấn trên nền giấy, gỡ xong cả bàn hiện ra một hình (lá, chim) bằng chính các khoảng trống. Giữ chân: chuỗi màn liền không về menu, thử thách ngày. Tham khảo cơ chế: Arrows, Arrow Slide Puzzle (CrazyGames), Arrow Puzzle (Playgama); không chép tên, hình.
+10. **Deck of Letters** – Bài xếp kiểu solitaire nhưng lá bài là chữ cái; dọn cột bằng cách rút các lá trên cùng ghép thành từ tiếng Anh. Nét riêng: lá bài sắp chữ serif như trang sách, một màu nhấn cho nguyên âm. Cần danh sách từ giấy phép mở (ghi vào `ASSETS.md`) và kiểm màn bằng tìm kiếm có tồn tại lời giải. Giữ chân: ván ngày, chuỗi ngày. Tham khảo cơ chế: Word Solitaire, Card Solitaire: Word Game.
+11. **Quiet Shelf** – Kéo đồ vật vào đúng ngăn kệ theo một quy tắc ẩn (màu, cỡ, loại), xong kệ thì có cảnh "gọn gàng" 2 giây. Hợp video ngắn.
+12. **Kiln & Clay** – Nặn, nung, bán gốm; mỗi mẻ nung sinh xu theo giây, mở men màu mới. Dùng lại khung idle + mùa của Sprout Merge.
+13. **Paper Golf** – Golf một chạm trên địa hình cắt giấy.
+
+Hạ ưu tiên từ tuần trước: Bolt Jam (cổng đã có Screw Out, Wood Screw, Nuts Puzzle), Hex Stack (đã có Hexa Stack, Hexa Sort), Block Fit (đã quá đông).
+
 ## Tuần 13/10/2026 (nguồn xu hướng: `XU-HUONG.md`)
 
 | # | Tên tạm | Tổng | ND | CT | H5 | Giữ | QC | Rb | Trạng thái |
