@@ -29,3 +29,4 @@
 - 13/10 12:30 🎮 Xong đổi giao diện cả 5 game theo THIET-KE.md + ảnh bìa mới + 15 gói phat-hanh (3 cổng) · Gói chờ nộp 2 (Car Jam, One Line Fill → CrazyGames) · Việc còn 24 · ⚪ routine đám mây chờ chủ cài Claude GitHub App
 - 13/10 15:00 🎮 Xong thử thách ngày cho 4 game, Merge Harvest thành game đủ (mùa, thưởng ngày, ảnh bìa, video), 18 gói, VAN-HANH/CHI-SO/ASSETS · Gói chờ nộp 2 · Việc còn 14 · ⚪ routine đám mây chờ chủ cài Claude GitHub App
 - 13/10 16:30 🎮 Xong cổng Playgama (SDK + 6 gói), đổi tên game mới thành Sprout Merge (tên cũ trùng game có thật) · Gói chờ nộp 3 (Car Jam, One Line Fill, Sprout Merge → CrazyGames) · Việc còn 16 · ⚪ routine đám mây chờ chủ cài Claude GitHub App
+- 13/10 17:10 🎮 Xong tra trùng tên 6 game (3 tên cần chủ chọn), video Tap Arcade mới · Gói chờ nộp 3 · Việc còn 14 · ⚪ routine đám mây chờ chủ cài Claude GitHub App
