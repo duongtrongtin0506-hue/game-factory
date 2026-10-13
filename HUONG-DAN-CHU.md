@@ -12,6 +12,10 @@ Mỗi gói có sẵn tệp zip và `mo-ta.md` (tên, mô tả, thẻ tiếng Anh
 - [ ] (sau khi 2 game trên có kết quả) Boba Sort, Tile Trio, Tap Arcade → CrazyGames, bài nộp mới: `phat-hanh\crazygames\<game>\`.
 - [ ] Xem kết quả duyệt Tap Arcade trên GameMonetize: https://gamemonetize.com/account/login.php → My Games. Nhắn: **gamemonetize: duyệt / từ chối + lý do**.
 - [ ] GameMonetize, 4 game còn lại (Car Jam, Boba Sort, Tile Trio, One Line Fill): https://gamemonetize.com/account/ → thêm game mới để lấy GameId của từng game → nhắn **gameid <tên game> <mã>** (mã game không phải mật khẩu) → máy build lại → tải `phat-hanh\gamemonetize\<game>\<game>.zip`.
+## CẦN CHỌN (không chặn máy; chưa chọn thì máy giữ tên cũ)
+
+- [ ] Tên game trùng game có thật (bảng ở `ASSETS.md`): Tile Trio trùng chính xác một app cùng thể loại; Boba Sort trùng một game itch.io và gần giống 2 app; Car Jam Escape trùng một trang web game. Tên thay thế đề xuất (mỗi tên đã tìm 0 lượt, máy sẽ tra trước khi đổi): Tile Trio → **Three of a Tile**; Boba Sort → **Pearl Cup Sort**; Car Jam Escape → **Red Car Out**. Nhắn: **đổi tên <tên cũ> thành <tên mới>** hoặc **giữ tên**. Nên chọn trước khi nộp 3 game này.
+
 ## CẦN TẠO TÀI KHOẢN
 
 - [ ] GameDistribution: tìm thư kích hoạt (đăng ký 09/10) trong Gmail, từ GameDistribution hoặc Azerion. Nhắn: **có thư gamedistribution**.

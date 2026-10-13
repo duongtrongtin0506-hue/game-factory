@@ -22,7 +22,7 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [x] 13/10 Tile Trio đổi giao diện sang `THIET-KE.md` + `?demo=cover` + ảnh bìa, video mới (`assets-goc/tile-trio`).
 - [x] 13/10 One Line Fill đổi giao diện sang `THIET-KE.md` bản nền đêm (nét vẽ là màu nhấn đỏ) + `?demo=cover` + ảnh bìa, video lần đầu có (`assets-goc/one-line`).
 - [x] 13/10 `tools/quay.py <game>`: chụp ảnh bìa mọi cỡ (CrazyGames, GameMonetize, Playgama, Yandex) + 2 video bằng `?demo=` của game, ra `assets-goc/<game>/`; Car Jam đã chụp lại theo giao diện mới.
-- [ ] Tap Arcade: quay lại 2 video theo giao diện mới (`python tools/quay.py tap-arcade`; `?demo=` cũ còn chạy, chưa soát hình).
+- [x] 13/10 Tap Arcade: 2 video mới theo giao diện mới (`assets-goc/tap-arcade`).
 
 ## 3. Game đang sống / gần lên sóng
 
@@ -37,7 +37,7 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [x] 13/10 Bản thử "Merge Harvest" ở `web/merge-harvest/` theo `THIET-KE.md`: lưới 5x6, 10 bậc, đơn hàng, xu theo giây + xu vắng mặt, nâng cấp hạt, bán, lưu tiến trình, tắt tiếng, quảng cáo thưởng (nạp hạt, nhân đôi xu vắng mặt), bot `?selftest=1`; đã vào `build.py` + `smoke_test.py`. ĐẠT.
 - [x] 13/10 Merge Harvest thành game đủ: mùa (giao Golden Tree → làm lại, mọi xu x1,5 mỗi mùa, nâng cấp đắt x4), thưởng ngày theo chuỗi, vòng sáng khi gộp, mô tả `store`, `tools/merge_sim.js` (bot tới Golden Tree ~17 phút mỗi mùa; người thật ước 25–35 phút, chưa đo), đã vào `phat-hanh/`.
 - [x] 13/10 Đổi tên phát hành thành Sprout Merge ("Merge Harvest" trùng "Farm: Merge Harvest" trên Playgama); thư mục và khóa lưu giữ `merge-harvest`.
-- [ ] Tra trùng tên 5 game còn lại (Car Jam Escape, Boba Sort, Tile Trio, One Line Fill, Tap Arcade) trên cổng sắp nộp; trùng chính xác thì đề xuất tên mới ở đầu `HUONG-DAN-CHU.md` (game đã nộp không tự đổi).
+- [x] 13/10 Tra trùng tên 5 game: bảng ở `ASSETS.md`; Tile Trio, Boba Sort, Car Jam Escape có trùng, đề xuất tên mới đã ghi ở mục CẦN CHỌN đầu `HUONG-DAN-CHU.md`. Khi chủ chọn: đổi tên theo các bước cuối bảng `ASSETS.md`.
 - [ ] Sprout Merge: nhạc nền nhẹ có nút tắt; đổi màu lá theo mùa.
 - [x] 13/10 Merge Harvest: ảnh bìa mọi cỡ + 2 video (`assets-goc/merge-harvest`), `?demo=cover` và `?demo=<tên>`.
 - [ ] Bản thử ý tưởng kế tiếp theo điểm (Mini Garden Idle hoặc Bolt Jam) sau khi game trên có kết luận. [nặng]
