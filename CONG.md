@@ -13,7 +13,7 @@ Tra 13/10/2026 (kèm `NGHIEN-CUU.md` 11–12/10). Chỉ ghi điều đọc đư�
 | Yandex Games | CHƯA | bảng điều khiển trong https://yandex.com/dev/games/doc/en/ | CHƯA | chưa | tỉ lệ không nêu · ngưỡng 150 USD; cá nhân ở VN: chưa xác minh | không | 3 (cần tiếng Nga; có thể đi qua Playgama) |
 | Poki | CHƯA | https://app.poki.dev/signin/ | CHƯA | chưa | 50/50, lượt trực tiếp 100% | không | KHÔNG nộp lúc này: mặc định đòi độc quyền web 5 năm, trái mục tiêu ≥ 5 cổng/game |
 | GamePix | CHƯA | chưa xác minh (docs.gamepix.com không đọc được) | CHƯA | chưa | chưa xác minh | chưa xác minh | 3, tra lại |
-| itch.io | có khóa, chưa có trang | https://itch.io/game/new | cổng `none` | chưa | không có quảng cáo cổng | có (butler, đã nằm trong `daily`) | không bắt buộc |
+| itch.io | có (trong-tin.itch.io) + khóa butler | https://itch.io/game/new | cổng `none` | One Line Fill: trang nháp 13/10, chờ butler đẩy tệp | không có quảng cáo cổng | có (butler, đã nằm trong `daily`) | không bắt buộc |
 | Y8, Lagged, Newgrounds, Kongregate | CHƯA | chưa xác minh | – | – | – | – | tra lại tháng sau |
 
 Khả năng cá nhân ở Việt Nam nhận tiền: chưa cổng nào ghi rõ (CrazyGames nhận khai cá nhân qua Tipalti; Playgama "tùy quốc gia"). Hỏi cổng khi game đầu tiên được duyệt.

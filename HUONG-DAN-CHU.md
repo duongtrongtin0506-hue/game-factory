@@ -21,9 +21,9 @@ Từ 13/10 khung chat trên máy tự nộp CrazyGames bằng Chrome đang đăn
 - [x] 13/10 Claude GitHub App đã có quyền vào kho `game-factory` (chủ nhập mã xác minh, máy thêm kho); routine đám mây "Game factory - luot tu dong" đã tạo: https://claude.ai/code/routines/trig_01VLA47WPmdk5S1ZJWS1QDub (08:00/14:00/20:00 giờ VN, Sonnet), lượt đầu 08:00 ngày 14/10.
 - [x] 13/10 Playgama: tài khoản xong (chủ đăng nhập Google và bấm gửi form), One Line Fill đã lên Sandbox: https://playgama.ai/play/3gmcpm4dkz.
 - [ ] GameDistribution: email đã có tài khoản Azerion từ 09/10 nhưng chưa xác minh; đăng nhập bằng email + mật khẩu đã đặt (không dùng nút Google) tại https://developer.gamedistribution.com/, quên thì bấm **Forgot Password?**. Xong nhắn **xong tài khoản gamedistribution**.
-- [ ] (đụng tiền, chủ quyết) Playgama có mục **Buy Traffic** mua người chơi để đạt mốc Sandbox nhanh hơn. Máy KHÔNG bấm. Muốn dùng thì nhắn số tiền.
+- [x] 13/10 Chủ trả lời: KHÔNG dùng ngân sách lúc này → không Buy Traffic; chỉ dùng boost miễn phí và chia sẻ.
 - [ ] Cổng khác (Yandex Games, GamePix…): chưa cần, xem `CONG.md`.
-- [ ] (không bắt buộc) itch.io: tạo trang `car-jam-escape` theo mục 6 bên dưới.
+- [x] 13/10 itch.io: máy đã tạo trang nháp https://trong-tin.itch.io/one-line-fill (HTML, No payments, khai có nội dung AI: Graphics, Sounds, Code). Tệp game do `daily` 06:00 đẩy bằng butler; sau đó máy tích "played in the browser" và chuyển Public.
 
 ## CẦN CHÉP SỐ (chủ nhật)
 

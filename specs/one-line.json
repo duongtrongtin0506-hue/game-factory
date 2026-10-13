@@ -5,7 +5,7 @@
   "level_source": "in-game seeded generator",
   "solver": "not yet in tools/",
   "web": "web/one-line/index.html",
-  "itch": null,
+  "itch": "one-line-fill",
   "roblox": null,
   "safety": {
     "gambling": false,

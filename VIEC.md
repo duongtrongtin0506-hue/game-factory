@@ -28,6 +28,9 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 
 ## 3. Game đang sống / gần lên sóng
 
+- [ ] [máy 2] itch.io One Line Fill: sau lần `daily` đầu tiên đẩy được tệp (xem `TRANG-THAI.md` dòng itch.io), mở https://itch.io/dashboard → Edit game → tích "This file will be played in the browser", đặt khung 960x600 + nút fullscreen + Mobile friendly, tải ảnh bìa `assets-goc/one-line/cover-800x470.png` (nút Upload Cover Image tạo ô tệp động, có thể phải chặn hộp chọn tệp như CrazyGames), rồi chuyển Public. Nếu butler báo "invalid game" thì kiểm tra `ITCH_USER` có đúng `trong-tin`. Làm tương tự cho Sprout Merge (tạo trang `sprout-merge`, điền `itch` trong `specs/merge-harvest.json`).
+- [ ] Tra TikTok Mini Games (chủ hỏi 13/10): có nhận nhà phát triển cá nhân/HTML5 không, qua đối tác nào; ghi vào `CONG.md`. Poki: vẫn KHÔNG nộp (độc quyền web), trừ khi chủ đổi ý.
+
 - [ ] Mỗi lượt trên máy: mở https://developer.crazygames.com/games xem kết quả duyệt One Line Fill và Sprout Merge (nộp 13/10); ghi vào `THEO-DOI.md`; bị từ chối thì chép nguyên văn lý do.
 - [ ] Ảnh bìa dọc/vuông của Car Jam, Boba Sort, Tile Trio, Tap Arcade: đưa tên game ra khỏi góc trên bên trái (cổng phủ nhãn, số đo ở `CONG.md`), như đã làm với One Line Fill và Sprout Merge.
 - [ ] Sprout Merge không hiện tên game ở đâu trong game (CrazyGames yêu cầu tên nộp trùng tên trong game): thêm tên nhỏ ở màn chính.
