@@ -36,3 +36,4 @@
 - 13/10 23:10 🎮 Xong trang nháp itch.io cho One Line Fill (daily sẽ đẩy tệp); chủ chốt không dùng ngân sách · Gói chờ nộp 1 (Sprout Merge → Playgama, itch.io) · Việc còn 21 · 📌 chờ chủ đăng nhập GameDistribution
 - 13/10 23:20 🎮 Xong GameDistribution: tạo One Line Fill, tải bản dựng, cổng xác nhận SDK quảng cáo · dừng vì hết hạn mức phiên, còn ảnh + Request Activation (xem VIEC_DANG_DO.txt) · Việc còn 22
 - 14/10 02:40 🎮 Xong gửi duyệt One Line Fill lên GameDistribution (In Review; SDK quảng cáo được cổng xác nhận) · Gói chờ nộp 2 (Sprout Merge → Playgama, GameDistribution) · Việc còn 21
+- 14/10 02:50 🎮 Xong gửi duyệt Sprout Merge lên GameDistribution (In Review) · Gói chờ nộp 1 (Sprout Merge → Playgama) · Việc còn 20

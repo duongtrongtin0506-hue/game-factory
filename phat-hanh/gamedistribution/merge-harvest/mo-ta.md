@@ -3,7 +3,6 @@
 - Submit page: https://developer.gamedistribution.com/
 - Game file: `phat-hanh/gamedistribution/merge-harvest/merge-harvest.zip` (index.html at the root)
 - Covers / video: `assets-goc/merge-harvest/cover-512x512.jpg`, `assets-goc/merge-harvest/cover-512x384.jpg`, `assets-goc/merge-harvest/cover-1920x1080.png`
-- BLOCKED: portal_ids.gamedistribution is empty in specs/merge-harvest.json
 - Note: Can tai khoan da kich hoat va gameId (portal_ids.gamedistribution). Co anh cong yeu cau: chua xac minh, xem CONG.md.
 
 Title: Sprout Merge
