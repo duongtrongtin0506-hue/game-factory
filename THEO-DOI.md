@@ -40,7 +40,7 @@ Tải đo trên bản không quảng cáo, giả lập máy yếu (CPU chậm 4 
 | Tile Trio (giao diện mới) | từ chối 11/10 · gói bản mới | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
 | One Line Fill (giao diện mới) | NỘP 13/10, chờ duyệt (https://developer.crazygames.com/games/32ccf42a-82c6-4ee2-8076-a8d117e15517) | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
 | Tap Arcade (giao diện mới) | từ chối 11/10 · gói bản mới | bản 5 trò nộp 09/10 → BỊ TỪ CHỐI (xem 13/10) | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
-| Sprout Merge (thư mục `merge-harvest`, game đủ 13/10) | gói, chưa nộp | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
+| Sprout Merge (thư mục `merge-harvest`, game đủ 13/10) | NỘP 13/10, chờ duyệt (https://developer.crazygames.com/games/e3b81012-d6c3-49e0-89e7-905c9b3e8da7) | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
 
 Lượt chơi, doanh thu: chưa có, chưa game nào lên sóng.
 
@@ -54,7 +54,8 @@ Lượt chơi, doanh thu: chưa có, chưa game nào lên sóng.
 | Car Jam Escape | CrazyGames | 2026-10-11 | BỊ TỪ CHỐI 2026-10-11 | Có |
 | Tile Trio | CrazyGames | 2026-10-11 | BỊ TỪ CHỐI 2026-10-11 | Có |
 | One Line Fill | CrazyGames | 2026-10-13 | Chờ duyệt (Awaiting review) | Có, QA của cổng nhận Gameplay Start + Data |
-| (tài khoản) | GameDistribution | 2026-10-09 | Đã gửi đăng ký, chờ thư | Chưa viết |
+| Sprout Merge | CrazyGames | 2026-10-13 | Chờ duyệt (Awaiting review) | Có, QA của cổng nhận Gameplay Start + Data (Get/Set Item) |
+| (tài khoản) | GameDistribution | 2026-10-09 | Đã gửi đăng ký; 13/10 tìm Gmail chưa có thư nào từ GameDistribution/Azerion (chưa xem mục Spam) | Có trong `web/ads.js`, chưa thử thật |
 
 Ghi chú:
 - Bốn game còn lại chưa lên GameMonetize: mỗi game cần một GameId riêng (hằng `GAME_ID` đang để trống).

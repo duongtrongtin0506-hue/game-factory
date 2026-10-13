@@ -5,12 +5,14 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 ## 1. Lỗi làm game hỏng / không đăng được
 
 - [ ] Xem `TRANG-THAI.md` + lần chạy `daily`, `weekly-selftest`, `bao-discord` gần nhất; 🔴 thì sửa theo bước lỗi (việc thường trực, mỗi lượt).
-- [ ] `tools/test_ads.js` chỉ thử SDK giả: viết trang thử nạp SDK thật của từng cổng ở chế độ thử (CrazyGames có `?useLocalSdk=true`; GameDistribution có gameId thử) và ghi kết quả vào `CONG.md`.
+- [x] 13/10 CrazyGames: SDK thật đã chạy trong công cụ QA của cổng với One Line Fill và Sprout Merge (init, Gameplay Start, Data Get/Set Item); quảng cáo chưa thử được vì Basic Launch tắt quảng cáo.
+- [ ] GameDistribution, Playgama: thử SDK thật khi có tài khoản (GameDistribution có gameId thử) và ghi kết quả vào `CONG.md`.
+- [ ] Firefox của Playwright không khởi động trên máy này ("spawn UNKNOWN"): tìm nguyên nhân hoặc chạy `python tools/smoke_test.py firefox` trên Actions.
 
 ## 2. Game bị cổng từ chối
 
-- [ ] [nặng] Nâng chất lượng Boba Sort lên mức Car Jam bản 2 (cảnh nền theo chặng, hiệu ứng rót, nhạc, xu + sưu tầm cốc, phím tắt, hướng dẫn không chữ) rồi đưa vào CẦN NỘP cho CrazyGames (bài nộp mới) và các cổng khác.
-- [ ] [nặng] Tương tự cho Tile Trio (kèm hạ độ khó 60 màn cuối: trung bình `hard` ~65 xuống ~45, xen màn dễ).
+- [ ] [nặng] (đổi tên thành Pearl Cup Sort khi làm, theo các bước cuối bảng `ASSETS.md`) Nâng chất lượng Boba Sort lên mức Car Jam bản 2 (cảnh nền theo chặng, hiệu ứng rót, nhạc, xu + sưu tầm cốc, phím tắt, hướng dẫn không chữ) rồi đưa vào CẦN NỘP cho CrazyGames (bài nộp mới) và các cổng khác.
+- [ ] [nặng] Tương tự cho Tile Trio (đổi tên thành Three of a Tile; kèm hạ độ khó 60 màn cuối: trung bình `hard` ~65 xuống ~45, xen màn dễ).
 - [ ] [nặng] Tương tự cho Tap Arcade bản Journey.
 - [x] 13/10 One Line Fill: giao diện mới, ảnh bìa mọi cỡ và 2 video đã có (`assets-goc/one-line`). Còn: nhạc nền.
 - [x] 13/10 Gói của cả 5 game cho CrazyGames, GameMonetize, GameDistribution đã có và đã ghi vào CẦN NỘP ở đầu `HUONG-DAN-CHU.md`.
@@ -26,10 +28,15 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 
 ## 3. Game đang sống / gần lên sóng
 
+- [ ] Mỗi lượt trên máy: mở https://developer.crazygames.com/games xem kết quả duyệt One Line Fill và Sprout Merge (nộp 13/10); ghi vào `THEO-DOI.md`; bị từ chối thì chép nguyên văn lý do.
+- [ ] Ảnh bìa dọc/vuông của Car Jam, Boba Sort, Tile Trio, Tap Arcade: đưa tên game ra khỏi góc trên bên trái (cổng phủ nhãn, số đo ở `CONG.md`), như đã làm với One Line Fill và Sprout Merge.
+- [ ] Sprout Merge không hiện tên game ở đâu trong game (CrazyGames yêu cầu tên nộp trùng tên trong game): thêm tên nhỏ ở màn chính.
+
 - [x] 13/10 Car Jam: thêm 2 cảnh (DESERT ROAD, SUNSET HILLS), cảnh lặp lại khi hết, chữ thắng tính theo số màn, 120 màn, vào `TAKE_GAMES`; `run_daily --no-publish` đạt.
 - [x] 13/10 `tools/carjam.py harden`: leo đồi đổi màn dễ trong hàng dự trữ thành màn ≥ 16 bước; nửa hàng dự trữ (20/40) đã là màn 16–23 bước; `run_daily` chạy thêm 40 giây mỗi ngày. Màn 101–120 đã vào game giữ nguyên (8–21 bước).
 - [x] 13/10 Car Jam có thử thách ngày: 1 màn/ngày theo ngày (màn 21 trở đi), chuỗi ngày liên tiếp, thưởng 25–55 xu một lần/ngày, nút ở menu, `?daily=1` để thử.
 - [x] 13/10 Thử thách ngày đã có ở Boba Sort, Tile Trio, One Line Fill (nút ở menu, chuỗi ngày, `?daily=1`).
+- [ ] Car Jam: đổi tên thành Red Car Out (các bước cuối bảng `ASSETS.md`) rồi tự nộp bài mới lên CrazyGames sau khi One Line Fill có kết quả.
 - [ ] Car Jam: chọn mức khó + chướng ngại (ô khóa) theo `NGHIEN-CUU.md` mục game cùng thể loại. [nặng]
 
 ## 4. Game mới từ `Y-TUONG.md`

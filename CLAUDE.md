@@ -13,6 +13,7 @@ Trả lời tiếng Việt, ngắn gọn, tự làm; chỉ hỏi khi cần tài 
 - **Làm liên tục (chủ dặn 13/10): mỗi lượt làm hết việc này sang việc kế trong `VIEC.md`, KHÔNG dừng để chờ chủ gõ "làm tiếp". Chỉ dừng khi: (a) bí thật sự và cần chủ điền tài khoản, mật khẩu, khóa hoặc quyết định tiền; (b) mọi việc còn lại đều chờ chủ (ghi ở đầu `HUONG-DAN-CHU.md`). Việc bị chặn thì bỏ qua, làm việc khác trước, không đứng chờ.**
 - Lệnh viết kiểu PowerShell: nối bằng `;`, không dùng `&&`.
 - Thiếu tài khoản / trang nền tảng (itch.io…): bỏ qua, ghi ⚪, không báo 🔴.
+- **Toàn quyền (chủ dặn 13/10 tối): việc tồn đọng của chủ (nộp cổng, xem kết quả duyệt, chọn tên, cài đặt trên GitHub…) thì khung chat trên máy tự làm thay bằng Chrome đang đăng nhập của chủ, không hỏi lại; chỉ hỏi khi đụng tiền/thanh toán. Máy không tự gõ mật khẩu, không tự tạo tài khoản mới, không vượt CAPTCHA hay bước xác minh danh tính: gặp thì ghi 1 dòng vào `HUONG-DAN-CHU.md` rồi làm việc khác.**
 - Việc chỉ chủ làm được: gom vào `HUONG-DAN-CHU.md`, nhắc 1 lần/ngày trong Discord #game, không chờ chủ.
 - Trả lời chủ 1 dòng.
 - Vẫn phải hỏi: tài khoản, mật khẩu, tiền.
@@ -27,12 +28,12 @@ Trên đám mây (routine, Linux): dùng bash; `pip install -r tools/requirement
 
 | Tên | Thư mục | Số màn | Cổng đã nộp | Ngày nộp | Trạng thái duyệt |
 |---|---|---|---|---|---|
-| Tap Arcade | `web/tap-arcade` | 45 (Journey) | GameMonetize (bản 5 trò) · CrazyGames | 09/10 · 11/10 | chờ duyệt (xem lần cuối 09/10) · bị từ chối 11/10 |
+| Tap Arcade | `web/tap-arcade` | 45 (Journey) | GameMonetize (bản 5 trò) · CrazyGames | 09/10 · 11/10 | bị từ chối (xem 13/10) · bị từ chối 11/10 |
 | Boba Sort | `web/boba-sort` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
 | Car Jam Escape | `web/car-jam` | 120 (+40 dự trữ) | CrazyGames (bản 1) | 11/10 | bị từ chối 11/10; bản giao diện mới có gói, chờ chủ nộp |
 | Tile Trio | `web/tile-trio` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
-| One Line Fill | `web/one-line` | 120 | chưa nộp | - | có gói + ảnh bìa, video; chờ chủ nộp |
-| Sprout Merge (thư mục và khóa lưu vẫn là `merge-harvest`) | `web/merge-harvest` | vô tận (gộp + idle, 10 bậc, mùa) | chưa nộp | - | game đủ 13/10, có gói + ảnh bìa, video; đổi tên 13/10 vì "Merge Harvest" trùng game có thật; mẫu tham chiếu ngôn ngữ thiết kế |
+| One Line Fill | `web/one-line` | 120 | CrazyGames | 13/10 | chờ duyệt (máy tự nộp) |
+| Sprout Merge (thư mục và khóa lưu vẫn là `merge-harvest`) | `web/merge-harvest` | vô tận (gộp + idle, 10 bậc, mùa) | CrazyGames | 13/10 | chờ duyệt (máy tự nộp); đổi tên 13/10 vì "Merge Harvest" trùng game có thật; mẫu tham chiếu ngôn ngữ thiết kế |
 
 GameDistribution: đăng ký tài khoản 09/10, chờ thư. itch.io: có khóa, chưa có trang game. Chi tiết: `THEO-DOI.md`.
 
@@ -51,7 +52,8 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 ## Chờ chủ (xem đầu `HUONG-DAN-CHU.md`)
 
 - Cài Claude GitHub App cho kho game-factory (routine đám mây chưa tạo được: lỗi repo_access_denied; tạo lại bằng skill schedule, cron `0 1,7,13 * * *`, Sonnet).
-- Nộp Car Jam + One Line Fill lên CrazyGames; lấy GameId GameMonetize cho 4 game; xem kết quả duyệt Tap Arcade; thư kích hoạt GameDistribution.
+- GitHub App: trang cài đặt đòi xác minh qua email (máy không tự làm được). GameDistribution: chưa có thư (13/10). Playgama: chủ tạo tài khoản.
+- GameMonetize tạm dừng (từ chối Tap Arcade 13/10, cổng không nhận game làm bằng AI). CrazyGames: máy tự nộp, cách làm ở `CONG.md`.
 
 ## Sơ đồ
 
@@ -103,3 +105,6 @@ Chạy thử trên máy: launch config `game-web` (`.claude/launch.json`), cổn
 - 2026-10-13 – Chủ dặn: khung chat chủ động làm liên tục hàng việc, không dừng chờ câu "làm tiếp"; chỉ hỏi khi cần tài khoản, mật khẩu, tiền – chủ không muốn phải nhắc.
 - 2026-10-13 – Chủ chọn ngôn ngữ thiết kế xuyên suốt (`THIET-KE.md`): nền giấy ấm/đêm, card trắng bo 16, nút pill, 1 màu nhấn, headline serif mảnh – game cũ bị chê chất lượng chung; game mới theo từ đầu, game cũ đổi dần.
 - 2026-10-13 – Chuyển sang KE-HOACH-V3: bỏ chia giai đoạn và các mốc chờ ngày, làm theo hàng việc VIEC.md; cho làm game mới song song (mục tiêu 2 game/tuần) và nộp nhiều cổng; routine đám mây 3 lượt/ngày – chủ dự án yêu cầu, để không phụ thuộc 1 cổng hay 1 game.
+- 2026-10-13 – Chủ giao toàn quyền cho lượt chạy: máy tự làm cả việc tồn đọng của chủ, chỉ hỏi khi đụng tiền – chủ không muốn phải bấm tay hay trả lời.
+- 2026-10-13 – Tạm dừng GameMonetize, không lấy GameId cho game khác – cổng từ chối Tap Arcade vì chất lượng, ghi rõ không nhận game làm bằng AI và dọa khóa tài khoản nếu nộp lặp lại; mở lại khi có game được cổng khác duyệt.
+- 2026-10-13 – Đổi tên 3 game trùng tên theo đề xuất (Three of a Tile, Pearl Cup Sort, Red Car Out), đổi ngay trước lần nộp mới của từng game – CrazyGames đòi tên và nội dung nguyên bản; chủ giao máy quyết.

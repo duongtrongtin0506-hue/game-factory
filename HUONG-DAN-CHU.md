@@ -7,17 +7,17 @@ Mỗi việc 1 dòng có link; xong thì nhắn Claude câu in đậm (hoặc nh
 Từ 13/10 khung chat trên máy tự nộp CrazyGames bằng Chrome đang đăng nhập của chủ (cách làm ở `CONG.md`). Chủ không phải bấm gì ở mục này; chỉ cần giữ Chrome đăng nhập CrazyGames.
 
 - [x] 13/10 One Line Fill → CrazyGames: đã nộp, chờ duyệt.
-- [ ] (máy tự làm) Sprout Merge → CrazyGames.
+- [x] 13/10 Sprout Merge → CrazyGames: đã nộp, chờ duyệt.
 - [ ] (máy tự làm, sau khi One Line Fill có kết quả) Car Jam Escape, Boba Sort, Tile Trio, Tap Arcade → CrazyGames, bài nộp mới.
 - [x] 13/10 Đã xem GameMonetize: Tap Arcade bản 5 trò BỊ TỪ CHỐI (không đạt chuẩn chất lượng; cổng không nhận game làm bằng AI, nộp lặp lại có thể khóa tài khoản). Máy tạm dừng cổng này, không lấy GameId cho các game khác. Muốn nộp tiếp thì nhắn: **nộp tiếp gamemonetize**.
 
-## CẦN CHỌN (không chặn máy; chưa chọn thì máy giữ tên cũ)
+## CẦN CHỌN
 
-- [ ] Tên game trùng game có thật (bảng ở `ASSETS.md`): Tile Trio trùng chính xác một app cùng thể loại; Boba Sort trùng một game itch.io và gần giống 2 app; Car Jam Escape trùng một trang web game. Tên thay thế đề xuất (mỗi tên đã tìm 0 lượt, máy sẽ tra trước khi đổi): Tile Trio → **Three of a Tile**; Boba Sort → **Pearl Cup Sort**; Car Jam Escape → **Red Car Out**. Nhắn: **đổi tên <tên cũ> thành <tên mới>** hoặc **giữ tên**. Nên chọn trước khi nộp 3 game này.
+- [x] 13/10 Tên game trùng: chủ giao toàn quyền nên máy đã chọn theo đề xuất: Tile Trio → **Three of a Tile**, Boba Sort → **Pearl Cup Sort**, Car Jam Escape → **Red Car Out**. Máy đổi tên từng game ngay trước khi nộp bài mới của game đó (tra trùng lại lúc đổi). Muốn giữ tên cũ thì nhắn: **giữ tên <tên game>**.
 
 ## CẦN TẠO TÀI KHOẢN
 
-- [ ] GameDistribution: tìm thư kích hoạt (đăng ký 09/10) trong Gmail, từ GameDistribution hoặc Azerion. Nhắn: **có thư gamedistribution**.
+- [ ] GameDistribution: 13/10 máy đã tìm trong Gmail, chưa có thư nào từ GameDistribution hoặc Azerion (mục Spam chưa xem). Nếu chủ nhớ đã đăng ký xong thì xem Spam; chưa thì đăng ký lại ở https://developer.gamedistribution.com/ (máy không được tự tạo tài khoản). Nhắn: **có thư gamedistribution**.
 - [ ] Cài Claude GitHub App cho kho game-factory (để routine đám mây đẩy mã được). 13/10 máy đã thử làm thay: GitHub dừng ở trang "Confirm access" đòi xác minh danh tính qua email (mã gửi về hộp thư), bước này máy không được tự làm. Chủ mở https://github.com/settings/installations/167740239 → **Verify via email** → nhập mã → **Only select repositories** → thêm `game-factory` → **Save**. Nhắn: **xong github app**.
 - [ ] Playgama (một lần nộp ra nhiều cổng đối tác, 6 gói đã sẵn): tạo tài khoản nhà phát triển tại https://developer.playgama.com/ → nhắn **xong tài khoản playgama** → máy chỉ từng bước Add Game / Test Game / Submit với `phat-hanh\playgama\<game>\<game>.zip`.
 - [ ] Cổng khác (Yandex Games, GamePix…): chưa cần, xem `CONG.md`.

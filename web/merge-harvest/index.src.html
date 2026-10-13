@@ -384,10 +384,10 @@ function draw() {
   }
 }
 
-// Local cover renderer (?demo=cover&w=&h=): one big basket, the smaller items around it, the title on top.
+// Local cover renderer (?demo=cover&w=&h=): one big basket, the smaller items around it, the title beside or below it.
 async function post(name, blob) { await fetch('/frame?v=' + DEMO + (name === 'cover' || name === 'coverdone' ? '-' + W + 'x' + H : '') + '&n=' + (name === 'coverdone' ? 'done' : name) + (name === 'cover' ? '&ext=png' : ''), { method: 'POST', body: blob }); }
 async function coverShot() {
-  const m = Math.min(W, H), wide = W > H * 1.2, cx = wide ? W * 0.68 : W / 2, cy = wide ? H * 0.52 : H * 0.6, R = m * (wide ? 0.34 : 0.3);
+  const m = Math.min(W, H), wide = W > H * 1.2, cx = wide ? W * 0.68 : W / 2, cy = wide ? H * 0.52 : H * 0.42, R = m * (wide ? 0.34 : 0.3);
   g.setTransform(1, 0, 0, 1, 0, 0); g.fillStyle = C.page; g.fillRect(0, 0, W, H);
   g.save(); g.shadowColor = 'rgba(0,0,0,.06)'; g.shadowBlur = m * 0.06; g.shadowOffsetY = m * 0.01;
   g.fillStyle = C.card; rr(cx - R, cy - R, R * 2, R * 2, R * 0.16); g.fill(); g.restore();
@@ -395,7 +395,7 @@ async function coverShot() {
   [[1, -0.72, -0.7], [2, 0.72, -0.72], [4, -0.74, 0.7], [6, 0.74, 0.7], [5, 0, -0.78]].forEach(q => item(q[0], cx + q[1] * R, cy + q[2] * R, R * 0.13));
   const size = wide ? Math.min(W * 0.075, H * 0.2) : Math.min(W * 0.13, H * 0.1);
   if (wide) { text('Sprout', W * 0.2, H * 0.42, size, C.text, 'center', F.head); text('Merge', W * 0.2, H * 0.42 + size * 0.95, size, C.text, 'center', F.head); }
-  else text('Sprout Merge', W / 2, H * 0.14, size, C.text, 'center', F.head);
+  else text('Sprout Merge', W / 2, H * 0.86, size, C.text, 'center', F.head);   // below the art: portals cover the top-left corner with a label
   await post('cover', await new Promise(r => cv.toBlob(r, 'image/png')));
   await post('coverdone', 'x');
 }
