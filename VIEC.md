@@ -27,7 +27,7 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 ## 3. Game đang sống / gần lên sóng
 
 - [x] 13/10 Car Jam: thêm 2 cảnh (DESERT ROAD, SUNSET HILLS), cảnh lặp lại khi hết, chữ thắng tính theo số màn, 120 màn, vào `TAKE_GAMES`; `run_daily --no-publish` đạt.
-- [ ] Car Jam: màn 101–120 chỉ 8–21 bước, dễ hơn màn 91–100 (18–31 bước). Sửa `tools/carjam.py fill` để hàng dự trữ có màn ≥ 20 bước (tăng thời gian tìm, giữ lại bàn nhiều bước nhất) trước lần thêm màn thứ hai 19/10.
+- [x] 13/10 `tools/carjam.py harden`: leo đồi đổi màn dễ trong hàng dự trữ thành màn ≥ 16 bước; nửa hàng dự trữ (20/40) đã là màn 16–23 bước; `run_daily` chạy thêm 40 giây mỗi ngày. Màn 101–120 đã vào game giữ nguyên (8–21 bước).
 - [ ] Thử thách ngày (1 màn/ngày theo hạt giống ngày, chuỗi ngày liên tiếp, lưu `localStorage`) cho Car Jam; đạt thì chép sang Boba Sort, Tile Trio, One Line Fill.
 - [ ] Car Jam: chọn mức khó + chướng ngại (ô khóa) theo `NGHIEN-CUU.md` mục game cùng thể loại. [nặng]
 

@@ -66,6 +66,8 @@ def step_fill():
     for name, tool in (("Car Jam", carjam), ("Boba Sort", bobasort), ("Tile Trio", tiletrio), ("One Line Fill", oneline)):
         if len(tool.load(tool.QUEUE)) < tool.QUEUE_TARGET:
             tool.fill(90)
+        if tool is carjam:   # moi ngay doi vai man de thanh man kho, den khi nua hang du tru tu HARD_MOVES buoc
+            carjam.harden(40)
         left = len(tool.load(tool.QUEUE))
         if left < tool.QUEUE_MIN:
             raise RuntimeError(f"hang du tru {name} chi con {left} man (can {tool.QUEUE_MIN})")

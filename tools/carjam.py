@@ -18,6 +18,7 @@ N, EXIT_ROW = 6, 2
 QUEUE_MIN, QUEUE_TARGET = 30, 40
 MIN_MOVES, PER_MOVES = 8, 6   # man moi phai can it nhat 8 buoc; moi muc do kho giu toi da 6 man de hang du tru khong toan man de
 STATE_CAP = 60000
+HARD_MOVES = 16   # man "kho": tu 16 buoc; harden() giu cho it nhat nua hang du tru la man kho de the gioi moi khong de hon the gioi truoc
 
 
 def load(path):
@@ -153,6 +154,60 @@ def fill(seconds=60, rnd=None):
     return added, tried
 
 
+def mutate(board, rnd):
+    """Doi cho, them hoac bot mot xe (khong dung xe A). -> ban co moi, co the khong hop le."""
+    cars = parse(board)
+    if not cars:
+        return board
+    cars = list(cars)
+    kind = rnd.random()
+    if kind < 0.3 and len(cars) > 5:
+        cars.pop(rnd.randrange(1, len(cars)))
+    else:
+        if kind > 0.7 or len(cars) < 6:
+            cars.append(None)
+        i = len(cars) - 1 if cars[-1] is None else rnd.randrange(1, len(cars))
+        horiz, row = rnd.random() < 0.5, rnd.randrange(N)
+        if horiz and row == EXIT_ROW:
+            row = (row + 1 + rnd.randrange(N - 1)) % N
+        cars[i] = (row, rnd.randrange(N), 2 if rnd.random() < 0.7 else 3, horiz)
+    grid = ["."] * (N * N)
+    for n, (row, col, ln, horiz) in enumerate(cars):
+        for k in range(ln):
+            r, c = (row, col + k) if horiz else (row + k, col)
+            if r >= N or c >= N or grid[r * N + c] != ".":
+                return board
+            grid[r * N + c] = chr(65 + n)
+    return "".join(grid)
+
+
+def harden(seconds=60, rnd=None):
+    """Leo doi: lay man de nhat trong hang du tru, doi dan tung xe va chi giu ban co nhieu buoc hon, den khi no thanh man kho
+    (>= HARD_MOVES) roi thay vao cho cu. Dung khi nua hang du tru da kho hoac het gio. -> so man da thay."""
+    rnd = rnd or random.Random()
+    queue = load(QUEUE)
+    known = {r["board"] for r in load(LEVELS)} | {r["board"] for r in queue}
+    deadline, swapped = time.time() + seconds, 0
+    while time.time() < deadline and sum(r["moves"] >= HARD_MOVES for r in queue) < len(queue) // 2:
+        i = rnd.choice([k for k, r in enumerate(queue) if r["moves"] < HARD_MOVES])
+        best, score = queue[i]["board"], (queue[i]["moves"], queue[i]["states"])
+        goal = HARD_MOVES + rnd.randrange(12)   # dung o muc ngau nhien de co ca man rat kho
+        for _ in range(300):
+            if time.time() > deadline or score[0] >= goal:
+                break
+            board = mutate(best, rnd)
+            got = solve(board) if board != best and board not in known else None
+            if got and got >= score:
+                best, score = board, got
+        if score[0] > queue[i]["moves"] and best not in known:   # chua toi muc kho cung giu: lan sau leo tiep tu day
+            known.add(best)
+            swapped += score[0] >= HARD_MOVES
+            queue[i] = {"board": best, "moves": score[0], "states": score[1]}
+    queue.sort(key=lambda r: (r["moves"], r["states"]))
+    save(QUEUE, queue)
+    return swapped
+
+
 def paced(rows):
     """Xep do kho tang dan, cu 4 man kho dan thi chen 1 man de de nguoi choi nghi."""
     rows = sorted(rows, key=lambda r: (r["moves"], r.get("states", 0)))
@@ -184,5 +239,7 @@ if __name__ == "__main__":
     elif cmd == "fill":
         added, tried = fill(float(sys.argv[2]) if len(sys.argv) > 2 else 60)
         print(f"them {added} man (thu {tried} ban co), hang du tru: {len(load(QUEUE))}")
+    elif cmd == "harden":
+        print(f"da thay {harden(float(sys.argv[2]) if len(sys.argv) > 2 else 60)} man de bang man kho; hang du tru: {sorted(r['moves'] for r in load(QUEUE))}")
     elif cmd == "take":
         print(f"da chuyen {len(take(int(sys.argv[2])))} man vao game; nho them canh cho the gioi moi roi build lai")
