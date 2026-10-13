@@ -1,6 +1,7 @@
 # ③ GAME – bộ nhớ
 
 **Kế hoạch hiện hành = KE-HOACH-V3.md. Bỏ mọi 'chờ X ngày' và mọi chia giai đoạn cũ.**
+**Ngôn ngữ thiết kế xuyên suốt = THIET-KE.md (khoảng trắng – nhịp điệu – 1 điểm nhấn). Mọi giao diện mới hay sửa lại đều theo tệp đó, không hỏi lại.**
 
 Phạm vi: chỉ game. Không YouTube, không bot.
 Thư mục dự án: `C:\Users\Administrator\Desktop\GAME\web` (khung chat có thể mở ở thư mục khác; mọi việc game làm ở đây).
@@ -30,6 +31,7 @@ Trên đám mây (routine, Linux): dùng bash; pip install -r tools/requirements
 | Car Jam Escape | `web/car-jam` | 120 (+40 dự trữ) | CrazyGames (bản 1) | 11/10 | bị từ chối 11/10; bản 2 chưa nộp, chờ chủ chơi thử |
 | Tile Trio | `web/tile-trio` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
 | One Line Fill | `web/one-line` | 120 | chưa nộp | - | chưa có ảnh bìa, video |
+| Merge Harvest | `web/merge-harvest` | vô tận (gộp + idle, 10 bậc) | chưa nộp | - | bản thử 13/10 đạt, đang làm game đủ; mẫu tham chiếu ngôn ngữ thiết kế |
 
 GameDistribution: đăng ký tài khoản 09/10, chờ thư. itch.io: có khóa, chưa có trang game. Chi tiết: `THEO-DOI.md`.
 
@@ -62,6 +64,7 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 | `tools/tiletrio.py` | Bộ giải duyệt theo chiều sâu, bộ sinh màn theo hạt giống (bản chép `makeLevel` cũ của game), hàng dự trữ (cùng lệnh). Độ khó `hard` 0–100 = tỉ lệ thua của người chơi chỉ nhìn trước mắt; 60 màn cuối đang ở mức 30–100, trung bình ~65 (khó, cân nhắc khi nâng chất lượng) |
 | `tools/oneline.py` | Bộ giải duyệt theo chiều sâu (không nhìn đường đi mẫu), bộ sinh màn theo hạt giống (bản chép `makeLevel` cũ), hàng dự trữ (cùng lệnh). `hard` 0–100 = tỉ lệ thua của người chơi luôn đi sang ô ít lối ra nhất; trùng màn xét theo hình bàn + ô xuất phát |
 | `web/ads.js` | Lớp quảng cáo chung: `showAd('midgame'/'rewarded', done)`, `gameplay(on)`, `happy()`, biến `adPlaying`; game có thể khai `onPortalReady()` |
+| `THIET-KE.md`, `thiet-ke/` | Ngôn ngữ thiết kế (token màu, bo góc, font, luật) và bản gốc chủ gửi |
 | `tools/build.py` | Ghép `/*LEVELS*/` + `/*ADS*/` rồi đóng gói `dist/<game>/<cổng>/` + zip (cổng: gamemonetize, crazygames, gamedistribution, none); mã game ở từng cổng lấy từ `specs/<game>.json` mục `portal_ids` |
 | `tools/test_ads.js` | Thử `web/ads.js` với SDK giả của từng cổng (`node tools/test_ads.js`); `run_daily` chạy trước kiểm thử trình duyệt |
 | `tools/smoke_test.py` | Playwright cỡ điện thoại dọc + ngang + máy tính, bắt lỗi console, đo thời gian tải trên máy yếu mạng chậm (giới hạn 5 giây), gọi `?selftest=1` của từng game |
@@ -93,4 +96,5 @@ Chạy thử trên máy: launch config `game-web` (`.claude/launch.json`), cổn
 - 2026-10-11 – Màn mới sinh bằng thuật toán + bộ giải, không dùng Gemini – không cần khóa, không hết lượt, chắc chắn giải được.
 - 2026-10-12 – Dọn giai đoạn 0 chỉ áp dụng cho thư mục game; không xóa CLAUDE.md và không dời tệp trong `Videos\noi-dung-video` – thư mục đó là dự án khác đang chạy theo lịch, dời tệp sẽ làm hỏng nó.
 - 2026-10-12 – Màn mới vào game mỗi thứ hai, 20 màn/game (không phải mỗi ngày); cổng web vẫn gom theo tháng – trang chọn màn chia 20 ô nên phải thêm trọn trang; 20 màn/ngày thì tệp game phình nhanh mà chưa có người chơi.
+- 2026-10-13 – Chủ chọn ngôn ngữ thiết kế xuyên suốt (`THIET-KE.md`): nền giấy ấm/đêm, card trắng bo 16, nút pill, 1 màu nhấn, headline serif mảnh – game cũ bị chê chất lượng chung; game mới theo từ đầu, game cũ đổi dần.
 - 2026-10-13 – Chuyển sang KE-HOACH-V3: bỏ chia giai đoạn và các mốc chờ ngày, làm theo hàng việc VIEC.md; cho làm game mới song song (mục tiêu 2 game/tuần) và nộp nhiều cổng; routine đám mây 3 lượt/ngày – chủ dự án yêu cầu, để không phụ thuộc 1 cổng hay 1 game.

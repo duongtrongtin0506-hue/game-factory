@@ -1,0 +1,28 @@
+{
+  "name": "Merge Harvest",
+  "genre": "merge idle",
+  "levels": null,
+  "solver": "bot trong game (?selftest=1): 500 nuoc khong ket",
+  "rules": {
+    "grid": "5x6",
+    "tiers": 10,
+    "move": "drag an item onto the same item to merge; drag to the order card to deliver; drag to Sell to clear",
+    "income": "items of tier 2+ earn coins every second; half rate while away, capped at 2 hours"
+  },
+  "web": "web/merge-harvest/index.html",
+  "itch": null,
+  "roblox": null,
+  "status": "ban thu 13/10/2026",
+  "safety": {
+    "gambling": false,
+    "paid_random_items": false,
+    "external_links": false,
+    "personal_data": false,
+    "sell": ["seed refill", "double away coins"],
+    "never_sell": "anything required to progress"
+  },
+  "portal_ids": {
+    "gamemonetize": "",
+    "gamedistribution": ""
+  }
+}

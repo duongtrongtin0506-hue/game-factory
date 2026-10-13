@@ -22,6 +22,7 @@ CASES = {
     "car-jam": ["?level=1", "?level=LAST&win=1", "?screen=levels"],
     "tile-trio": ["?level=1", "?level=LAST&end=win"],
     "one-line": ["?level=1", "?level=LAST&win=1"],
+    "merge-harvest": ["?fresh=1"],   # tro vo tan, khong co man: ?selftest=1 cho bot tu choi 500 nuoc
 }
 LOAD_LIMIT = 5.0
 SIZES = ((390, 844, True), (844, 390, True), (1280, 720, False))   # rong, cao, la dien thoai
@@ -45,7 +46,7 @@ def run():
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(ROOT / "dist")))
     threading.Thread(target=server.serve_forever, daemon=True).start()
     base = f"http://127.0.0.1:{server.server_address[1]}"
-    counts = {g: len(json.loads((ROOT / "levels" / f"{g}.json").read_text(encoding="utf-8"))) for g in CASES}
+    counts = {g: len(json.loads(f.read_text(encoding="utf-8"))) if (f := ROOT / "levels" / f"{g}.json").exists() else 0 for g in CASES}
     results, failed = [], False
     with sync_playwright() as p:
         browser = p.chromium.launch()

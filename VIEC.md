@@ -15,6 +15,8 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [ ] One Line Fill: nâng chất lượng tối thiểu (hiệu ứng, nhạc, sao) + tạo ảnh bìa các cỡ và 2 video xem trước bằng `?demo=` như Car Jam. [máy 2] cho phần quay video.
 - [ ] Nộp các game đã bị CrazyGames từ chối sang cổng khác đã có gói (xem nhóm 5), không chờ nâng chất lượng: ghi vào CẦN NỘP.
 
+- [ ] Đổi giao diện game cũ sang `THIET-KE.md` (chỉ menu, chọn màn, màn thắng/thua, nút, chữ; không đụng luật chơi, bộ giải, quảng cáo), mỗi game một việc, theo thứ tự: Car Jam → Boba Sort → Tile Trio → One Line Fill → Tap Arcade. Dùng lại `C`, `F`, `card`, `pill`, `label` của `web/merge-harvest/index.src.html`. Xong game nào thì chụp lại ảnh bìa game đó. [nặng]
+
 ## 3. Game đang sống / gần lên sóng
 
 - [x] 13/10 Car Jam: thêm 2 cảnh (DESERT ROAD, SUNSET HILLS), cảnh lặp lại khi hết, chữ thắng tính theo số màn, 120 màn, vào `TAKE_GAMES`; `run_daily --no-publish` đạt.
@@ -24,7 +26,9 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 
 ## 4. Game mới từ `Y-TUONG.md`
 
-- [ ] [nặng] Bản thử 1 ngày "Merge Harvest Idle" ở `web/merge-harvest/` (lưới gộp, đơn hàng, xu vắng mặt, `?selftest=1`, bot tự chơi 500 nước không kẹt); thêm vào `tools/smoke_test.py`. Đạt chuẩn mục 3 → thêm việc làm game đủ; không đạt → ghi ❌ + lý do vào `Y-TUONG.md`.
+- [x] 13/10 Bản thử "Merge Harvest" ở `web/merge-harvest/` theo `THIET-KE.md`: lưới 5x6, 10 bậc, đơn hàng, xu theo giây + xu vắng mặt, nâng cấp hạt, bán, lưu tiến trình, tắt tiếng, quảng cáo thưởng (nạp hạt, nhân đôi xu vắng mặt), bot `?selftest=1`; đã vào `build.py` + `smoke_test.py`. ĐẠT.
+- [ ] Merge Harvest thành game đủ: (a) thử thách ngày + chuỗi ngày; (b) sau Golden Tree: "mùa mới" (làm lại, nhận hệ số xu, đổi bảng màu vật theo mùa: thu, đông/Giáng sinh, xuân, hạ); (c) hiệu ứng gộp (vòng sáng mềm, hạt nhỏ) và nhạc nền nhẹ có nút tắt; (d) cân kinh tế bằng bot: tới Golden Tree trong 25–40 phút chơi; (e) tra tên "Merge Harvest" không trùng game có thật, trùng thì đổi; (f) mục `store` trong `specs/merge-harvest.json`. [nặng] cho (b), (d).
+- [ ] Merge Harvest: ảnh bìa các cỡ + 2 video xem trước bằng `?demo=` (theo `THIET-KE.md`: nền giấy ấm, 1 vật lớn ở giữa, tên game serif). [máy 2]
 - [ ] Bản thử ý tưởng kế tiếp theo điểm (Mini Garden Idle hoặc Bolt Jam) sau khi game trên có kết luận. [nặng]
 - [ ] Thứ hai hằng tuần: quét xu hướng → thêm mục tuần vào `XU-HUONG.md`, ≥ 5 ý tưởng mới vào `Y-TUONG.md` (lần tới: 19/10; thử mở thẳng trang New của từng cổng).
 

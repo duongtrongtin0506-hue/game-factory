@@ -10,15 +10,20 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-GAMES = ["tap-arcade", "boba-sort", "car-jam", "tile-trio", "one-line"]
+GAMES = ["tap-arcade", "boba-sort", "car-jam", "tile-trio", "one-line", "merge-harvest"]
 PORTALS = ["gamemonetize", "crazygames", "gamedistribution", "none"]
 PAR = {"car-jam"}   # game can them mang PAR (so buoc it nhat cua tung man)
+NO_LEVELS = {"merge-harvest"}   # tro vo tan: khong co levels/<game>.json, nguon chi can dau /*ADS*/
 
 
 def with_levels(game):
     """-> (nguon da ghep man, so man)."""
-    levels = json.loads((ROOT / "levels" / f"{game}.json").read_text(encoding="utf-8"))
     src = (ROOT / "web" / game / "index.src.html").read_text(encoding="utf-8")
+    if game in NO_LEVELS:
+        if src.count("/*ADS*/") != 1:
+            raise SystemExit(f"Can dung 1 dau /*ADS*/ trong web/{game}/index.src.html")
+        return src, 0
+    levels = json.loads((ROOT / "levels" / f"{game}.json").read_text(encoding="utf-8"))
     for mark in ("/*LEVELS*/", "/*ADS*/"):
         if src.count(mark) != 1:
             raise SystemExit(f"Can dung 1 dau {mark} trong web/{game}/index.src.html")
