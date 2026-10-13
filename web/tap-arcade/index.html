@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Tap Arcade - Mini Games</title>
 <style>
-html,body{margin:0;height:100%;overflow:hidden;background:#16254a;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#0A0A0B;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 canvas{display:block;width:100%;height:100%}
 </style>
 </head>
@@ -119,7 +119,8 @@ const COLORS = [
   { name: 'ORANGE', c: '#ff9a3d' }
 ];
 const MAX_LIVES = 3, SAVE_KEY = 'tapArcade.save.v1';
-const FONT = 'system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+const FONT = 'Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+const nice = s => s.replace(/\B\w/g, c => c.toLowerCase());   // 'POP BALLOONS' -> 'Pop Balloons'
 const TAU = 6.2832;
 
 const cv = document.getElementById('c'), g = cv.getContext('2d');
@@ -202,12 +203,26 @@ for (let i = 0; i < 6; i++) {
 }
 
 // ---- Drawing helpers
-function label(str, x, y, size, color, align, stroke) {
-  g.font = '800 ' + size + 'px ' + FONT;
+// Design language (THIET-KE.md), night variant: near-black page, dark cards, one red accent;
+// serif headline, sans body, mono label. The mini games keep their own object colours.
+const C = { page: '#0A0A0B', card: '#1A1A1A', line: '#2C2C2E', text: '#FFFBF5', soft: '#8B7E6F', accent: '#FF3B30' };
+const HEAD = '"Cormorant Garamond","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif';
+const MONO = 'ui-monospace,Menlo,Consolas,monospace';
+function write(str, x, y, size, color, align, font, weight) {
+  g.font = weight + ' ' + size + 'px ' + font;
   g.textAlign = align || 'center'; g.textBaseline = 'middle';
-  if (stroke) { g.lineWidth = size * 0.16; g.strokeStyle = stroke; g.lineJoin = 'round'; g.strokeText(str, x, y); }
   g.fillStyle = color; g.fillText(str, x, y);
 }
+// Body text. (The mini games still pass an outline colour as a 7th argument; text is flat now.)
+function label(str, x, y, size, color, align) { write(str, x, y, size, color, align, FONT, 600); }
+const head = (str, x, y, size, color, align) => write(str, x, y, size, color || C.text, align, HEAD, 400);
+function tag(str, x, y, size, color, align) {
+  if ('letterSpacing' in g) g.letterSpacing = (size * 0.08) + 'px';
+  write(str.toUpperCase(), x, y, size, color || C.soft, align, MONO, 400);
+  if ('letterSpacing' in g) g.letterSpacing = '0px';
+}
+const hair = () => Math.max(1, u * 0.25);
+function card(x, y, w, h, r) { g.fillStyle = C.card; rrect(x, y, w, h, r); g.fill(); g.lineWidth = hair(); g.strokeStyle = C.line; g.stroke(); }
 function rrect(x, y, w, h, r) {
   g.beginPath();
   g.moveTo(x + r, y);
@@ -239,9 +254,8 @@ function shape(type, x, y, r, color) {
   else heart(x, y + r * 0.1, r * 0.85, color);
 }
 function coin(x, y, r) {
-  g.fillStyle = '#e0a400'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
-  g.fillStyle = '#ffd23d'; g.beginPath(); g.arc(x, y, r * 0.78, 0, TAU); g.fill();
-  g.fillStyle = '#e0a400'; g.fillRect(x - r * 0.12, y - r * 0.45, r * 0.24, r * 0.9);
+  g.fillStyle = C.text; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+  g.fillStyle = C.page; g.fillRect(x - r * 0.12, y - r * 0.45, r * 0.24, r * 0.9);
 }
 function burst(x, y, color, n) {
   for (let i = 0; i < n; i++) {
@@ -252,32 +266,35 @@ function burst(x, y, color, n) {
 function floatText(str, x, y, color) { texts.push({ str, x, y, life: 0.9, color: color || '#fff' }); }
 
 // Immediate-mode button: drawn every frame, hit-tested on the next tap.
-function button(str, cx, cy, w, h, color, dark, action) {
+// The primary button is the one accent on a screen; every other button is a dark pill with a hairline.
+function button(str, cx, cy, w, h, primary, action) {
   btns.push({ x: cx - w / 2, y: cy - h / 2, w, h, action });
-  g.fillStyle = dark; rrect(cx - w / 2, cy - h / 2 + u * 1.1, w, h, h / 2); g.fill();
-  g.fillStyle = color; rrect(cx - w / 2, cy - h / 2, w, h, h / 2); g.fill();
-  label(str, cx, cy, h * 0.42, '#fff');
+  rrect(cx - w / 2, cy - h / 2, w, h, h / 2);
+  if (primary) { g.fillStyle = C.accent; g.fill(); }
+  else { g.fillStyle = C.card; g.fill(); g.lineWidth = hair(); g.strokeStyle = C.line; g.stroke(); }
+  write(str, cx, cy + h * 0.02, h * 0.34, primary ? '#FFFFFF' : C.text, 'center', FONT, 500);
 }
 function roundBtn(str, x, y, action, strike) {
-  const r = u * 5.5;
+  const r = u * 5;
   btns.push({ x: x - r, y: y - r, w: r * 2, h: r * 2, action });
-  g.fillStyle = 'rgba(10,25,60,.5)'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
-  label(str, x, y, u * 6, strike ? 'rgba(255,255,255,.35)' : '#fff');
+  g.fillStyle = C.card; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+  g.lineWidth = hair(); g.strokeStyle = C.line; g.stroke();
+  write(str, x, y - u * 0.3, u * 5, strike ? C.soft : C.text, 'center', FONT, 400);
   if (strike) {
-    g.strokeStyle = '#ff6b78'; g.lineWidth = u * 0.9; g.lineCap = 'round';
+    g.strokeStyle = C.soft; g.lineWidth = u * 0.6; g.lineCap = 'round';
     g.beginPath(); g.moveTo(x - r * 0.55, y + r * 0.55); g.lineTo(x + r * 0.55, y - r * 0.55); g.stroke();
   }
 }
 function pill(str, swatch) {
   const cx = x0 + cw / 2, pw = u * 70, ph = u * 12, px = cx - pw / 2, py = u * 19;
-  g.fillStyle = 'rgba(10,25,60,.55)'; rrect(px, py, pw, ph, ph / 2); g.fill();
+  card(px, py, pw, ph, ph / 2);
   if (swatch) { g.fillStyle = swatch; g.beginPath(); g.ellipse(px + u * 8, py + ph / 2, u * 3.4, u * 4.1, 0, 0, TAU); g.fill(); }
-  label(str, cx + (swatch ? u * 4 : 0), py + ph / 2, u * 5, '#fff');
+  label(str, cx + (swatch ? u * 4 : 0), py + ph / 2, u * 4.6, C.text);
 }
 function timerBar(frac, color) {
   const cx = x0 + cw / 2, w = u * 58, y = u * 32.5;
-  g.fillStyle = 'rgba(255,255,255,.25)'; rrect(cx - w / 2, y, w, u * 1.6, u * 0.8); g.fill();
-  g.fillStyle = color || '#ffd23d';
+  g.fillStyle = C.line; rrect(cx - w / 2, y, w, u * 1.6, u * 0.8); g.fill();
+  g.fillStyle = color || C.text;
   rrect(cx - w / 2, y, Math.max(u * 1.6, w * Math.max(0, Math.min(1, frac))), u * 1.6, u * 0.8); g.fill();
 }
 function gridCell(cols, rows, i) {
@@ -309,14 +326,13 @@ function optAt(x, y) {
 }
 function drawOpt(i, color, str) {
   const r = optRect(i);
-  g.fillStyle = 'rgba(0,0,0,.25)'; rrect(r.x, r.y + u, r.w, r.h, u * 5); g.fill();
   g.fillStyle = color; rrect(r.x, r.y, r.w, r.h, u * 5); g.fill();
   if (str) label(str, r.x + r.w / 2, r.y + r.h / 2, u * 9, '#fff');
 }
 // Dark panel above the answer buttons; returns its vertical centre.
 function questionPanel() {
   const top = u * 40, bottom = optRect(0).y - u * 6;
-  g.fillStyle = 'rgba(10,25,60,.8)'; rrect(x0 + u * 6, top, cw - u * 12, bottom - top, u * 6); g.fill();
+  card(x0 + u * 6, top, cw - u * 12, bottom - top, u * 6);
   return (top + bottom) / 2;
 }
 function shuffle(a) {
@@ -1044,37 +1060,26 @@ async function demoLoop() {
 // ============================================================================
 // Screens
 // ============================================================================
-function drawBackground() {
-  const sky = g.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, '#2b6cd4'); sky.addColorStop(0.6, '#6fc3f7'); sky.addColorStop(1, '#c9ecff');
-  g.fillStyle = sky; g.fillRect(0, 0, W, H);
-  g.fillStyle = 'rgba(255,255,255,.75)';
-  for (const c of clouds) {
-    const x = c.x * W, y = c.y * H, s = c.s * u * 9;
-    g.beginPath();
-    g.arc(x, y, s, 0, TAU); g.arc(x + s * 1.1, y - s * 0.4, s * 1.2, 0, TAU);
-    g.arc(x + s * 2.3, y, s, 0, TAU); g.arc(x + s * 1.1, y + s * 0.3, s * 1.1, 0, TAU);
-    g.fill();
-  }
-}
+function drawBackground() { g.fillStyle = C.page; g.fillRect(0, 0, W, H); }
 function drawCoins(x, y) {
   const str = String(save.coins);
-  g.font = '800 ' + u * 5.5 + 'px ' + FONT;
+  g.font = '600 ' + u * 4.4 + 'px ' + FONT;
   const w = g.measureText(str).width + u * 13;
-  g.fillStyle = 'rgba(10,25,60,.55)'; rrect(x - w, y - u * 4.5, w, u * 9, u * 4.5); g.fill();
-  coin(x - w + u * 5, y, u * 3);
-  label(str, x - u * 3.5, y, u * 5.5, '#fff', 'right');
+  card(x - w, y - u * 4.5, w, u * 9, u * 4.5);
+  coin(x - w + u * 5, y, u * 2.4);
+  label(str, x - u * 4, y, u * 4.4, C.text, 'right');
 }
+function scrim() { g.fillStyle = 'rgba(0,0,0,.6)'; g.fillRect(0, 0, W, H); }
 function drawHub() {
   const cx = x0 + cw / 2;
-  g.fillStyle = 'rgba(10,25,60,.3)'; g.fillRect(0, 0, W, H);
-  label('TAP ARCADE', x0 + u * 5, u * 10, u * 8.5, '#ffd23d', 'left', '#16254a');
+  head('Tap Arcade', x0 + u * 5, u * 10, u * 9, C.text, 'left');
   drawCoins(x0 + cw - u * 4, u * 10);
 
-  [['journey', 'JOURNEY'], ['arcade', 'ARCADE']].forEach((t, i) => {
+  [['journey', 'Journey'], ['arcade', 'Arcade']].forEach((t, i) => {
     const tw = u * 40, tx = cx + (i ? 1 : -1) * u * 21, ty = u * 20.5, on = hubTab === t[0];
-    g.fillStyle = on ? '#ffd23d' : 'rgba(10,25,60,.5)'; rrect(tx - tw / 2, ty - u * 4, tw, u * 8, u * 4); g.fill();
-    label(t[1], tx, ty, u * 3.8, on ? '#16254a' : '#fff');
+    rrect(tx - tw / 2, ty - u * 4, tw, u * 8, u * 4);
+    if (on) { g.fillStyle = C.text; g.fill(); } else { g.fillStyle = C.card; g.fill(); g.lineWidth = hair(); g.strokeStyle = C.line; g.stroke(); }
+    tag(t[1], tx, ty, u * 2.8, on ? C.page : C.soft);
     btns.push({ x: tx - tw / 2, y: ty - u * 4, w: tw, h: u * 8, action: () => { hubTab = t[0]; } });
   });
   if (hubTab === 'journey') drawJourney(cx);
@@ -1084,62 +1089,60 @@ function drawHub() {
     const game = GAMES[i];
     const x = cx - (cols * cardW + (cols - 1) * gap) / 2 + (i % cols) * (cardW + gap), y = top + Math.floor(i / cols) * (cardH + gap);
     const open = isUnlocked(game);
-    g.fillStyle = 'rgba(0,0,0,.2)'; rrect(x, y + u, cardW, cardH, u * 4); g.fill();
-    g.fillStyle = open ? '#27408f' : '#4a5578'; rrect(x, y, cardW, cardH, u * 4); g.fill();
-    g.globalAlpha = open ? 1 : 0.45;
+    card(x, y, cardW, cardH, u * 4);
+    g.globalAlpha = open ? 1 : 0.35;
     game.icon(x + cardW / 2, y + u * 12, u * 11);
     g.globalAlpha = 1;
-    label(game.name, x + cardW / 2, y + u * 25.5, u * 3, '#fff');
+    label(nice(game.name), x + cardW / 2, y + u * 25, u * 3.2, open ? C.text : C.soft);
     if (open) {
-      label('BEST  ' + (save.best[game.id] || 0), x + cardW / 2, y + u * 32, u * 3, '#ffe27a');
+      tag('Best ' + (save.best[game.id] || 0), x + cardW / 2, y + u * 31.5, u * 2.4);
     } else {
-      coin(x + cardW / 2 - u * 6, y + u * 32, u * 2.2);
-      label(String(game.cost), x + cardW / 2 - u * 2.5, y + u * 32, u * 3.8, '#ffe27a', 'left');
+      coin(x + cardW / 2 - u * 6, y + u * 31.5, u * 2);
+      label(String(game.cost), x + cardW / 2 - u * 2.5, y + u * 31.5, u * 3.4, C.soft, 'left');
     }
     btns.push({ x, y, w: cardW, h: cardH, action: () => {
       if (open) { startRun(game); return; }
       if (save.coins >= game.cost) {
         save.coins -= game.cost; save.unlocked[game.id] = 1; persist();
-        burst(x + cardW / 2, y + cardH / 2, '#ffe27a', 30); floatText('UNLOCKED!', x + cardW / 2, y + cardH / 2, '#ffe27a'); sfx.gold();
-      } else { floatText('NEED ' + (game.cost - save.coins) + ' MORE', x + cardW / 2, y + cardH / 2, '#ff6b78'); sfx.wrong(); }
+        burst(x + cardW / 2, y + cardH / 2, C.text, 30); floatText('Unlocked', x + cardW / 2, y + cardH / 2, C.text); sfx.gold();
+      } else { floatText('Need ' + (game.cost - save.coins) + ' more', x + cardW / 2, y + cardH / 2, C.accent); sfx.wrong(); }
     } });
   }
 
   const pending = save.missions.list.filter(m => !m.done).length;
   roundBtn('★', x0 + cw - u * 8, H - u * 8, () => { modal = 'missions'; });
   if (pending) {
-    g.fillStyle = '#ff4d5e'; g.beginPath(); g.arc(x0 + cw - u * 4, H - u * 12, u * 2.4, 0, TAU); g.fill();
-    label(String(pending), x0 + cw - u * 4, H - u * 12, u * 3, '#fff');
+    g.fillStyle = C.accent; g.beginPath(); g.arc(x0 + cw - u * 4, H - u * 12, u * 2.4, 0, TAU); g.fill();
+    label(String(pending), x0 + cw - u * 4, H - u * 12, u * 2.8, '#FFFFFF');
   }
 
   if (modal === 'missions' && !dailyGift) {
     btns = [];                                    // modal: block the cards behind it
-    g.fillStyle = 'rgba(10,25,60,.75)'; g.fillRect(0, 0, W, H);
+    scrim();
     const py = H * 0.5 - u * 44;
-    g.fillStyle = '#27408f'; rrect(cx - u * 44, py, u * 88, u * 88, u * 6); g.fill();
-    label('DAILY MISSIONS', cx, py + u * 10, u * 6.5, '#ffd23d');
+    card(cx - u * 44, py, u * 88, u * 88, u * 6);
+    head('Daily missions', cx, py + u * 10, u * 8);
     save.missions.list.forEach((m, i) => {
       const y = py + u * 20 + i * u * 17;
-      g.fillStyle = m.done ? 'rgba(61,220,132,.25)' : 'rgba(10,25,60,.45)'; rrect(cx - u * 40, y, u * 80, u * 14.5, u * 3); g.fill();
-      label(m.text, cx - u * 37, y + u * 4.8, u * 3.4, '#fff', 'left');
-      g.fillStyle = 'rgba(255,255,255,.2)'; rrect(cx - u * 37, y + u * 9.3, u * 50, u * 2, u); g.fill();
-      g.fillStyle = '#3ddc84'; rrect(cx - u * 37, y + u * 9.3, Math.max(u * 2, u * 50 * m.n / m.goal), u * 2, u); g.fill();
-      if (m.done) label('DONE', cx + u * 28, y + u * 7.2, u * 4, '#3ddc84');
-      else { coin(cx + u * 22, y + u * 7.2, u * 2.4); label('+' + m.reward, cx + u * 26, y + u * 7.2, u * 4, '#ffe27a', 'left'); }
+      g.fillStyle = C.page; rrect(cx - u * 40, y, u * 80, u * 14.5, u * 3); g.fill();
+      write(m.text, cx - u * 37, y + u * 4.8, u * 3.2, C.text, 'left', FONT, 400);
+      g.fillStyle = C.line; rrect(cx - u * 37, y + u * 9.3, u * 50, u * 2, u); g.fill();
+      g.fillStyle = C.text; rrect(cx - u * 37, y + u * 9.3, Math.max(u * 2, u * 50 * m.n / m.goal), u * 2, u); g.fill();
+      if (m.done) tag('Done', cx + u * 28, y + u * 7.2, u * 2.8, C.text);
+      else { coin(cx + u * 22, y + u * 7.2, u * 2); label('+' + m.reward, cx + u * 26, y + u * 7.2, u * 3.6, C.text, 'left'); }
     });
-    button('CLOSE', cx, py + u * 78, u * 44, u * 11, '#3d9bff', '#1f6fd0', () => { modal = ''; });
+    button('Close', cx, py + u * 78, u * 44, u * 11, false, () => { modal = ''; });
   }
 
   if (dailyGift) {
     btns = [];                                    // modal: block the cards behind it
-    g.fillStyle = 'rgba(10,25,60,.75)'; g.fillRect(0, 0, W, H);
-    g.fillStyle = '#27408f'; rrect(cx - u * 38, H * 0.5 - u * 30, u * 76, u * 60, u * 6); g.fill();
-    label('DAILY REWARD', cx, H * 0.5 - u * 20, u * 7, '#ffd23d');
-    label('DAY ' + save.streak, cx, H * 0.5 - u * 11, u * 4.5, 'rgba(255,255,255,.8)');
-    coin(cx - u * 12, H * 0.5 + u * 1, u * 5);
-    label('+' + dailyGift, cx + u * 6, H * 0.5 + u * 1, u * 10, '#fff');
-    button('CLAIM', cx, H * 0.5 + u * 18, u * 50, u * 13, '#3ddc84', '#1f9d55', () => {
-      save.coins += dailyGift; dailyGift = 0; persist(); sfx.gold(); burst(cx, H * 0.5, '#ffe27a', 30);
+    scrim();
+    card(cx - u * 38, H * 0.5 - u * 30, u * 76, u * 60, u * 6);
+    tag('Daily reward · day ' + save.streak, cx, H * 0.5 - u * 21, u * 2.8);
+    coin(cx - u * 13, H * 0.5 - u * 3, u * 3.4);
+    head('+' + dailyGift, cx + u * 5, H * 0.5 - u * 3, u * 16);
+    button('Claim', cx, H * 0.5 + u * 18, u * 56, u * 13, true, () => {
+      save.coins += dailyGift; dailyGift = 0; persist(); sfx.gold(); burst(cx, H * 0.5, C.text, 30);
     });
   }
 }
@@ -1151,76 +1154,76 @@ function drawJourney(cx) {
     if (i >= STAGES) break;
     const info = stageInfo(i), open = stageOpen(i), st = save.journey[i] || 0;
     const x = cx - (cols * tw + (cols - 1) * gx) / 2 + (k % cols) * (tw + gx), y = top + Math.floor(k / cols) * (th + u * 2);
-    g.fillStyle = 'rgba(0,0,0,.2)'; rrect(x, y + u, tw, th, u * 4); g.fill();
-    g.fillStyle = !open ? '#4a5578' : st ? '#2f5fc4' : '#27408f'; rrect(x, y, tw, th, u * 4); g.fill();
-    g.globalAlpha = open ? 1 : 0.4;
+    if (open) card(x, y, tw, th, u * 4);
+    else { rrect(x, y, tw, th, u * 4); g.lineWidth = hair(); g.strokeStyle = C.line; g.stroke(); }
+    if (open && !st) { rrect(x, y, tw, th, u * 4); g.lineWidth = u * 0.5; g.strokeStyle = C.accent; g.stroke(); }
+    g.globalAlpha = open ? 1 : 0.3;
     info.game.icon(x + tw * 0.27, y + th * 0.46, u * 8);
-    label(String(i + 1), x + tw * 0.69, y + th * 0.36, u * 6.5, '#fff');
+    head(String(i + 1), x + tw * 0.69, y + th * 0.36, u * 8);
     g.globalAlpha = 1;
-    for (let j = 0; j < 3; j++) star(x + tw * 0.69 + (j - 1) * u * 4.2, y + th * 0.74, u * 1.9, j < st ? '#ffd23d' : 'rgba(255,255,255,.22)');
+    for (let j = 0; j < 3; j++) star(x + tw * 0.69 + (j - 1) * u * 4.2, y + th * 0.74, u * 1.7, j < st ? C.text : C.line);
     if (open) btns.push({ x, y, w: tw, h: th, action: () => startRun(info.game, false, i) });
   }
   const by = H - u * 8, pages = STAGES / 15;
   if (jpage > 0) roundBtn('‹', cx - u * 20, by, () => { jpage--; });
-  label((jpage + 1) + ' / ' + pages, cx, by, u * 4.5, '#fff', 'center', 'rgba(0,0,0,.25)');
+  tag((jpage + 1) + ' / ' + pages, cx, by, u * 3);
   if (jpage < pages - 1) roundBtn('›', cx + u * 20, by, () => { jpage++; });
 }
 function drawPlayHud() {
-  label(String(score), x0 + u * 5, u * 9, u * 9, '#fff', 'left', 'rgba(0,0,0,.25)');
-  for (let i = 0; i < MAX_LIVES; i++) heart(x0 + cw - u * 7 - i * u * 9, u * 9, u * 3.4, i < lives ? '#ff4d5e' : 'rgba(255,255,255,.22)');
+  head(String(score), x0 + u * 5, u * 9, u * 11, C.text, 'left');
+  for (let i = 0; i < MAX_LIVES; i++) heart(x0 + cw - u * 7 - i * u * 9, u * 9, u * 3.2, i < lives ? C.accent : C.line);
   if (stage >= 0) {                              // Journey: three star goals at the top centre
     const cx = x0 + cw / 2, goals = stageInfo(stage).goals, next = goals.find(goal => score < goal);
-    goals.forEach((goal, j) => star(cx + (j - 1) * u * 7, u * 8, u * 3, score >= goal ? '#ffd23d' : 'rgba(255,255,255,.35)'));
-    if (next) label('★ ' + next, cx, u * 14.5, u * 3.2, '#fff', 'center', 'rgba(0,0,0,.25)');
+    goals.forEach((goal, j) => star(cx + (j - 1) * u * 7, u * 8, u * 2.6, score >= goal ? C.text : C.line));
+    if (next) tag('Next ' + next, cx, u * 14.5, u * 2.6);
   }
   cur.hud();
   roundBtn('×', x0 + cw - u * 8, H - u * 8, exitToHub);
 }
 function drawIntro() {
   const cx = x0 + cw / 2, cy = H * 0.5;
-  g.fillStyle = 'rgba(10,25,60,.45)'; g.fillRect(0, 0, W, H);
-  g.fillStyle = '#27408f'; rrect(cx - u * 44, cy - u * 46, u * 88, u * 92, u * 6); g.fill();
-  cur.icon(cx, cy - u * 27, u * 20);
-  if (stage >= 0) label('STAGE ' + (stage + 1), cx, cy - u * 12, u * 4, '#fff');
-  label(cur.name, cx, cy - u * 5, u * 8, '#ffd23d');
-  HELP[cur.id].forEach((line, i) => label(line, cx, cy + u * 4 + i * u * 6, u * 4.2, '#fff'));
+  scrim();
+  card(cx - u * 44, cy - u * 46, u * 88, u * 92, u * 6);
+  cur.icon(cx, cy - u * 27, u * 18);
+  if (stage >= 0) tag('Stage ' + (stage + 1), cx, cy - u * 12, u * 2.8);
+  head(nice(cur.name), cx, cy - u * 4.5, u * 10);
+  HELP[cur.id].forEach((line, i) => write(line, cx, cy + u * 5 + i * u * 6, u * 3.8, C.soft, 'center', FONT, 400));
   if (stage >= 0) stageInfo(stage).goals.forEach((goal, j) => {      // score needed for 1, 2 and 3 stars
     const gx = cx + (j - 1) * u * 24;
-    for (let k = 0; k <= j; k++) star(gx - u * 6 + (k - j / 2) * u * 3.6, cy + u * 18.5, u * 1.8, '#ffd23d');
-    label(String(goal), gx + u * 5, cy + u * 18.5, u * 4.4, '#fff');
+    for (let k = 0; k <= j; k++) star(gx - u * 6 + (k - j / 2) * u * 3.6, cy + u * 19.5, u * 1.6, C.text);
+    label(String(goal), gx + u * 5, cy + u * 19.5, u * 4, C.text);
   });
-  button('START', cx, cy + u * 32, u * 56, u * 14, '#3ddc84', '#1f9d55', beginPlay);
+  button('Start', cx, cy + u * 32, u * 64, u * 14, true, beginPlay);
   roundBtn('×', x0 + cw - u * 8, H - u * 8, exitToHub);
 }
 function drawOver() {
   const cx = x0 + cw / 2, a = Math.min(1, overTime / 0.4);
-  g.fillStyle = 'rgba(10,25,60,' + (0.88 * a) + ')'; g.fillRect(0, 0, W, H);
+  g.fillStyle = 'rgba(10,10,11,' + (0.9 * a) + ')'; g.fillRect(0, 0, W, H);
   g.globalAlpha = a;
   const cleared = stage >= 0 && stageStars > 0;
-  if (stage < 0) label('GAME OVER', cx, H * 0.13, u * 11, '#fff', 'center', '#16254a');
-  else label('STAGE ' + (stage + 1) + (cleared ? ' CLEAR!' : ''), cx, H * 0.13, u * 8.5, cleared ? '#3ddc84' : '#fff', 'center', '#16254a');
-  label(String(score), cx, H * 0.13 + u * 19, u * 20, '#ffd23d', 'center', '#16254a');
-  if (stage < 0) label(newBest ? 'NEW BEST!' : 'BEST  ' + (save.best[cur.id] || 0), cx, H * 0.13 + u * 33, u * 5, newBest ? '#3ddc84' : '#fff');
-  else for (let j = 0; j < 3; j++) star(cx + (j - 1) * u * 10, H * 0.13 + u * 33, u * 4, j < stageStars ? '#ffd23d' : 'rgba(255,255,255,.25)');
-  coin(cx - u * 12, H * 0.13 + u * 43, u * 3.2);
-  label('+' + runCoins + (doubled ? '  (x2)' : ''), cx - u * 6, H * 0.13 + u * 43, u * 6, '#ffe27a', 'left');
+  tag(stage < 0 ? 'Game over' : 'Stage ' + (stage + 1) + (cleared ? ' clear' : ''), cx, H * 0.13, u * 3.2);
+  head(String(score), cx, H * 0.13 + u * 17, u * 28);
+  if (stage < 0) tag(newBest ? 'New best' : 'Best ' + (save.best[cur.id] || 0), cx, H * 0.13 + u * 33, u * 3, newBest ? C.text : C.soft);
+  else for (let j = 0; j < 3; j++) star(cx + (j - 1) * u * 10, H * 0.13 + u * 33, u * 3.6, j < stageStars ? C.text : C.line);
+  coin(cx - u * 10, H * 0.13 + u * 43, u * 2.6);
+  label('+' + runCoins + (doubled ? '  (x2)' : ''), cx - u * 5, H * 0.13 + u * 43, u * 5, C.text, 'left');
   const extra = [];
-  if (stageBonus) extra.push('STAR BONUS  +' + stageBonus);
-  if (missionWon) extra.push('MISSION COMPLETE  +' + missionWon);
-  (land ? [extra.join('   •   ')] : extra).forEach((line, i) => label(line, cx, H * 0.13 + u * (49.5 + i * 4.2), u * 3.4, '#3ddc84'));
+  if (stageBonus) extra.push('Star bonus +' + stageBonus);
+  if (missionWon) extra.push('Mission complete +' + missionWon);
+  (land ? [extra.join('  ·  ')] : extra).forEach((line, i) => tag(line, cx, H * 0.13 + u * (49.5 + i * 4.2), u * 2.6));
   g.globalAlpha = 1;
   if (overTime < 0.6) return;                     // guard against accidental taps
-  const list = [];
-  if (!revived) list.push(['▶  REVIVE', '#ff9a3d', '#c96a12', revive]);
-  if (cleared && stage + 1 < STAGES) list.push(['NEXT STAGE', '#3ddc84', '#1f9d55', () => adBreak(() => startRun(stageInfo(stage + 1).game, false, stage + 1))]);
-  list.push([stage < 0 ? 'PLAY AGAIN' : cleared ? 'REPLAY' : 'TRY AGAIN', cleared ? '#2bb673' : '#3ddc84', '#1f9d55', () => adBreak(() => startRun(cur, true, stage))]);
-  if (!doubled && runCoins > 0) list.push(['▶  DOUBLE COINS', '#b06cff', '#7a3fc4', doubleCoins]);
-  list.push(['HOME', '#3d9bff', '#1f6fd0', exitToHub]);
+  const list = [], next = cleared && stage + 1 < STAGES;
+  if (!revived) list.push(['▶  Revive', false, revive]);
+  if (next) list.push(['Next stage', true, () => adBreak(() => startRun(stageInfo(stage + 1).game, false, stage + 1))]);
+  list.push([stage < 0 ? 'Play again' : cleared ? 'Replay' : 'Try again', !next, () => adBreak(() => startRun(cur, true, stage))]);
+  if (!doubled && runCoins > 0) list.push(['▶  Double coins', false, doubleCoins]);
+  list.push(['Home', false, exitToHub]);
   // Stacked in portrait, two columns in landscape where height is short.
   const y0 = H * 0.13 + u * 58, bw = u * 64, bh = u * 12.5, step = u * 16;
   list.forEach((b, i) => {
     const bx = land ? cx + (i % 2 ? 1 : -1) * u * 34 : cx, by = y0 + (land ? Math.floor(i / 2) : i) * step;
-    button(b[0], bx, by, bw, bh, b[1], b[2], b[3]);
+    button(b[0], bx, by, bw, bh, b[1], b[2]);
   });
 }
 
@@ -1283,10 +1286,25 @@ function draw() {
   }
   for (const t of texts) {
     g.globalAlpha = Math.max(0, Math.min(1, t.life * 2));
-    label(t.str, t.x, t.y, u * 6.5, t.color, 'center', 'rgba(0,0,0,.35)');
+    label(t.str, t.x, t.y, u * 5, t.color);
   }
   g.globalAlpha = 1;
   roundBtn('♪', x0 + u * 8, H - u * 8, () => { muted = !muted; }, muted);
+}
+// Local cover renderer (?demo=cover&w=&h=): the nine mini games under the title, posted as a PNG.
+async function coverShot() {
+  const wide = W > H * 1.2, cols = wide ? 5 : 3, rows = Math.ceil(GAMES.length / cols);
+  const s = Math.min(W * 0.9 / (cols * 1.12), H * 0.6 / (rows * 1.12)), gap = s * 0.12, top = H * 0.3;
+  drawBackground();
+  head('Tap Arcade', W / 2, H * 0.15, Math.min(W * 0.13, H * 0.15));
+  GAMES.forEach((game, i) => {
+    const r = Math.floor(i / cols), n = Math.min(cols, GAMES.length - r * cols);
+    const x = W / 2 - (n * s + (n - 1) * gap) / 2 + (i % cols) * (s + gap), y = top + r * (s + gap);
+    card(x, y, s, s, s * 0.16); game.icon(x + s / 2, y + s / 2, s * 0.3);
+  });
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  await fetch('/frame?v=' + DEMO + '-' + W + 'x' + H + '&n=cover&ext=png', { method: 'POST', body: blob });
+  await fetch('/frame?v=' + DEMO + '-' + W + 'x' + H + '&n=done', { method: 'POST', body: 'x' });
 }
 let last = performance.now();
 function frame(now) {
@@ -1296,7 +1314,7 @@ function frame(now) {
   draw();
   requestAnimationFrame(frame);
 }
-if (DEMO) demoLoop(); else requestAnimationFrame(frame);
+if (DEMO === 'cover') coverShot(); else if (DEMO) demoLoop(); else requestAnimationFrame(frame);
 })();
 </script>
 </body>
