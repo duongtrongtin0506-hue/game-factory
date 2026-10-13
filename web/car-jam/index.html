@@ -317,7 +317,7 @@ const TAU = 6.2832;
 const cv = document.getElementById('c'), g = cv.getContext('2d');
 let W = 0, H = 0, u = 1, sw = 100, sh = 160, x0 = 0, y0 = 0, land = false;
 
-let save = { unlocked: 1, stars: {}, muted: false, music: true, coins: 0, skin: 0, owned: [0] };
+let save = { unlocked: 1, stars: {}, muted: false, music: true, coins: 0, skin: 0, owned: [0], dailyDay: 0, streak: 0 };
 try { Object.assign(save, JSON.parse(localStorage.getItem(SAVE_KEY)) || {}); } catch (e) {}
 let persist = () => { try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (e) {} };
 
@@ -601,7 +601,14 @@ function specFor(i) {
 
 // ---- Game flow
 function go(s) { screen = s; fadeT = 0.25; }
+// Daily challenge: one level a day, the same for everyone, picked from the date. Playing it on consecutive days builds a streak.
+let daily = false;
+function dayKey(back) { const d = new Date(Date.now() - (back || 0) * 864e5); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); }
+function dailyLevel() { return 21 + (Math.imul(dayKey(), 2654435761) >>> 0) % (LEVELS.length - 20); }
+const dailyDone = () => save.dailyDay === dayKey();
+function startDaily() { startLevel(dailyLevel()); daily = true; }
 function startLevel(n) {
+  daily = false;
   level = n; cars = parse(LEVELS[n - 1]); specs = cars.map((c, i) => specFor(i));
   moves = 0; undo = []; hints = 1; drag = null; slide = null; hint = null; exitT = -1; parts = []; levelT = 0;
   go('game'); gameplay(true);
@@ -639,13 +646,19 @@ function undoMove() {
   slide = { car: m[0], from: coord(c), to: m[1], t: 0, d: 0.16 };
   moves = Math.max(0, moves - 1); hint = null;
 }
-function leaveLevel() { gameplay(false); page = Math.floor((level - 1) / 20); go('levels'); }
+function leaveLevel() { gameplay(false); if (daily) { go('menu'); return; } page = Math.floor((level - 1) / 20); go('levels'); }
 function win() {
   const par = PAR[level - 1], prev = save.stars[level] || 0;
   earned = moves <= par ? 3 : moves <= twoStar(par) ? 2 : 1;
-  gain = 3 + Math.max(0, earned - prev) * 10;
-  save.coins += gain; save.stars[level] = Math.max(prev, earned);
-  if (level < LEVELS.length) save.unlocked = Math.max(save.unlocked, level + 1);
+  if (daily) {   // pays once a day; stars and unlocks belong to the normal levels
+    gain = 0;
+    if (!dailyDone()) { save.streak = save.dailyDay === dayKey(1) ? save.streak + 1 : 1; save.dailyDay = dayKey(); gain = 20 + 5 * Math.min(save.streak, 7); }
+    save.coins += gain;
+  } else {
+    gain = 3 + Math.max(0, earned - prev) * 10;
+    save.coins += gain; save.stars[level] = Math.max(prev, earned);
+    if (level < LEVELS.length) save.unlocked = Math.max(save.unlocked, level + 1);
+  }
   persist();
   screen = 'win'; winT = 0; starPing = 0; sfx.win(); confetti(70);
   if (earned === 3) happy();
@@ -742,18 +755,21 @@ function drawMenu() {
   g.restore();
   head('Car Jam', cx, Y(land ? 13 : 26), u * (land ? 15 : 20));
   tag('Escape', cx, Y(land ? 25 : 41), u * 3);
+  const dailyText = dailyDone() ? 'Daily done  ·  ' + save.streak + ' day' + (save.streak > 1 ? 's' : '') : 'Daily challenge';
   const play = () => {
     if (save.unlocked === 1 && !save.stars[1]) startLevel(1); else { page = Math.floor((Math.min(save.unlocked, LEVELS.length) - 1) / 20); go('levels'); }
   };
   if (land) {
-    button('Play', cx - u * 26, Y(80), u * 48, u * 13, true, play);
-    button('Garage', cx + u * 26, Y(80), u * 48, u * 13, false, () => go('shop'));
+    button('Play', cx - u * 46, Y(80), u * 42, u * 13, true, play);
+    button(dailyText, cx, Y(80), u * 46, u * 13, false, startDaily, u * 3.6);
+    button('Garage', cx + u * 46, Y(80), u * 42, u * 13, false, () => go('shop'));
   } else {
-    button('Play', cx, Y(114), u * 84, u * 14, true, play);
-    button('Garage', cx, Y(132), u * 84, u * 14, false, () => go('shop'));
+    button('Play', cx, Y(110), u * 84, u * 14, true, play);
+    button(dailyText, cx, Y(126), u * 84, u * 12, false, startDaily, u * 3.8);
+    button('Garage', cx, Y(140), u * 84, u * 12, false, () => go('shop'), u * 3.8);
   }
   let total = 0; for (const k in save.stars) total += save.stars[k];
-  const by = Y(sh - (land ? 7 : 9)), lx = hx + u * 2;
+  const by = Y(sh - (land ? 7 : 8)), lx = hx + u * 2;
   star(lx + u * 2, by - u * 0.2, u * 2.2, C.accent); tag(total + ' / ' + LEVELS.length * 3, lx + u * 6, by, u * 2.8, C.soft, 'left');
   wallet(hx + hw, by);
   soundBtns(X(sw - 9), Y(9));
@@ -863,7 +879,7 @@ function drawGame() {
   sceneGame();
   g.fillStyle = C.page; g.fillRect(0, 0, W, Y(land ? 17 : 20));
   roundBtn('‹', X(9), Y(land ? 8.5 : 10), leaveLevel);
-  head('Level ' + level, cx, Y(land ? 6 : 7.5), u * (land ? 6.4 : 7.2));
+  head(daily ? 'Daily' : 'Level ' + level, cx, Y(land ? 6 : 7.5), u * (land ? 6.4 : 7.2));
   const hy = Y(land ? 13 : 15.5);
   tag('Moves ' + moves, cx - u * 8.5, hy, u * 2.6, C.soft, 'right');
   for (let j = 0; j < 3; j++) star(cx + (j - 1) * u * 4.4, hy - u * 0.2, u * 1.8, j < now ? C.accent : C.line);
@@ -873,7 +889,7 @@ function drawGame() {
   const list = [
     ['Undo', undoMove, undo.length > 0],
     [hints > 0 ? 'Free hint' : save.coins >= HINT_COST ? 'Hint  -' + HINT_COST : '▶  Hint', useHint, true],
-    ['Restart', () => startLevel(level), true]
+    ['Restart', () => { const d = daily; startLevel(level); daily = d; }, true]
   ];
   list.forEach((it, i) => {
     const bx = land ? X(22) : X(50) + (i - 1) * u * 32, by = land ? Y(32 + i * 15) : Y(sh - 10);
@@ -893,7 +909,7 @@ function drawWin() {
   const k = backOut(clamp01((winT - 0.3) / 0.3)), pw = u * 84, ph = u * 88;
   g.save(); g.translate(cx, cy); g.scale(k, k); g.translate(-cx, -cy);
   card(cx - pw / 2, cy - ph / 2, pw, ph, u * 6);
-  tag('Level ' + level, cx, cy - u * 36, u * 2.8);
+  tag(daily ? 'Daily challenge  ·  ' + save.streak + ' day streak' : 'Level ' + level, cx, cy - u * 36, u * 2.8);
   head(earned === 3 ? 'Perfect' : 'Escaped', cx, cy - u * 26, u * 13);
   for (let j = 0; j < 3; j++) {
     const t = clamp01((winT - 0.7 - j * 0.22) / 0.25), sx = cx + (j - 1) * u * 16, sy = cy - u * 9;
@@ -902,10 +918,11 @@ function drawWin() {
   }
   tag('Moves ' + moves + '  ·  Best ' + PAR[level - 1], cx, cy + u * 4, u * 2.6);
   coin(cx - u * 6, cy + u * 12.5, u * 2.2); label('+' + gain, cx - u * 2, cy + u * 12.7, u * 4.2, C.text, 'left');
-  if (level < LEVELS.length) button('Next level', cx, cy + u * 24, u * 68, u * 13, true, nextLevel);
+  if (daily) button('Done', cx, cy + u * 24, u * 68, u * 13, true, leaveLevel);
+  else if (level < LEVELS.length) button('Next level', cx, cy + u * 24, u * 68, u * 13, true, nextLevel);
   else tag('All ' + LEVELS.length + ' levels done', cx, cy + u * 24, u * 3);
-  button('Replay', cx - u * 17.5, cy + u * 37, u * 33, u * 10, false, () => startLevel(level), u * 3.4);
-  button('Levels', cx + u * 17.5, cy + u * 37, u * 33, u * 10, false, leaveLevel, u * 3.4);
+  button('Replay', cx - u * 17.5, cy + u * 37, u * 33, u * 10, false, () => { const d = daily; startLevel(level); daily = d; }, u * 3.4);
+  button('Levels', cx + u * 17.5, cy + u * 37, u * 33, u * 10, false, () => { daily = false; leaveLevel(); }, u * 3.4);
   g.restore();
 }
 
@@ -1007,6 +1024,7 @@ function draw() {
   if (fadeT > 0) { g.fillStyle = 'rgba(255,251,245,' + (fadeT / 0.25 * 0.85) + ')'; g.fillRect(0, 0, W, H); }
   cv.style.cursor = hot ? 'pointer' : 'default';
 }
+if (LOCAL && QS.get('daily')) { startDaily(); if (QS.get('win')) { const path = solve(cars); for (const m of path) { setCoord(cars[m[0]], m[1]); moves++; } hint = null; persist = () => {}; win(); winT = 2; } }
 // Local test hook: ?level=N opens a level, &solve=K plays the first K solution moves, &win=1 finishes it.
 if (LOCAL && QS.get('level')) {
   startLevel(+QS.get('level'));

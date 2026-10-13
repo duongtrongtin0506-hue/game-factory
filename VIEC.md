@@ -12,8 +12,8 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [ ] [nặng] Nâng chất lượng Boba Sort lên mức Car Jam bản 2 (cảnh nền theo chặng, hiệu ứng rót, nhạc, xu + sưu tầm cốc, phím tắt, hướng dẫn không chữ) rồi đưa vào CẦN NỘP cho CrazyGames (bài nộp mới) và các cổng khác.
 - [ ] [nặng] Tương tự cho Tile Trio (kèm hạ độ khó 60 màn cuối: trung bình `hard` ~65 xuống ~45, xen màn dễ).
 - [ ] [nặng] Tương tự cho Tap Arcade bản Journey.
-- [ ] One Line Fill: nâng chất lượng tối thiểu (hiệu ứng, nhạc, sao) + tạo ảnh bìa các cỡ và 2 video xem trước bằng `?demo=` như Car Jam. [máy 2] cho phần quay video.
-- [ ] Nộp các game đã bị CrazyGames từ chối sang cổng khác đã có gói (xem nhóm 5), không chờ nâng chất lượng: ghi vào CẦN NỘP.
+- [x] 13/10 One Line Fill: giao diện mới, ảnh bìa mọi cỡ và 2 video đã có (`assets-goc/one-line`). Còn: nhạc nền.
+- [x] 13/10 Gói của cả 5 game cho CrazyGames, GameMonetize, GameDistribution đã có và đã ghi vào CẦN NỘP ở đầu `HUONG-DAN-CHU.md`.
 
 - [x] 13/10 Cả 5 game cũ đã đổi giao diện sang `THIET-KE.md` (Car Jam, Boba Sort, Tile Trio: nền giấy ấm + nhấn rừng; One Line Fill, Tap Arcade: nền đêm + nhấn đỏ); ảnh bìa mới ở `assets-goc/`. Chưa làm: 9 trò con trong Tap Arcade vẫn dùng màu vật thể cũ và chữ đậm (soát lại từng trò); video Tap Arcade (`?demo=` cũ còn chạy, chưa quay lại).
 
@@ -28,7 +28,8 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 
 - [x] 13/10 Car Jam: thêm 2 cảnh (DESERT ROAD, SUNSET HILLS), cảnh lặp lại khi hết, chữ thắng tính theo số màn, 120 màn, vào `TAKE_GAMES`; `run_daily --no-publish` đạt.
 - [x] 13/10 `tools/carjam.py harden`: leo đồi đổi màn dễ trong hàng dự trữ thành màn ≥ 16 bước; nửa hàng dự trữ (20/40) đã là màn 16–23 bước; `run_daily` chạy thêm 40 giây mỗi ngày. Màn 101–120 đã vào game giữ nguyên (8–21 bước).
-- [ ] Thử thách ngày (1 màn/ngày theo hạt giống ngày, chuỗi ngày liên tiếp, lưu `localStorage`) cho Car Jam; đạt thì chép sang Boba Sort, Tile Trio, One Line Fill.
+- [x] 13/10 Car Jam có thử thách ngày: 1 màn/ngày theo ngày (màn 21 trở đi), chuỗi ngày liên tiếp, thưởng 25–55 xu một lần/ngày, nút ở menu, `?daily=1` để thử.
+- [ ] Chép thử thách ngày sang Boba Sort, Tile Trio, One Line Fill (cùng cách: `dayKey`, `dailyLevel`, `startDaily`, lưu `dailyDay` + `streak`; ba game này chưa có xu nên thưởng là chuỗi ngày + sao hiển thị ở menu).
 - [ ] Car Jam: chọn mức khó + chướng ngại (ô khóa) theo `NGHIEN-CUU.md` mục game cùng thể loại. [nặng]
 
 ## 4. Game mới từ `Y-TUONG.md`
@@ -44,7 +45,7 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [x] 13/10 `tools/build.py` có `release()`: `phat-hanh/<cổng>/<game>/<game>.zip` + `mo-ta.md` cho 5 game × 3 cổng (15 gói), zip có trong git, ảnh bìa dùng chung ở `assets-goc/<game>/` (không chép lặp); `run_daily` và `daily.yml` cập nhật gói mỗi lần build.
 - [ ] Thêm cổng vào `web/ads.js` + `PORTALS` + `tools/test_ads.js` theo `CONG.md`, mỗi cổng một việc: Playgama Bridge; Yandex Games (kèm tiếng Nga + `LoadingAPI.ready()`); Poki; GamePix. Tra lại tài liệu SDK ngay trước khi viết, ghi nguồn.
 - [x] 13/10 Mục `store` (mô tả tiếng Anh) cho 5 game trong `specs/`.
-- [ ] Sau mỗi gói mới: thêm dòng vào CẦN NỘP ở đầu `HUONG-DAN-CHU.md` (game, cổng, đường dẫn zip, link trang nộp) và cập nhật bảng game × cổng trong `THEO-DOI.md`.
+Quy ước: sau mỗi gói mới thì thêm dòng vào CẦN NỘP ở đầu `HUONG-DAN-CHU.md` (game, cổng, đường dẫn zip, link trang nộp) và cập nhật bảng game × cổng trong `THEO-DOI.md`.
 
 ## 6. Bản Roblox cho game thắng
 
@@ -52,10 +53,10 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 
 ## 7. Cải tiến bộ khung / công cụ / tài liệu
 
-- [ ] `VAN-HANH.md`: sổ tay tiếp quản (sơ đồ, lệnh chạy, khóa nào ở đâu, lịch tự động, phương án B cho từng cổng, GitHub, Claude, Discord).
-- [ ] `CHI-SO.md` (doanh thu, chi phí, số game sống, số cổng, tỷ lệ tự động) + `tools/run_daily.py --weekly` tự điền số game/cổng/tỷ lệ tự động và gửi bảng game × cổng chủ nhật.
-- [ ] `ASSETS.md`: kê nguồn + giấy phép mọi hình, âm thanh (hiện tất cả tự vẽ bằng canvas và âm thanh tổng hợp trong mã: xác nhận từng game).
+- [x] 13/10 `VAN-HANH.md`: sổ tay tiếp quản (chạy trên máy mới, lịch tự động, khóa, phương án B, chuyển nhượng 48 giờ).
+- [x] 13/10 `CHI-SO.md` (bản đầu, điền tay).
+- [ ] `run_daily --weekly` tự đếm số game, số gói, số màn rồi ghi một mục tuần vào `CHI-SO.md`.
+- [x] 13/10 `ASSETS.md`: đã soát cả 6 game, không có tệp hình/âm thanh/font ngoài.
 - [x] 13/10 `THEO-DOI.md` có bảng game × cổng. Còn: chủ nhật sinh danh sách CẦN CHÉP SỐ khi có game lên sóng.
 - [ ] Chủ nhật: 7 câu tự vấn vào `NHAT-KY-CAI-TIEN.md` (lần đầu 18/10). Đầu tháng: soi 8 vai. Đầu quý: radar + `THU-NGHIEM.md`.
-- [ ] `run_daily`: thông báo Discord dạng "🎮 Xong … · Gói chờ nộp N · Việc còn N" (đếm `[ ]` trong `VIEC.md` và CẦN NỘP), nhắc việc chờ chủ 1 lần/ngày.
-- [ ] Sửa các câu "chờ số liệu 14 ngày" còn sót trong `HUONG-DAN-CHU.md`, `THEO-DOI.md`.
+- [x] 13/10 `run_daily`: Discord ngày dạng "🎮 Xong … · Gói chờ nộp N · Việc còn N · 📌 chờ chủ N việc"; chủ nhật kèm bảng game × cổng, 3 ý tưởng tuần, 1 đề xuất.
