@@ -55,6 +55,8 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [x] 13/10 `tools/build.py` có `release()`: `phat-hanh/<cổng>/<game>/<game>.zip` + `mo-ta.md` cho 5 game × 3 cổng (15 gói), zip có trong git, ảnh bìa dùng chung ở `assets-goc/<game>/` (không chép lặp); `run_daily` và `daily.yml` cập nhật gói mỗi lần build.
 - [x] 13/10 Cổng `playgama` (Playgama Bridge v2) trong `web/ads.js`, `tools/build.py` (zip kèm `playgama-bridge-config.json`), `tools/test_ads.js`; 6 gói ở `phat-hanh/playgama/`. Chi tiết và phần chưa xác minh: `CONG.md`.
 - [ ] Cổng `yandex` (kèm tiếng Nga + `LoadingAPI.ready()`) và `gamepix`: tra lại tài liệu ngay trước khi viết, ghi nguồn. Poki: không làm (độc quyền). [nặng]
+- [ ] [máy 2] Playgama: đưa Sprout Merge lên Sandbox theo cách ghi ở `CONG.md` (gói `phat-hanh/playgama/merge-harvest/`), bật Free Starter Boost; mỗi lượt trên máy xem số lượt chơi / thời gian chơi của One Line Fill, đủ 2 mốc thì gửi duyệt. 4 game còn lại đưa lên sau khi đổi tên/nâng chất lượng.
+- [ ] One Line Fill trên Playgama cần thời gian chơi trung bình 5:00: xem số thật sau 24 giờ, thấp thì thêm móc giữ chân (chuỗi màn liền, thưởng sao) ở nhánh riêng.
 - [ ] Playgama: đọc `platform.language` và `AUDIO_STATE_CHANGED`; khi chủ có tài khoản thì chạy Test Game và sửa theo kết quả.
 - [x] 13/10 Mục `store` (mô tả tiếng Anh) cho 5 game trong `specs/`.
 Quy ước: sau mỗi gói mới thì thêm dòng vào CẦN NỘP ở đầu `HUONG-DAN-CHU.md` (game, cổng, đường dẫn zip, link trang nộp) và cập nhật bảng game × cổng trong `THEO-DOI.md`.
