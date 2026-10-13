@@ -4,7 +4,7 @@ Mỗi việc 1 dòng có link; xong thì nhắn Claude câu in đậm (hoặc nh
 
 ## CẦN NỘP (1 lần/tuần)
 
-- [ ] Car Jam Escape bản 2 → CrazyGames, bài nộp MỚI: https://developer.crazygames.com/ → **Submit game** → tệp `dist\car-jam\crazygames\index.html`, ảnh bìa + video ở `dist\car-jam\assets`. Nhắn: **đã nộp car jam crazygames**.
+- [ ] (chờ ảnh bìa mới, máy sẽ báo khi xong; game đã đổi giao diện 13/10) Car Jam Escape bản 2 → CrazyGames, bài nộp MỚI: https://developer.crazygames.com/ → **Submit game** → tệp `dist\car-jam\crazygames\index.html`, ảnh bìa + video ở `dist\car-jam\assets`. Nhắn: **đã nộp car jam crazygames**.
 - [ ] Xem kết quả duyệt Tap Arcade trên GameMonetize: https://gamemonetize.com/account/login.php → My Games. Nhắn: **gamemonetize: duyệt / từ chối + lý do**.
 
 ## CẦN TẠO TÀI KHOẢN

@@ -15,7 +15,10 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [ ] One Line Fill: nâng chất lượng tối thiểu (hiệu ứng, nhạc, sao) + tạo ảnh bìa các cỡ và 2 video xem trước bằng `?demo=` như Car Jam. [máy 2] cho phần quay video.
 - [ ] Nộp các game đã bị CrazyGames từ chối sang cổng khác đã có gói (xem nhóm 5), không chờ nâng chất lượng: ghi vào CẦN NỘP.
 
-- [ ] Đổi giao diện game cũ sang `THIET-KE.md` (chỉ menu, chọn màn, màn thắng/thua, nút, chữ; không đụng luật chơi, bộ giải, quảng cáo), mỗi game một việc, theo thứ tự: Car Jam → Boba Sort → Tile Trio → One Line Fill → Tap Arcade. Dùng lại `C`, `F`, `card`, `pill`, `label` của `web/merge-harvest/index.src.html`. Xong game nào thì chụp lại ảnh bìa game đó. [nặng]
+- [ ] Đổi giao diện game cũ sang `THIET-KE.md` (chỉ menu, chọn màn, màn thắng/thua, nút, chữ; không đụng luật chơi, bộ giải, quảng cáo), mỗi game một việc, theo thứ tự: Boba Sort → Tile Trio → One Line Fill → Tap Arcade (Car Jam xong 13/10, xem `web/car-jam/index.src.html`: `C`, `head`, `tag`, `card`, `button`). Dùng lại `C`, `F`, `card`, `pill`, `label` của `web/merge-harvest/index.src.html`. Xong game nào thì chụp lại ảnh bìa game đó. [nặng]
+
+- [x] 13/10 Car Jam đổi giao diện sang `THIET-KE.md`: menu (thẻ đường xe chạy, 1 nút nhấn), chọn màn, gara, thanh trên, nút, màn thắng; luật chơi, bộ giải, quảng cáo giữ nguyên; kiểm thử đạt.
+- [ ] Car Jam: chụp lại 6 ảnh bìa + 2 video theo giao diện mới (`?demo=cover&w=&h=`, `?demo=<tên>`). Máy chủ nhận khung hình (`POST /frame`) không có trong kho: viết `tools/quay.py` (Playwright chụp thẳng canvas, ghép video bằng ffmpeg nếu có) để máy nào cũng làm được. Ảnh bìa cũ ở `dist/car-jam/assets` còn giao diện cũ.
 
 ## 3. Game đang sống / gần lên sóng
 

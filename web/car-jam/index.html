@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Car Jam Escape</title>
 <style>
-html,body{margin:0;height:100%;overflow:hidden;background:#243447;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#FFFBF5;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 canvas{display:block;width:100%;height:100%}
 </style>
 </head>
@@ -311,7 +311,7 @@ const WORLDS = [
 ];
 const HINT_COST = 30;
 const SAVE_KEY = 'carJam.save.v1';
-const FONT = 'system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+const FONT = 'Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
 const TAU = 6.2832;
 
 const cv = document.getElementById('c'), g = cv.getContext('2d');
@@ -415,11 +415,26 @@ function shade(hex, a) {
   const f = s => Math.round(((n >> s) & 255) * (1 - p) + t * p);
   return 'rgb(' + f(16) + ',' + f(8) + ',' + f(0) + ')';
 }
-function label(str, x, y, size, color, align, stroke) {
-  g.font = '800 ' + size + 'px ' + FONT;
+// Design language (THIET-KE.md): warm paper, white cards, one forest accent; serif headline, sans body, mono label.
+const C = { page: '#FFFBF5', card: '#FFFFFF', line: '#E8E0D5', text: '#1A1A1A', soft: '#8B7E6F', accent: '#2B4A3B' };
+const HEAD = '"Cormorant Garamond","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif';
+const MONO = 'ui-monospace,Menlo,Consolas,monospace';
+function label(str, x, y, size, color, align, font, weight) {
+  g.font = (weight || 500) + ' ' + size + 'px ' + (font || FONT);
   g.textAlign = align || 'center'; g.textBaseline = 'middle';
-  if (stroke) { g.lineWidth = size * 0.16; g.strokeStyle = stroke; g.lineJoin = 'round'; g.strokeText(str, x, y); }
   g.fillStyle = color; g.fillText(str, x, y);
+}
+const head = (str, x, y, size, color, align) => label(str, x, y, size, color || C.text, align, HEAD, 400);
+function tag(str, x, y, size, color, align) {
+  if ('letterSpacing' in g) g.letterSpacing = (size * 0.08) + 'px';
+  label(str.toUpperCase(), x, y, size, color || C.soft, align, MONO, 400);
+  if ('letterSpacing' in g) g.letterSpacing = '0px';
+}
+const nice = s => s.replace(/\B\w/g, c => c.toLowerCase());   // 'AUTUMN PARK' -> 'Autumn Park'
+const hair = () => Math.max(1, u * 0.25);
+function card(x, y, w, h, r) {
+  g.save(); g.shadowColor = 'rgba(0,0,0,.06)'; g.shadowBlur = u * 8; g.shadowOffsetY = u * 0.6;
+  g.fillStyle = C.card; rrect(x, y, w, h, r); g.fill(); g.restore();
 }
 function rrect(x, y, w, h, r) {
   g.beginPath();
@@ -437,7 +452,7 @@ function star(x, y, r, color) {
   }
   g.closePath(); g.fillStyle = color; g.fill();
 }
-function coin(x, y, r) { disc(x, y, r, '#d9951a'); disc(x, y, r * 0.78, '#ffd84d'); star(x, y, r * 0.45, '#e0a21c'); }
+function coin(x, y, r) { disc(x, y, r, C.accent); star(x, y, r * 0.5, C.card); }
 function lock(x, y, s, color) {
   g.strokeStyle = color; g.lineWidth = s * 0.16; g.beginPath(); g.arc(x, y - s * 0.12, s * 0.26, Math.PI, 0); g.stroke();
   g.fillStyle = color; rrect(x - s * 0.4, y - s * 0.12, s * 0.8, s * 0.6, s * 0.12); g.fill();
@@ -455,30 +470,29 @@ function over(x, y, w, h) {
   if (mx < x || mx > x + w || my < y || my > y + h) return false;
   hot = true; return true;
 }
-function pill(x, y, w, h) { g.fillStyle = 'rgba(14,22,34,.62)'; rrect(x, y, w, h, h / 2); g.fill(); }
-function button(str, cx, cy, w, h, color, dark, action, size) {
+function pill(x, y, w, h) { g.fillStyle = C.card; rrect(x, y, w, h, h / 2); g.fill(); g.lineWidth = hair(); g.strokeStyle = C.line; g.stroke(); }
+// The primary button is the one accent on a screen; every other button is a white pill with a hairline.
+function button(str, cx, cy, w, h, primary, action, size) {
   const hv = over(cx - w / 2, cy - h / 2, w, h);
-  if (hv) { w *= 1.05; h *= 1.05; }
+  if (hv) { w *= 1.03; h *= 1.03; }
   btns.push({ x: cx - w / 2, y: cy - h / 2, w, h, action });
-  g.fillStyle = 'rgba(0,0,0,.22)'; rrect(cx - w / 2, cy - h / 2 + u * 2.2, w, h, h / 2); g.fill();
-  g.fillStyle = dark; rrect(cx - w / 2, cy - h / 2 + u * 1.1, w, h, h / 2); g.fill();
-  g.fillStyle = hv ? shade(color, 0.14) : color; rrect(cx - w / 2, cy - h / 2, w, h, h / 2); g.fill();
-  g.fillStyle = 'rgba(255,255,255,.2)'; rrect(cx - w / 2 + h * 0.3, cy - h * 0.4, w - h * 0.6, h * 0.3, h * 0.15); g.fill();
-  label(str, cx, cy + h * 0.02, size || h * 0.42, '#fff', 'center', dark);
+  rrect(cx - w / 2, cy - h / 2, w, h, h / 2);
+  if (primary) { g.fillStyle = hv ? shade(C.accent, 0.1) : C.accent; g.fill(); }
+  else { g.fillStyle = C.card; g.fill(); g.lineWidth = hair(); g.strokeStyle = hv ? C.soft : C.line; g.stroke(); }
+  label(str, cx, cy + h * 0.02, size || h * 0.34, primary ? '#FFFFFF' : C.text);
 }
 // icon: a character, or a function (x, y, r, color) that draws one.
 function roundBtn(icon, x, y, action, off) {
-  const r = u * 5.5, hv = over(x - r, y - r, r * 2, r * 2), col = off ? '#6f839d' : '#fff';
+  const r = u * 5, hv = over(x - r, y - r, r * 2, r * 2), col = off ? C.soft : C.text;
   btns.push({ x: x - r, y: y - r, w: r * 2, h: r * 2, action });
-  disc(x, y + u * 0.8, r, 'rgba(0,0,0,.3)');
-  disc(x, y, r, hv ? '#43597a' : '#34475e');
-  g.lineWidth = u * 0.6; g.strokeStyle = '#6a84a8'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.stroke();
-  if (typeof icon === 'function') icon(x, y, r, col); else label(icon, x, y, u * 5.5, col);
-  if (off) { g.strokeStyle = '#ff6b78'; g.lineWidth = u * 0.8; g.lineCap = 'round'; g.beginPath(); g.moveTo(x - r * 0.5, y + r * 0.5); g.lineTo(x + r * 0.5, y - r * 0.5); g.stroke(); }
+  disc(x, y, r, C.card);
+  g.lineWidth = hair(); g.strokeStyle = hv ? C.soft : C.line; g.beginPath(); g.arc(x, y, r, 0, TAU); g.stroke();
+  if (typeof icon === 'function') icon(x, y, r, col); else label(icon, x, y - u * 0.4, u * 5.5, col, 'center', FONT, 400);
+  if (off) { g.strokeStyle = C.soft; g.lineWidth = u * 0.6; g.lineCap = 'round'; g.beginPath(); g.moveTo(x - r * 0.5, y + r * 0.5); g.lineTo(x + r * 0.5, y - r * 0.5); g.stroke(); }
 }
 function soundBtns(x, y) {
   roundBtn(speaker, x, y, () => { save.muted = !save.muted; persist(); }, save.muted);
-  roundBtn('♫', x - u * 13, y, () => { save.music = !save.music; persist(); }, !save.music);
+  roundBtn('♫', x - u * 12, y, () => { save.music = !save.music; persist(); }, !save.music);
 }
 
 // ---- Particles
@@ -700,100 +714,96 @@ function sceneGame() {
   }
   g.globalAlpha = 1;
 }
-function backdrop() {
-  const w = WORLDS[wi()], bg = g.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, w.sky[0]); bg.addColorStop(1, w.sky[1]);
-  g.fillStyle = bg; g.fillRect(0, 0, W, H);
-  g.strokeStyle = 'rgba(255,255,255,.05)'; g.lineWidth = u * 1.2;
-  for (let i = -8; i < 30; i++) { const x = i * u * 14 + (time * u * 3) % (u * 14); g.beginPath(); g.moveTo(x, 0); g.lineTo(x + H * 0.5, H); g.stroke(); }
-}
+function backdrop() { g.fillStyle = C.page; g.fillRect(0, 0, W, H); }
 function wallet(x, y) {
-  const str = String(save.coins), w = u * (9 + str.length * 2.6), shake = denyT > 0 ? Math.sin(time * 60) * u * 0.8 : 0;
+  const str = String(save.coins), w = u * (12 + str.length * 2.4), shake = denyT > 0 ? Math.sin(time * 60) * u * 0.8 : 0;
   pill(x - w + shake, y - u * 4, w, u * 8);
-  coin(x - w + u * 4.2 + shake, y, u * 2.7);
-  label(str, x - u * 2.5 + shake, y + u * 0.1, u * 4, denyT > 0 ? '#ff8a94' : '#fff', 'right');
+  coin(x - w + u * 4 + shake, y, u * 2.2);
+  label(str, x - u * 3 + shake, y + u * 0.1, u * 3.6, denyT > 0 ? C.soft : C.text, 'right');
 }
 
 // ---- Screens
 const TRAFFIC = [[0, 26, 0, 2, 0], [0, 26, 70, 3, 1], [0, 26, 130, 2, 2], [1, 34, 30, 2, 3], [1, 34, 95, 3, 4], [1, 34, 160, 2, 5]];   // lane, speed, offset, length, look
 const LOOKS = [{ kind: 'sport', color: '#ff4d5e', stripe: '#fff' }, { kind: 'truck', color: '#4dc3ff' }, { kind: 'taxi', color: '#ffcf33' }, { kind: 'sedan', color: '#8fd66b' }, { kind: 'bus', color: '#9b7bff' }, { kind: 'police', color: '#eef2f7' }];
 function drawMenu() {
-  const w = WORLDS[wi()], cx = X(sw / 2), ry = Y(land ? 37 : 63), rh = u * (land ? 25 : 30), lane = rh / 2, T = lane * 0.8;
-  ground(w);
-  scatter('m' + wi() + land + W + 'x' + H, 11, [[0, ry - u * 3, W, rh + u * 6]]);
-  drawDecor(w);
-  road(w, 0, ry, W, rh, true);
+  const w = WORLDS[wi()], cx = X(sw / 2);
+  backdrop();
+  // Hero card: a road with passing traffic. It is the picture of the screen; PLAY is the one accent.
+  const hx = X(land ? 16 : 8), hw = u * (sw - (land ? 32 : 16)), hy = Y(land ? 33 : 54), hh = u * (land ? 34 : 46);
+  const rh = hh * 0.56, ry = hy + (hh - rh) / 2, lane = rh / 2, T = lane * 0.8;
+  card(hx, hy, hw, hh, u * 6);
+  g.save(); rrect(hx, hy, hw, hh, u * 6); g.clip();
+  ground(w); road(w, 0, ry, W, rh, true);
   const span = W + u * 80;
   for (const t of TRAFFIC) {
-    const p = (time * t[1] + t[2]) * u % span - u * 40, L = T * t[3] * 0.95, look = t[0] ? Object.assign({ flip: true }, LOOKS[t[4]]) : LOOKS[t[4]];
-    drawCar((t[0] ? W - p : p) - L / 2, ry + t[0] * lane + (lane - T) / 2, L, T, true, t[4] ? look : Object.assign({}, SKINS[save.skin], { flip: false }));
+    const p = (time * t[1] + t[2]) * u % span - u * 40, len = T * t[3] * 0.95, look = t[0] ? Object.assign({ flip: true }, LOOKS[t[4]]) : LOOKS[t[4]];
+    drawCar((t[0] ? W - p : p) - len / 2, ry + t[0] * lane + (lane - T) / 2, len, T, true, t[4] ? look : Object.assign({}, SKINS[save.skin], { flip: false }));
   }
-  const bob = Math.sin(time * 2.2) * u * 0.8;
-  label('CAR JAM', cx, Y(land ? 13 : 30) + bob, u * (land ? 13 : 16), '#fff', 'center', '#16202c');
-  label('ESCAPE', cx, Y(land ? 26 : 46) + bob, u * (land ? 9 : 11.5), w.accent, 'center', '#16202c');
-  const pulse = 1 + Math.sin(time * 4) * 0.03, play = () => {
+  g.restore();
+  head('Car Jam', cx, Y(land ? 13 : 26), u * (land ? 15 : 20));
+  tag('Escape', cx, Y(land ? 25 : 41), u * 3);
+  const play = () => {
     if (save.unlocked === 1 && !save.stars[1]) startLevel(1); else { page = Math.floor((Math.min(save.unlocked, LEVELS.length) - 1) / 20); go('levels'); }
   };
   if (land) {
-    button('PLAY', cx - u * 22, Y(77), u * 50 * pulse, u * 15 * pulse, '#3ddc84', '#1f9d55', play);
-    button('GARAGE', cx + u * 30, Y(77), u * 40, u * 12, '#4dc3ff', '#2f9fd8', () => go('shop'), u * 4.4);
+    button('Play', cx - u * 26, Y(80), u * 48, u * 13, true, play);
+    button('Garage', cx + u * 26, Y(80), u * 48, u * 13, false, () => go('shop'));
   } else {
-    button('PLAY', cx, Y(112), u * 58 * pulse, u * 16 * pulse, '#3ddc84', '#1f9d55', play);
-    button('GARAGE', cx, Y(131), u * 44, u * 11.5, '#4dc3ff', '#2f9fd8', () => go('shop'), u * 4.4);
+    button('Play', cx, Y(114), u * 84, u * 14, true, play);
+    button('Garage', cx, Y(132), u * 84, u * 14, false, () => go('shop'));
   }
   let total = 0; for (const k in save.stars) total += save.stars[k];
-  const by = Y(sh - (land ? 7 : 9)), txt = total + ' / ' + LEVELS.length * 3;
-  pill(cx - u * 36, by - u * 4, u * 34, u * 8); star(cx - u * 31, by, u * 2.8, '#ffd84d'); label(txt, cx - u * 4.5, by + u * 0.1, u * 4, '#fff', 'right');
-  wallet(cx + u * 36, by);
+  const by = Y(sh - (land ? 7 : 9)), lx = hx + u * 2;
+  star(lx + u * 2, by - u * 0.2, u * 2.2, C.accent); tag(total + ' / ' + LEVELS.length * 3, lx + u * 6, by, u * 2.8, C.soft, 'left');
+  wallet(hx + hw, by);
   soundBtns(X(sw - 9), Y(9));
 }
 function drawLevels() {
   const w = WORLDS[page % WORLDS.length], cx = X(sw / 2), cols = land ? 5 : 4, rows = 20 / cols, pages = LEVELS.length / 20;
   backdrop();
   let got = 0; for (let n = page * 20 + 1; n <= page * 20 + 20; n++) got += save.stars[n] || 0;
-  label(w.name, cx, Y(7), u * 7, '#fff');
-  star(cx - u * 9, Y(14.3), u * 2.2, '#ffd84d'); label(got + ' / 60', cx - u * 5, Y(14.5), u * 3.6, '#c9d6e8', 'left');
+  head(nice(w.name), cx, Y(7.5), u * 8);
+  star(cx - u * 8, Y(15.3), u * 1.8, C.accent); tag(got + ' / 60', cx - u * 4.5, Y(15.5), u * 2.8, C.soft, 'left');
   roundBtn('‹', X(9), Y(9), () => go('menu'));
   const gx = land ? 30 : 8, gw = sw - gx * 2, gy = 21, gh = sh - 21 - 20;
   const cw = gw / cols, ch = gh / rows, base = Math.min(cw, ch) * 0.86 * u;
   for (let k = 0; k < 20; k++) {
     const n = page * 20 + k + 1, open = n <= save.unlocked, cur = n === save.unlocked && !save.stars[n];
     const x = X(gx + (k % cols + 0.5) * cw), y = Y(gy + (Math.floor(k / cols) + 0.5) * ch);
-    const s = base * (open && over(x - base / 2, y - base / 2, base, base) ? 1.07 : cur ? 1 + Math.sin(time * 5) * 0.04 : 1);
-    g.fillStyle = 'rgba(0,0,0,.3)'; rrect(x - s / 2, y - s / 2 + u * 1.2, s, s, u * 3); g.fill();
-    g.fillStyle = open ? shade(w.sky[0], cur ? 0.32 : 0.18) : shade(w.sky[1], 0.06); rrect(x - s / 2, y - s / 2, s, s, u * 3); g.fill();
-    if (cur) { g.lineWidth = u * 0.8; g.strokeStyle = w.accent; g.stroke(); }
+    const s = base * (open && over(x - base / 2, y - base / 2, base, base) ? 1.05 : 1);
+    if (open) card(x - s / 2, y - s / 2, s, s, u * 4);
+    else { rrect(x - s / 2, y - s / 2, s, s, u * 4); g.lineWidth = hair(); g.strokeStyle = C.line; g.stroke(); }
+    if (cur) { rrect(x - s / 2, y - s / 2, s, s, u * 4); g.lineWidth = u * 0.6; g.strokeStyle = C.accent; g.stroke(); }
     if (open) {
-      label(String(n), x, y - s * 0.1, s * 0.36, '#fff');
+      head(String(n), x, y - s * 0.1, s * 0.44);
       const st = save.stars[n] || 0;
-      for (let j = 0; j < 3; j++) star(x + (j - 1) * s * 0.24, y + s * 0.28, s * 0.1, j < st ? '#ffd84d' : 'rgba(255,255,255,.16)');
+      for (let j = 0; j < 3; j++) star(x + (j - 1) * s * 0.22, y + s * 0.28, s * 0.085, j < st ? C.accent : C.line);
       btns.push({ x: x - s / 2, y: y - s / 2, w: s, h: s, action: () => startLevel(n) });
-    } else lock(x, y, s * 0.42, 'rgba(255,255,255,.25)');
+    } else lock(x, y, s * 0.34, C.line);
   }
   const by = Y(sh - 9);
   if (page > 0) roundBtn('‹', cx - u * 22, by, () => { page--; fadeT = 0.15; });
-  label((page + 1) + ' / ' + pages, cx, by, u * 5, '#fff');
+  tag((page + 1) + ' / ' + pages, cx, by, u * 3);
   if (page < pages - 1) roundBtn('›', cx + u * 22, by, () => { page++; fadeT = 0.15; });
 }
 function drawShop() {
   const cx = X(sw / 2), cols = land ? 3 : 2, rows = SKINS.length / cols;
   backdrop();
-  label('GARAGE', cx, Y(9), u * 7.5, '#fff');
+  head('Garage', cx, Y(9), u * 8);
   roundBtn('‹', X(9), Y(9), () => go('menu'));
   wallet(X(sw - 3), Y(9));
   const gx = land ? 18 : 6, gw = sw - gx * 2, gy = 20, gh = sh - gy - (land ? 4 : 8), cw = gw / cols, ch = gh / rows;
   SKINS.forEach((sk, i) => {
     const w = cw * 0.92 * u, h = ch * 0.92 * u, x = X(gx + (i % cols + 0.5) * cw), y = Y(gy + (Math.floor(i / cols) + 0.5) * ch);
     const own = save.owned.indexOf(i) >= 0, sel = save.skin === i, hv = over(x - w / 2, y - h / 2, w, h);
-    g.fillStyle = 'rgba(0,0,0,.3)'; rrect(x - w / 2, y - h / 2 + u * 1.4, w, h, u * 4); g.fill();
-    g.fillStyle = sel ? '#2f5a4a' : hv ? '#3d5a80' : '#2f445f'; rrect(x - w / 2, y - h / 2, w, h, u * 4); g.fill();
-    if (sel) { g.lineWidth = u * 0.9; g.strokeStyle = '#3ddc84'; g.stroke(); }
+    card(x - w / 2, y - h / 2, w, h, u * 4);
+    if (sel || hv) { rrect(x - w / 2, y - h / 2, w, h, u * 4); g.lineWidth = sel ? u * 0.6 : hair(); g.strokeStyle = sel ? C.accent : C.line; g.stroke(); }
     const cl = Math.min(w * 0.66, h * 0.9), bob = sel ? Math.sin(time * 5) * u * 0.5 : 0;
     drawCar(x - cl / 2, y - h * 0.2 - cl / 4 + bob, cl, cl / 2, true, Object.assign({ me: sel }, sk));
-    label(sk.name, x, y + h * 0.2, u * 3.8, '#fff');
-    if (sel) label('SELECTED', x, y + h * 0.36, u * 3.2, '#3ddc84');
-    else if (own) label('TAP TO USE', x, y + h * 0.36, u * 3.2, '#9fb4cf');
-    else { const p = String(sk.price), tw = u * (p.length * 2.1 + 6); coin(x - tw / 2 + u * 2, y + h * 0.36, u * 2.3); label(p, x - tw / 2 + u * 5.5, y + h * 0.365, u * 3.6, save.coins >= sk.price ? '#ffd84d' : '#8b9bb0', 'left'); }
+    label(nice(sk.name), x, y + h * 0.2, u * 3.8, C.text);
+    if (sel) tag('Selected', x, y + h * 0.36, u * 2.6, C.accent);
+    else if (own) tag('Tap to use', x, y + h * 0.36, u * 2.6);
+    else { const p = String(sk.price), tw = u * (p.length * 2.1 + 6); coin(x - tw / 2 + u * 2, y + h * 0.36, u * 2); label(p, x - tw / 2 + u * 5.5, y + h * 0.365, u * 3.6, save.coins >= sk.price ? C.text : C.soft, 'left'); }
     btns.push({ x: x - w / 2, y: y - h / 2, w, h, action: () => pickSkin(i), quiet: true });
   });
 }
@@ -844,60 +854,58 @@ function drawBoard() {
   }
 }
 function bubble(lines, cx, cy, w) {
-  const size = u * 3.7, h = size * 1.35 * lines.length + u * 4.5;
-  g.fillStyle = 'rgba(14,22,34,.85)'; rrect(cx - w / 2, cy - h / 2, w, h, u * 3.5); g.fill();
-  lines.forEach((s, i) => label(s, cx, cy + (i - (lines.length - 1) / 2) * size * 1.35, size, '#fff'));
+  const size = u * 3.6, h = size * 1.4 * lines.length + u * 6;
+  card(cx - w / 2, cy - h / 2, w, h, u * 4);
+  lines.forEach((s, i) => label(s, cx, cy + (i - (lines.length - 1) / 2) * size * 1.4, size, C.text));
 }
 function drawGame() {
   const cx = X(land ? 83 : 50), par = PAR[level - 1], now = moves <= par ? 3 : moves <= twoStar(par) ? 2 : 1;
   sceneGame();
-  g.fillStyle = 'rgba(14,22,34,.66)'; g.fillRect(0, 0, W, Y(land ? 17 : 20));
+  g.fillStyle = C.page; g.fillRect(0, 0, W, Y(land ? 17 : 20));
   roundBtn('‹', X(9), Y(land ? 8.5 : 10), leaveLevel);
-  label('LEVEL ' + level, cx, Y(land ? 6 : 7.5), u * (land ? 5.6 : 6.5), '#fff');
-  const hy = Y(land ? 13 : 15);
-  label('MOVES ' + moves, cx - u * 8.5, hy, u * 3.5, '#c9d6e8', 'right');
-  for (let j = 0; j < 3; j++) star(cx + (j - 1) * u * 4.4, hy - u * 0.2, u * 2, j < now ? '#ffd84d' : 'rgba(255,255,255,.2)');
-  label('BEST ' + par, cx + u * 8.5, hy, u * 3.5, '#c9d6e8', 'left');
+  head('Level ' + level, cx, Y(land ? 6 : 7.5), u * (land ? 6.4 : 7.2));
+  const hy = Y(land ? 13 : 15.5);
+  tag('Moves ' + moves, cx - u * 8.5, hy, u * 2.6, C.soft, 'right');
+  for (let j = 0; j < 3; j++) star(cx + (j - 1) * u * 4.4, hy - u * 0.2, u * 1.8, j < now ? C.accent : C.line);
+  tag('Best ' + par, cx + u * 8.5, hy, u * 2.6, C.soft, 'left');
   soundBtns(X(sw - 9), Y(land ? 8.5 : 10));
   drawBoard();
   const list = [
-    ['UNDO', '#9b7bff', '#7a5bd6', undoMove, undo.length > 0],
-    [hints > 0 ? 'FREE HINT' : save.coins >= HINT_COST ? 'HINT  -' + HINT_COST : '▶  HINT', '#ffb84d', '#d98a1a', useHint, true],
-    ['RESTART', '#4dc3ff', '#2f9fd8', () => startLevel(level), true]
+    ['Undo', undoMove, undo.length > 0],
+    [hints > 0 ? 'Free hint' : save.coins >= HINT_COST ? 'Hint  -' + HINT_COST : '▶  Hint', useHint, true],
+    ['Restart', () => startLevel(level), true]
   ];
   list.forEach((it, i) => {
     const bx = land ? X(22) : X(50) + (i - 1) * u * 32, by = land ? Y(32 + i * 15) : Y(sh - 10);
-    g.globalAlpha = it[4] ? 1 : 0.45;
-    button(it[0], bx, by, u * (land ? 36 : 30), u * 11, it[1], it[2], it[3], u * 3.7);
+    g.globalAlpha = it[2] ? 1 : 0.45;
+    button(it[0], bx, by, u * (land ? 36 : 30), u * 10, false, it[1], u * 3.4);
     g.globalAlpha = 1;
   });
-  const tip = level === 1 && hint ? (hint.car === 0 ? ['Now drive', 'to the EXIT!'] : ['Drag the cars', 'out of the way'])
-    : level === 2 && moves < 3 ? ['Fewer moves', '= more stars!'] : level === 3 && moves < 3 ? ['Stuck?', 'Tap HINT'] : null;
+  const tip = level === 1 && hint ? (hint.car === 0 ? ['Now drive', 'to the exit'] : ['Drag the cars', 'out of the way'])
+    : level === 2 && moves < 3 ? ['Fewer moves,', 'more stars'] : level === 3 && moves < 3 ? ['Stuck?', 'Tap Hint'] : null;
   if (tip && exitT < 0) { if (land) bubble(tip, X(22), Y(86), u * 38); else bubble(tip, X(50), Y(127), u * 60); }
 }
 function drawWin() {
   const cx = X(sw / 2), cy = Y(sh / 2), a = Math.min(1, winT / 0.35);
   sceneGame(); drawBoard();
-  g.fillStyle = 'rgba(10,18,30,' + (0.7 * a) + ')'; g.fillRect(0, 0, W, H);
+  g.fillStyle = 'rgba(26,26,26,' + (0.4 * a) + ')'; g.fillRect(0, 0, W, H);
   if (winT < 0.3) return;
   const k = backOut(clamp01((winT - 0.3) / 0.3)), pw = u * 84, ph = u * 88;
   g.save(); g.translate(cx, cy); g.scale(k, k); g.translate(-cx, -cy);
-  g.fillStyle = 'rgba(0,0,0,.35)'; rrect(cx - pw / 2, cy - ph / 2 + u * 2, pw, ph, u * 6); g.fill();
-  g.fillStyle = '#2f445f'; rrect(cx - pw / 2, cy - ph / 2, pw, ph, u * 6); g.fill();
-  g.lineWidth = u * 0.8; g.strokeStyle = '#4b6a92'; g.stroke();
-  label('LEVEL ' + level, cx, cy - u * 36, u * 4.6, '#9fb4cf');
-  label(earned === 3 ? 'PERFECT!' : 'ESCAPED!', cx, cy - u * 27, u * 9, earned === 3 ? '#ffd84d' : '#3ddc84');
+  card(cx - pw / 2, cy - ph / 2, pw, ph, u * 6);
+  tag('Level ' + level, cx, cy - u * 36, u * 2.8);
+  head(earned === 3 ? 'Perfect' : 'Escaped', cx, cy - u * 26, u * 13);
   for (let j = 0; j < 3; j++) {
-    const t = clamp01((winT - 0.7 - j * 0.22) / 0.25), sx = cx + (j - 1) * u * 18, sy = cy - u * 10 - (j === 1 ? u * 2.5 : 0);
-    star(sx, sy, u * 8.6, '#1f2f44');
-    if (j < earned && t > 0) star(sx, sy, u * 8 * backOut(t), '#ffd84d'); else star(sx, sy, u * 7.2, 'rgba(255,255,255,.12)');
+    const t = clamp01((winT - 0.7 - j * 0.22) / 0.25), sx = cx + (j - 1) * u * 16, sy = cy - u * 9;
+    star(sx, sy, u * 6, C.line);
+    if (j < earned && t > 0) star(sx, sy, u * 6 * backOut(t), C.accent);
   }
-  label('MOVES  ' + moves + '   •   BEST  ' + PAR[level - 1], cx, cy + u * 5, u * 3.6, '#9fb4cf');
-  coin(cx - u * 7, cy + u * 12.5, u * 2.8); label('+' + gain, cx - u * 2.5, cy + u * 12.7, u * 4.6, '#ffd84d', 'left');
-  if (level < LEVELS.length) button('NEXT LEVEL', cx, cy + u * 24, u * 62 * (1 + Math.sin(time * 4) * 0.02), u * 13, '#3ddc84', '#1f9d55', nextLevel);
-  else label('ALL ' + LEVELS.length + ' LEVELS DONE!', cx, cy + u * 24, u * 5, '#ffd84d');
-  button('REPLAY', cx - u * 16.5, cy + u * 37, u * 29, u * 10, '#4dc3ff', '#2f9fd8', () => startLevel(level), u * 3.8);
-  button('LEVELS', cx + u * 16.5, cy + u * 37, u * 29, u * 10, '#9b7bff', '#7a5bd6', leaveLevel, u * 3.8);
+  tag('Moves ' + moves + '  ·  Best ' + PAR[level - 1], cx, cy + u * 4, u * 2.6);
+  coin(cx - u * 6, cy + u * 12.5, u * 2.2); label('+' + gain, cx - u * 2, cy + u * 12.7, u * 4.2, C.text, 'left');
+  if (level < LEVELS.length) button('Next level', cx, cy + u * 24, u * 68, u * 13, true, nextLevel);
+  else tag('All ' + LEVELS.length + ' levels done', cx, cy + u * 24, u * 3);
+  button('Replay', cx - u * 17.5, cy + u * 37, u * 33, u * 10, false, () => startLevel(level), u * 3.4);
+  button('Levels', cx + u * 17.5, cy + u * 37, u * 33, u * 10, false, leaveLevel, u * 3.4);
   g.restore();
 }
 
@@ -996,7 +1004,7 @@ function draw() {
     else { g.beginPath(); g.arc(p.x, p.y, p.size, 0, TAU); g.fill(); }
   }
   g.globalAlpha = 1;
-  if (fadeT > 0) { g.fillStyle = 'rgba(10,16,26,' + (fadeT / 0.25 * 0.85) + ')'; g.fillRect(0, 0, W, H); }
+  if (fadeT > 0) { g.fillStyle = 'rgba(255,251,245,' + (fadeT / 0.25 * 0.85) + ')'; g.fillRect(0, 0, W, H); }
   cv.style.cursor = hot ? 'pointer' : 'default';
 }
 // Local test hook: ?level=N opens a level, &solve=K plays the first K solution moves, &win=1 finishes it.
@@ -1058,16 +1066,16 @@ async function coverShot() {
   drawBoard();
   if (wide) {
     const cx = (b.x - u * 3) / 2;
-    label('CAR JAM', cx, H * 0.27, H * 0.165, '#fff', 'center', '#16202c');
-    label('ESCAPE', cx, H * 0.43, H * 0.12, w.accent, 'center', '#16202c');
+    head('Car Jam', cx, H * 0.27, H * 0.165, '#FFFFFF');
+    tag('Escape', cx, H * 0.43, H * 0.12, '#FFFFFF');
     g.save(); g.translate(cx, H * 0.72); g.rotate(-0.14);
     drawCar(-H * 0.36, -H * 0.02, H * 0.3, H * 0.15, true, LOOKS[2]);
     drawCar(-H * 0.02, -H * 0.19, H * 0.42, H * 0.21, true, Object.assign({ me: true }, SKINS[0]));
     g.restore();
   } else {
     const top = b.y - u * 3;
-    label('CAR JAM', W / 2, top * 0.4, Math.min(W * 0.19, top * 0.42), '#fff', 'center', '#16202c');
-    label('ESCAPE', W / 2, top * 0.76, Math.min(W * 0.13, top * 0.29), w.accent, 'center', '#16202c');
+    head('Car Jam', W / 2, top * 0.4, Math.min(W * 0.19, top * 0.42), '#FFFFFF');
+    tag('Escape', W / 2, top * 0.76, Math.min(W * 0.13, top * 0.29), '#FFFFFF');
   }
   const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
   await fetch('/frame?v=' + DEMO + '-' + W + 'x' + H + '&n=cover&ext=png', { method: 'POST', body: blob });
