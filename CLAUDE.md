@@ -10,6 +10,7 @@ Trả lời tiếng Việt, ngắn gọn, tự làm; chỉ hỏi khi cần tài 
 ## CHẾ ĐỘ TỰ CHẠY
 
 - Tự làm, không hỏi xin phép, không nhắc lại, không giảng giải, không đưa chủ lệnh để chạy.
+- **Làm liên tục (chủ dặn 13/10): mỗi lượt làm hết việc này sang việc kế trong `VIEC.md`, KHÔNG dừng để chờ chủ gõ "làm tiếp". Chỉ dừng khi: (a) bí thật sự và cần chủ điền tài khoản, mật khẩu, khóa hoặc quyết định tiền; (b) mọi việc còn lại đều chờ chủ (ghi ở đầu `HUONG-DAN-CHU.md`). Việc bị chặn thì bỏ qua, làm việc khác trước, không đứng chờ.**
 - Lệnh viết kiểu PowerShell: nối bằng `;`, không dùng `&&`.
 - Thiếu tài khoản / trang nền tảng (itch.io…): bỏ qua, ghi ⚪, không báo 🔴.
 - Việc chỉ chủ làm được: gom vào `HUONG-DAN-CHU.md`, nhắc 1 lần/ngày trong Discord #game, không chờ chủ.
@@ -97,5 +98,6 @@ Chạy thử trên máy: launch config `game-web` (`.claude/launch.json`), cổn
 - 2026-10-11 – Màn mới sinh bằng thuật toán + bộ giải, không dùng Gemini – không cần khóa, không hết lượt, chắc chắn giải được.
 - 2026-10-12 – Dọn giai đoạn 0 chỉ áp dụng cho thư mục game; không xóa CLAUDE.md và không dời tệp trong `Videos\noi-dung-video` – thư mục đó là dự án khác đang chạy theo lịch, dời tệp sẽ làm hỏng nó.
 - 2026-10-12 – Màn mới vào game mỗi thứ hai, 20 màn/game (không phải mỗi ngày); cổng web vẫn gom theo tháng – trang chọn màn chia 20 ô nên phải thêm trọn trang; 20 màn/ngày thì tệp game phình nhanh mà chưa có người chơi.
+- 2026-10-13 – Chủ dặn: khung chat chủ động làm liên tục hàng việc, không dừng chờ câu "làm tiếp"; chỉ hỏi khi cần tài khoản, mật khẩu, tiền – chủ không muốn phải nhắc.
 - 2026-10-13 – Chủ chọn ngôn ngữ thiết kế xuyên suốt (`THIET-KE.md`): nền giấy ấm/đêm, card trắng bo 16, nút pill, 1 màu nhấn, headline serif mảnh – game cũ bị chê chất lượng chung; game mới theo từ đầu, game cũ đổi dần.
 - 2026-10-13 – Chuyển sang KE-HOACH-V3: bỏ chia giai đoạn và các mốc chờ ngày, làm theo hàng việc VIEC.md; cho làm game mới song song (mục tiêu 2 game/tuần) và nộp nhiều cổng; routine đám mây 3 lượt/ngày – chủ dự án yêu cầu, để không phụ thuộc 1 cổng hay 1 game.
