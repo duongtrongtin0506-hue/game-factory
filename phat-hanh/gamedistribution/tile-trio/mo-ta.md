@@ -1,4 +1,4 @@
-# Tile Trio -> gamedistribution
+# Three of a Tile -> gamedistribution
 
 - Submit page: https://developer.gamedistribution.com/
 - Game file: `phat-hanh/gamedistribution/tile-trio/tile-trio.zip` (index.html at the root)
@@ -6,7 +6,7 @@
 - BLOCKED: portal_ids.gamedistribution is empty in specs/tile-trio.json
 - Note: Can tai khoan da kich hoat va gameId (portal_ids.gamedistribution). Co anh cong yeu cau: chua xac minh, xem CONG.md.
 
-Title: Tile Trio
+Title: Three of a Tile
 
 Short description: Pick three matching tiles to clear them before the tray fills up.
 

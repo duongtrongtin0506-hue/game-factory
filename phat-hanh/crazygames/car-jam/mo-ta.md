@@ -1,11 +1,11 @@
-# Car Jam Escape -> crazygames
+# Red Car Out -> crazygames
 
 - Submit page: https://developer.crazygames.com/
 - Game file: `phat-hanh/crazygames/car-jam/car-jam.zip` (index.html at the root)
 - Covers / video: `assets-goc/car-jam/cover-1920x1080.png`, `assets-goc/car-jam/cover-800x1200.png`, `assets-goc/car-jam/cover-800x800.png`, `assets-goc/car-jam/preview-landscape-1920x1080.mp4`, `assets-goc/car-jam/preview-portrait-1080x1620.mp4`
 - Note: Tai len tep index.html trong zip (hoac ca zip). Bai bi tu choi khong tai ban moi duoc: tao bai nop moi. Anh bia va video phai tai lai moi lan doi ban.
 
-Title: Car Jam Escape
+Title: Red Car Out
 
 Short description: Slide the cars out of the way and drive the red car to the exit.
 

@@ -29,9 +29,9 @@ Trên đám mây (routine, Linux): dùng bash; `pip install -r tools/requirement
 | Tên | Thư mục | Số màn | Cổng đã nộp | Ngày nộp | Trạng thái duyệt |
 |---|---|---|---|---|---|
 | Tap Arcade | `web/tap-arcade` | 45 (Journey) | GameMonetize (bản 5 trò) · CrazyGames | 09/10 · 11/10 | bị từ chối (xem 13/10) · bị từ chối 11/10 |
-| Boba Sort | `web/boba-sort` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
-| Car Jam Escape | `web/car-jam` | 120 (+40 dự trữ) | CrazyGames (bản 1) | 11/10 | bị từ chối 11/10; bản giao diện mới có gói, chờ chủ nộp |
-| Tile Trio | `web/tile-trio` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
+| Pearl Cup Sort (tên cũ Boba Sort; thư mục và khóa lưu vẫn là `boba-sort`) | `web/boba-sort` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
+| Red Car Out (tên cũ Car Jam Escape; thư mục vẫn là `car-jam`) | `web/car-jam` | 120 (+40 dự trữ) | CrazyGames (bản 1) | 11/10 | bị từ chối 11/10; bản giao diện mới có gói, chờ chủ nộp |
+| Three of a Tile (tên cũ Tile Trio; thư mục vẫn là `tile-trio`) | `web/tile-trio` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
 | One Line Fill | `web/one-line` | 120 | CrazyGames · Playgama · GameDistribution · itch.io | 13/10 · 13/10 · 14/10 · 13/10 | chờ duyệt · Sandbox · In Review · trang nháp |
 | Sprout Merge (thư mục và khóa lưu vẫn là `merge-harvest`) | `web/merge-harvest` | vô tận (gộp + idle, 10 bậc, mùa) | CrazyGames · GameDistribution · Playgama | 13/10 · 14/10 · 14/10 | chờ duyệt · In Review · Sandbox; đổi tên 13/10 vì "Merge Harvest" trùng game có thật; mẫu tham chiếu ngôn ngữ thiết kế |
 
@@ -108,3 +108,4 @@ Chạy thử trên máy: launch config `game-web` (`.claude/launch.json`), cổn
 - 2026-10-13 – Chủ giao toàn quyền cho lượt chạy: máy tự làm cả việc tồn đọng của chủ, chỉ hỏi khi đụng tiền – chủ không muốn phải bấm tay hay trả lời.
 - 2026-10-13 – Tạm dừng GameMonetize, không lấy GameId cho game khác – cổng từ chối Tap Arcade vì chất lượng, ghi rõ không nhận game làm bằng AI và dọa khóa tài khoản nếu nộp lặp lại; mở lại khi có game được cổng khác duyệt.
 - 2026-10-13 – Đổi tên 3 game trùng tên theo đề xuất (Three of a Tile, Pearl Cup Sort, Red Car Out), đổi ngay trước lần nộp mới của từng game – CrazyGames đòi tên và nội dung nguyên bản; chủ giao máy quyết.
+- 2026-10-14 – Chủ chốt đổi tên ngay cả 3 game: Tile Trio → Three of a Tile, Boba Sort → Pearl Cup Sort, Car Jam Escape → Red Car Out (đã tra lại, không trùng game nào); thư mục, khóa lưu, tên tệp công cụ giữ nguyên để không mất tiến trình người chơi và không phải sửa đường dẫn.

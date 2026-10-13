@@ -23,6 +23,6 @@ Kiểm 13/10/2026 bằng cách tìm trong mọi `web/*/index.src.html` và `web/
 | Boba Sort | trùng chính xác với một game itch.io (thể loại khác) https://ishaanm.itch.io/boba-sort ; App Store có "Boba Sort Cafe", "Boba Sort Puzzle: Bubble Tea" cùng thể loại | vừa–cao | nên đổi |
 | Tile Trio | trùng chính xác với app "Tile Trio" cùng thể loại ghép ba trên App Store https://apps.apple.com/app/id6446942289 | cao | nên đổi trước khi nộp lại |
 
-Game đã nộp không tự đổi tên; chủ chọn ở đầu `HUONG-DAN-CHU.md`. Đổi tên = sửa `<title>`, chữ ở menu và ảnh bìa trong `web/<game>/index.src.html`, mục `name` + `store.title` trong `specs/<game>.json`, rồi `python tools/build.py` và `python tools/quay.py <game>`.
+14/10 đã đổi: Tile Trio → Three of a Tile, Boba Sort → Pearl Cup Sort, Car Jam Escape → Red Car Out (tra lại 14/10: không có game nào trùng đúng các tên này). Game đã nộp không tự đổi tên. Đổi tên = sửa `<title>`, chữ ở menu và ảnh bìa trong `web/<game>/index.src.html`, mục `name` + `store.title` trong `specs/<game>.json`, rồi `python tools/build.py` và `python tools/quay.py <game>`.
 
 Quy tắc khi thêm tài nguyên ngoài (hình AI vẽ, font nhúng, âm thanh tải về): thêm 1 dòng vào bảng trên gồm tệp, nguồn (link), giấy phép, ngày lấy; chỉ dùng giấy phép cho phép thương mại; không dùng tên, hình, nhân vật, nhạc của game khác.

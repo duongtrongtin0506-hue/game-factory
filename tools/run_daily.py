@@ -26,7 +26,7 @@ ROOT = Path(__file__).resolve().parent.parent
 HISTORY = ROOT / "metrics" / "history.json"
 VN = timezone(timedelta(hours=7))
 # Game tu them man: man hinh chon man cua 3 game nay tu dai theo so man. Car Jam chua vao: man 101+ can canh the gioi thu 6.
-TAKE_GAMES = (("Car Jam Escape", carjam), ("Boba Sort", bobasort), ("Tile Trio", tiletrio), ("One Line Fill", oneline))
+TAKE_GAMES = (("Red Car Out", carjam), ("Pearl Cup Sort", bobasort), ("Three of a Tile", tiletrio), ("One Line Fill", oneline))
 LOG_MARK = "## Nhật ký lượt"   # tu dong nay tro xuong trong TRANG-THAI.md la cua routine, run_daily khong ghi de
 TAKE_COUNT, TAKE_WEEKDAY = 20, 0   # 20 man = 1 trang chon man; 0 = thu hai
 FIX = {
@@ -63,7 +63,7 @@ def step_take(history, today):
 
 
 def step_fill():
-    for name, tool in (("Car Jam", carjam), ("Boba Sort", bobasort), ("Tile Trio", tiletrio), ("One Line Fill", oneline)):
+    for name, tool in (("Red Car Out", carjam), ("Pearl Cup Sort", bobasort), ("Three of a Tile", tiletrio), ("One Line Fill", oneline)):
         if len(tool.load(tool.QUEUE)) < tool.QUEUE_TARGET:
             tool.fill(90)
         if tool is carjam:   # moi ngay doi vai man de thanh man kho, den khi nua hang du tru tu HARD_MOVES buoc
@@ -176,13 +176,13 @@ def main():
         "# Trạng thái game-factory", "",
         f"- Lần chạy cuối: {now:%Y-%m-%d %H:%M} (giờ VN), {'chạy thử, không đăng' if not publish else 'chạy hằng ngày'}",
         f"- Kết quả: {'🔴 HỎNG ở bước ' + failed + ': ' + detail if failed else '✅ đạt'}",
-        f"- Car Jam Escape: {row['levels']} màn trong game, {row['queue']} màn dự trữ đã kiểm (cần ≥ {carjam.QUEUE_MIN})",
-        f"- Boba Sort: {len(bobasort.load(bobasort.LEVELS))} màn trong game, {len(bobasort.load(bobasort.QUEUE))} màn dự trữ đã kiểm (cần ≥ {bobasort.QUEUE_MIN})",
-        f"- Tile Trio: {len(tiletrio.load(tiletrio.LEVELS))} màn trong game, {len(tiletrio.load(tiletrio.QUEUE))} màn dự trữ đã kiểm (cần ≥ {tiletrio.QUEUE_MIN})",
+        f"- Red Car Out: {row['levels']} màn trong game, {row['queue']} màn dự trữ đã kiểm (cần ≥ {carjam.QUEUE_MIN})",
+        f"- Pearl Cup Sort: {len(bobasort.load(bobasort.LEVELS))} màn trong game, {len(bobasort.load(bobasort.QUEUE))} màn dự trữ đã kiểm (cần ≥ {bobasort.QUEUE_MIN})",
+        f"- Three of a Tile: {len(tiletrio.load(tiletrio.LEVELS))} màn trong game, {len(tiletrio.load(tiletrio.QUEUE))} màn dự trữ đã kiểm (cần ≥ {tiletrio.QUEUE_MIN})",
         f"- One Line Fill: {len(oneline.load(oneline.LEVELS))} màn trong game, {len(oneline.load(oneline.QUEUE))} màn dự trữ đã kiểm (cần ≥ {oneline.QUEUE_MIN})",
         f"- Tap Arcade: {len(taparcade.load(taparcade.LEVELS))} chặng Journey đã kiểm (trò phản xạ, không có hàng dự trữ)",
         f"- Kiểm bản web cỡ điện thoại: {row['games_tested']}/{len(build.GAMES)} game đạt",
-        "- Thêm màn tuần này: " + (f"đã chuyển {row['took']} màn từ hàng dự trữ vào game" if row.get("took") else "màn mới hỏng kiểm thử, đã trả lại" if took < 0 else "không phải hôm nay (mỗi thứ hai 20 màn mỗi game: Car Jam, Boba Sort, Tile Trio, One Line Fill)"),
+        "- Thêm màn tuần này: " + (f"đã chuyển {row['took']} màn từ hàng dự trữ vào game" if row.get("took") else "màn mới hỏng kiểm thử, đã trả lại" if took < 0 else "không phải hôm nay (mỗi thứ hai 20 màn mỗi game: Red Car Out, Pearl Cup Sort, Three of a Tile, One Line Fill)"),
         "- Đăng: " + ("; ".join(f"{k}: {v}" for k, v in published.items()) or "không đăng lần này"),
         "- Lượt chơi, thời gian chơi, doanh thu: chưa có, chưa game nào lên sóng", "",
         "| Khóa | Có | Hết hạn |", "|---|---|---|", *keys, "",
@@ -221,7 +221,7 @@ def main():
         ideas = [l.split("|")[2].strip() for l in section("Y-TUONG.md", "## Tuần")[1:4]]
         notify.discord(
             f"📊 game-factory tuần đến {now:%d/%m}: {sum(r['ok'] for r in runs)}/{len(runs)} lần chạy đạt; "
-            f"màn dự trữ Car Jam {row['queue']}" + (f" (tuần trước {old['queue']})" if old else "")
+            f"màn dự trữ Red Car Out {row['queue']}" + (f" (tuần trước {old['queue']})" if old else "")
             + "; lượt chơi và doanh thu: xem bảng.\n" + "\n".join(table)[:1300]
             + ("\n💡 Ý tưởng tuần: " + ", ".join(ideas) if ideas else "")
             + "\n👉 Đề xuất: việc gần tiền nhất là nộp các gói ở mục CẦN NỘP (đầu HUONG-DAN-CHU.md).")

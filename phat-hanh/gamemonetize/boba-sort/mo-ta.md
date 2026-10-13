@@ -1,4 +1,4 @@
-# Boba Sort -> gamemonetize
+# Pearl Cup Sort -> gamemonetize
 
 - Submit page: https://gamemonetize.com/account/
 - Game file: `phat-hanh/gamemonetize/boba-sort/boba-sort.zip` (index.html at the root)
@@ -6,7 +6,7 @@
 - BLOCKED: portal_ids.gamemonetize is empty in specs/boba-sort.json
 - Note: Moi game can GameId rieng: tao game tren cong, chep GameId vao specs/<game>.json muc portal_ids.gamemonetize, build lai roi moi tai zip.
 
-Title: Boba Sort
+Title: Pearl Cup Sort
 
 Short description: Sort the smiling pearls until every cup holds one colour.
 

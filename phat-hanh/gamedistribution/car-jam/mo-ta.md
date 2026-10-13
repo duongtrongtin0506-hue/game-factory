@@ -1,4 +1,4 @@
-# Car Jam Escape -> gamedistribution
+# Red Car Out -> gamedistribution
 
 - Submit page: https://developer.gamedistribution.com/
 - Game file: `phat-hanh/gamedistribution/car-jam/car-jam.zip` (index.html at the root)
@@ -6,7 +6,7 @@
 - BLOCKED: portal_ids.gamedistribution is empty in specs/car-jam.json
 - Note: Can tai khoan da kich hoat va gameId (portal_ids.gamedistribution). Co anh cong yeu cau: chua xac minh, xem CONG.md.
 
-Title: Car Jam Escape
+Title: Red Car Out
 
 Short description: Slide the cars out of the way and drive the red car to the exit.
 

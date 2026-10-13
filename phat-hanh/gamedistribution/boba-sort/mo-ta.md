@@ -1,4 +1,4 @@
-# Boba Sort -> gamedistribution
+# Pearl Cup Sort -> gamedistribution
 
 - Submit page: https://developer.gamedistribution.com/
 - Game file: `phat-hanh/gamedistribution/boba-sort/boba-sort.zip` (index.html at the root)
@@ -6,7 +6,7 @@
 - BLOCKED: portal_ids.gamedistribution is empty in specs/boba-sort.json
 - Note: Can tai khoan da kich hoat va gameId (portal_ids.gamedistribution). Co anh cong yeu cau: chua xac minh, xem CONG.md.
 
-Title: Boba Sort
+Title: Pearl Cup Sort
 
 Short description: Sort the smiling pearls until every cup holds one colour.
 

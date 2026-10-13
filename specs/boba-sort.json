@@ -1,5 +1,5 @@
 {
-  "name": "Boba Sort",
+  "name": "Pearl Cup Sort",
   "genre": "color sort puzzle",
   "levels": 100,
   "level_source": "levels/boba-sort.json",
@@ -24,7 +24,7 @@
     "gamedistribution": ""
   },
   "store": {
-    "title": "Boba Sort",
+    "title": "Pearl Cup Sort",
     "short": "Sort the smiling pearls until every cup holds one colour.",
     "long": "A calm colour-sorting puzzle. Each cup holds four pearls; move the top pearl onto a matching one or into an empty cup until every cup is a single colour. Levels start easy and grow to many colours with only a couple of spare cups. Every level can be solved, and finishing in few moves earns three stars.",
     "how_to_play": "Tap a cup to lift its top pearl, then tap another cup to drop it. A pearl can only land on the same colour or in an empty cup.",

@@ -13,7 +13,7 @@ Từ 13/10 khung chat trên máy tự nộp CrazyGames bằng Chrome đang đăn
 
 ## CẦN CHỌN
 
-- [x] 13/10 Tên game trùng: chủ giao toàn quyền nên máy đã chọn theo đề xuất: Tile Trio → **Three of a Tile**, Boba Sort → **Pearl Cup Sort**, Car Jam Escape → **Red Car Out**. Máy đổi tên từng game ngay trước khi nộp bài mới của game đó (tra trùng lại lúc đổi). Muốn giữ tên cũ thì nhắn: **giữ tên <tên game>**.
+- [x] 14/10 Đã đổi tên xong cả 3 game (chủ chốt): Tile Trio → **Three of a Tile**, Boba Sort → **Pearl Cup Sort**, Car Jam Escape → **Red Car Out**; tên trong game, ảnh bìa, video, mô tả gói nộp đều đã đổi.
 
 ## CẦN TẠO TÀI KHOẢN
 

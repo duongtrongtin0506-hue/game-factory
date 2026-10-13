@@ -1,11 +1,11 @@
-# Boba Sort -> playgama
+# Pearl Cup Sort -> playgama
 
 - Submit page: https://developer.playgama.com/
 - Game file: `phat-hanh/playgama/boba-sort/boba-sort.zip` (index.html at the root)
 - Covers / video: `assets-goc/boba-sort/cover-800x800.png`, `assets-goc/boba-sort/cover-1080x1920.png`, `assets-goc/boba-sort/cover-1920x1080.png`
 - Note: Zip co index.html + playgama-bridge-config.json o goc. Bam Add Game, chay Test Game (cong cu kiem cua cong) truoc khi Submit. Chua co tieng Nga: bo chon cong doi tac Yandex/VK o muc Distribution. Lop SDK moi thu voi SDK gia.
 
-Title: Boba Sort
+Title: Pearl Cup Sort
 
 Short description: Sort the smiling pearls until every cup holds one colour.
 

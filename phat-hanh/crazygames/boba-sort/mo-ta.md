@@ -1,11 +1,11 @@
-# Boba Sort -> crazygames
+# Pearl Cup Sort -> crazygames
 
 - Submit page: https://developer.crazygames.com/
 - Game file: `phat-hanh/crazygames/boba-sort/boba-sort.zip` (index.html at the root)
 - Covers / video: `assets-goc/boba-sort/cover-1920x1080.png`, `assets-goc/boba-sort/cover-800x1200.png`, `assets-goc/boba-sort/cover-800x800.png`, `assets-goc/boba-sort/preview-landscape-1920x1080.mp4`, `assets-goc/boba-sort/preview-portrait-1080x1620.mp4`
 - Note: Tai len tep index.html trong zip (hoac ca zip). Bai bi tu choi khong tai ban moi duoc: tao bai nop moi. Anh bia va video phai tai lai moi lan doi ban.
 
-Title: Boba Sort
+Title: Pearl Cup Sort
 
 Short description: Sort the smiling pearls until every cup holds one colour.
 

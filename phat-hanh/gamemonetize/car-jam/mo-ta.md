@@ -1,4 +1,4 @@
-# Car Jam Escape -> gamemonetize
+# Red Car Out -> gamemonetize
 
 - Submit page: https://gamemonetize.com/account/
 - Game file: `phat-hanh/gamemonetize/car-jam/car-jam.zip` (index.html at the root)
@@ -6,7 +6,7 @@
 - BLOCKED: portal_ids.gamemonetize is empty in specs/car-jam.json
 - Note: Moi game can GameId rieng: tao game tren cong, chep GameId vao specs/<game>.json muc portal_ids.gamemonetize, build lai roi moi tai zip.
 
-Title: Car Jam Escape
+Title: Red Car Out
 
 Short description: Slide the cars out of the way and drive the red car to the exit.
 

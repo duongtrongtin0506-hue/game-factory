@@ -1,11 +1,11 @@
-# Car Jam Escape -> playgama
+# Red Car Out -> playgama
 
 - Submit page: https://developer.playgama.com/
 - Game file: `phat-hanh/playgama/car-jam/car-jam.zip` (index.html at the root)
 - Covers / video: `assets-goc/car-jam/cover-800x800.png`, `assets-goc/car-jam/cover-1080x1920.png`, `assets-goc/car-jam/cover-1920x1080.png`
 - Note: Zip co index.html + playgama-bridge-config.json o goc. Bam Add Game, chay Test Game (cong cu kiem cua cong) truoc khi Submit. Chua co tieng Nga: bo chon cong doi tac Yandex/VK o muc Distribution. Lop SDK moi thu voi SDK gia.
 
-Title: Car Jam Escape
+Title: Red Car Out
 
 Short description: Slide the cars out of the way and drive the red car to the exit.
 

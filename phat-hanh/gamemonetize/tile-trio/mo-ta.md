@@ -1,4 +1,4 @@
-# Tile Trio -> gamemonetize
+# Three of a Tile -> gamemonetize
 
 - Submit page: https://gamemonetize.com/account/
 - Game file: `phat-hanh/gamemonetize/tile-trio/tile-trio.zip` (index.html at the root)
@@ -6,7 +6,7 @@
 - BLOCKED: portal_ids.gamemonetize is empty in specs/tile-trio.json
 - Note: Moi game can GameId rieng: tao game tren cong, chep GameId vao specs/<game>.json muc portal_ids.gamemonetize, build lai roi moi tai zip.
 
-Title: Tile Trio
+Title: Three of a Tile
 
 Short description: Pick three matching tiles to clear them before the tray fills up.
 

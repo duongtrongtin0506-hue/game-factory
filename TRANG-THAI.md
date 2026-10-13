@@ -38,3 +38,4 @@
 - 14/10 02:40 🎮 Xong gửi duyệt One Line Fill lên GameDistribution (In Review; SDK quảng cáo được cổng xác nhận) · Gói chờ nộp 2 (Sprout Merge → Playgama, GameDistribution) · Việc còn 21
 - 14/10 02:50 🎮 Xong gửi duyệt Sprout Merge lên GameDistribution (In Review) · Gói chờ nộp 1 (Sprout Merge → Playgama) · Việc còn 20
 - 14/10 03:00 🎮 Xong Sprout Merge lên Sandbox Playgama; 2 game nay có mặt ở CrazyGames (chờ duyệt), GameDistribution (In Review), Playgama (Sandbox) · Gói chờ nộp 0 · Việc còn 20
+- 14/10 03:40 🎮 Xong đổi tên 3 game: Red Car Out, Pearl Cup Sort, Three of a Tile (trong game, ảnh bìa, video, gói nộp) · Gói chờ nộp 0 (3 game này chờ kết quả One Line Fill) · Việc còn 20

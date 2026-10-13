@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Tile Trio</title>
+<title>Three of a Tile</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#FFFBF5;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 canvas{display:block;width:100%;height:100%}
@@ -287,7 +287,7 @@ function drawMenu() {
   // Hero card: one trio. PLAY is the one accent.
   card(cx - hw / 2, hy, hw, hh, u * 6);
   [0, 3, 5].forEach((k, i) => drawTile(cx + (i - 1.5) * s * 1.08 + s * 0.04, hy + u * 6 + Math.sin(time * 2 + i) * u * 0.6, s, k));
-  head('Tile Trio', cx, Y(land ? 12 : 26), u * (land ? 14 : 18));
+  head('Three of a Tile', cx, Y(land ? 12 : 26), u * (land ? 12 : 12.5));
   tag('Match three', cx, Y(land ? 23 : 40), u * 3);
   button('Play', land ? cx - u * 33 : cx, Y(land ? 84 : 112), u * (land ? 60 : 84), u * (land ? 12 : 14), true, () => {
     if (save.unlocked === 1 && !save.stars[1]) startLevel(1); else { page = Math.floor((save.unlocked - 1) / 20); screen = 'levels'; }
@@ -482,7 +482,7 @@ async function coverShot() {
   persist = () => {};
   startLevel(24); time = 0.4;
   background(); drawBoard();
-  head('Tile Trio', X(sw / 2), Y(land ? 9 : 11), u * (land ? 11 : 14));
+  head('Three of a Tile', X(sw / 2), Y(land ? 9 : 19), u * (land ? 11 : 11));   // portrait/square: below the top-left corner, which portals cover with a label
   const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
   await fetch('/frame?v=' + DEMO + '-' + W + 'x' + H + '&n=cover&ext=png', { method: 'POST', body: blob });
   await fetch('/frame?v=' + DEMO + '-' + W + 'x' + H + '&n=done', { method: 'POST', body: 'x' });
