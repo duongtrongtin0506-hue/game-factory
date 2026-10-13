@@ -18,7 +18,8 @@ Từ 13/10 khung chat trên máy tự nộp CrazyGames bằng Chrome đang đăn
 ## CẦN TẠO TÀI KHOẢN
 
 - [ ] GameDistribution: 13/10 máy đã tìm trong Gmail, chưa có thư nào từ GameDistribution hoặc Azerion (mục Spam chưa xem). Nếu chủ nhớ đã đăng ký xong thì xem Spam; chưa thì đăng ký lại ở https://developer.gamedistribution.com/ (máy không được tự tạo tài khoản). Nhắn: **có thư gamedistribution**.
-- [ ] Cài Claude GitHub App cho kho game-factory (để routine đám mây đẩy mã được). 13/10 máy đã thử làm thay: GitHub dừng ở trang "Confirm access" đòi xác minh danh tính qua email (mã gửi về hộp thư), bước này máy không được tự làm. Chủ mở https://github.com/settings/installations/167740239 → **Verify via email** → nhập mã → **Only select repositories** → thêm `game-factory` → **Save**. Nhắn: **xong github app**.
+- [x] 13/10 Claude GitHub App đã có quyền vào kho `game-factory` (chủ nhập mã xác minh, máy thêm kho); routine đám mây "Game factory - luot tu dong" đã tạo: https://claude.ai/code/routines/trig_01VLA47WPmdk5S1ZJWS1QDub (08:00/14:00/20:00 giờ VN, Sonnet), lượt đầu 08:00 ngày 14/10.
+- [ ] Playgama và GameDistribution: máy đã mở sẵn 2 trang đăng ký/đăng nhập trong Chrome (https://developer.playgama.com/ · https://developer.gamedistribution.com/); chủ tự điền email, mật khẩu (máy không được tự tạo tài khoản), xong nhắn **xong tài khoản playgama** / **xong tài khoản gamedistribution**.
 - [ ] Playgama (một lần nộp ra nhiều cổng đối tác, 6 gói đã sẵn): tạo tài khoản nhà phát triển tại https://developer.playgama.com/ → nhắn **xong tài khoản playgama** → máy chỉ từng bước Add Game / Test Game / Submit với `phat-hanh\playgama\<game>\<game>.zip`.
 - [ ] Cổng khác (Yandex Games, GamePix…): chưa cần, xem `CONG.md`.
 - [ ] (không bắt buộc) itch.io: tạo trang `car-jam-escape` theo mục 6 bên dưới.

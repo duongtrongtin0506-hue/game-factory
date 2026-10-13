@@ -51,8 +51,8 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 
 ## Chờ chủ (xem đầu `HUONG-DAN-CHU.md`)
 
-- Cài Claude GitHub App cho kho game-factory (routine đám mây chưa tạo được: lỗi repo_access_denied; tạo lại bằng skill schedule, cron `0 1,7,13 * * *`, Sonnet).
-- GitHub App: trang cài đặt đòi xác minh qua email (máy không tự làm được). GameDistribution: chưa có thư (13/10). Playgama: chủ tạo tài khoản.
+- Routine đám mây đã chạy từ 13/10: `trig_01VLA47WPmdk5S1ZJWS1QDub` (cron `0 1,7,13 * * *`, Sonnet; GitHub App đã có quyền vào kho). Xem lượt chạy bằng RemoteTrigger `list_runs`.
+- GameDistribution: chưa có thư (13/10). Playgama, GameDistribution: chủ tự điền form tạo tài khoản.
 - GameMonetize tạm dừng (từ chối Tap Arcade 13/10, cổng không nhận game làm bằng AI). CrazyGames: máy tự nộp, cách làm ở `CONG.md`.
 
 ## Sơ đồ
