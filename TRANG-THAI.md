@@ -1,6 +1,6 @@
 # Trạng thái game-factory
 
-- Lần chạy cuối: 2026-10-13 07:00 (giờ VN), chạy thử, không đăng
+- Lần chạy cuối: 2026-10-13 07:03 (giờ VN), chạy thử, không đăng
 - Kết quả: ✅ đạt
 - Car Jam Escape: 100 màn trong game, 40 màn dự trữ đã kiểm (cần ≥ 30)
 - Boba Sort: 120 màn trong game, 40 màn dự trữ đã kiểm (cần ≥ 30)
@@ -14,9 +14,9 @@
 
 | Khóa | Có | Hết hạn |
 |---|---|---|
-| DISCORD_WEBHOOK | THIEU | khong co han |
-| HC_PING | THIEU | khong co han |
-| BUTLER_API_KEY | THIEU | khong co han |
+| DISCORD_WEBHOOK | co | khong co han |
+| HC_PING | co | khong co han |
+| BUTLER_API_KEY | co | khong co han |
 | ROBLOX_API_KEY | THIEU | khong co han |
 
 ## Nhật ký lượt
