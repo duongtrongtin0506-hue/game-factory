@@ -25,3 +25,4 @@
 - 13/10 08:05 🎮 Xong Car Jam thế giới 6–7, 120 màn, tự thêm màn thứ hai · Gói chờ nộp 1 · Việc còn 25 · ⚪ routine đám mây chờ chủ cài Claude GitHub App
 - 13/10 09:10 🎮 Xong ngôn ngữ thiết kế (THIET-KE.md) + bản thử game mới Merge Harvest đạt, 6 game qua kiểm thử · Gói chờ nộp 1 · Việc còn 27 · ⚪ routine đám mây chờ chủ cài Claude GitHub App
 - 13/10 09:50 🎮 Xong Car Jam đổi giao diện theo THIET-KE.md (menu, chọn màn, gara, màn thắng) · Gói chờ nộp 1 · Việc còn 28 · ⚪ routine đám mây chờ chủ cài Claude GitHub App
+- 13/10 10:20 🎮 Xong tools/quay.py + ảnh bìa, video Car Jam theo giao diện mới · Gói chờ nộp 1 (Car Jam → CrazyGames) · Việc còn 28 · ⚪ routine đám mây chờ chủ cài Claude GitHub App

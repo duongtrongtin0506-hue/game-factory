@@ -66,6 +66,7 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 | `web/ads.js` | Lớp quảng cáo chung: `showAd('midgame'/'rewarded', done)`, `gameplay(on)`, `happy()`, biến `adPlaying`; game có thể khai `onPortalReady()` |
 | `THIET-KE.md`, `thiet-ke/` | Ngôn ngữ thiết kế (token màu, bo góc, font, luật) và bản gốc chủ gửi |
 | `tools/build.py` | Ghép `/*LEVELS*/` + `/*ADS*/` rồi đóng gói `dist/<game>/<cổng>/` + zip (cổng: gamemonetize, crazygames, gamedistribution, none); mã game ở từng cổng lấy từ `specs/<game>.json` mục `portal_ids` |
+| `tools/quay.py` | `python tools/quay.py <game>`: ảnh bìa mọi cỡ + 2 video từ `?demo=` của game → `assets-goc/<game>/` (ảnh có trong git, video không) và `dist/<game>/assets` |
 | `tools/test_ads.js` | Thử `web/ads.js` với SDK giả của từng cổng (`node tools/test_ads.js`); `run_daily` chạy trước kiểm thử trình duyệt |
 | `tools/smoke_test.py` | Playwright cỡ điện thoại dọc + ngang + máy tính, bắt lỗi console, đo thời gian tải trên máy yếu mạng chậm (giới hạn 5 giây), gọi `?selftest=1` của từng game |
 | `tools/run_daily.py` | Trọn quy trình ngày; ghi `TRANG-THAI.md`, `metrics/history.json`; `tools/notify.py` báo Discord + healthchecks |
