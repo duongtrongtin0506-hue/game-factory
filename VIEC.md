@@ -17,7 +17,8 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 
 ## 3. Game đang sống / gần lên sóng
 
-- [ ] Car Jam: thêm cảnh thế giới thứ 6 vào `WORLDS` (`web/car-jam/index.src.html`), đổi chữ "ALL 100 LEVELS DONE!" thành tính theo `LEVELS.length`, kiểm trang chọn màn với 120 màn; rồi thêm Car Jam vào `TAKE_GAMES` trong `tools/run_daily.py` (cần `carjam.take` chia hết cho 20) và chạy `python tools/run_daily.py --no-publish` đạt.
+- [x] 13/10 Car Jam: thêm 2 cảnh (DESERT ROAD, SUNSET HILLS), cảnh lặp lại khi hết, chữ thắng tính theo số màn, 120 màn, vào `TAKE_GAMES`; `run_daily --no-publish` đạt.
+- [ ] Car Jam: màn 101–120 chỉ 8–21 bước, dễ hơn màn 91–100 (18–31 bước). Sửa `tools/carjam.py fill` để hàng dự trữ có màn ≥ 20 bước (tăng thời gian tìm, giữ lại bàn nhiều bước nhất) trước lần thêm màn thứ hai 19/10.
 - [ ] Thử thách ngày (1 màn/ngày theo hạt giống ngày, chuỗi ngày liên tiếp, lưu `localStorage`) cho Car Jam; đạt thì chép sang Boba Sort, Tile Trio, One Line Fill.
 - [ ] Car Jam: chọn mức khó + chướng ngại (ô khóa) theo `NGHIEN-CUU.md` mục game cùng thể loại. [nặng]
 

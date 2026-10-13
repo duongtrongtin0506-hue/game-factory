@@ -91,13 +91,15 @@ const SKINS = [
   { name: 'GOLDEN', price: 400, color: '#ffc02e', kind: 'sport', stripe: '#fff6d0' },
   { name: 'NEON', price: 600, color: '#a24dff', kind: 'sport', stripe: '#4dffe1' }
 ];
-// One world per 20 levels.
+// One world per 20 levels; past the last world the scenery starts over.
 const WORLDS = [
   { name: 'DOWNTOWN', ground: '#5d9a57', ground2: '#66a65f', lot: '#454e5c', road: '#3d4551', curb: '#d5dae2', tree: ['#2f7a3d', '#49a356'], accent: '#ffd84d', sky: ['#2b4160', '#1b2838'] },
   { name: 'SEASIDE', ground: '#e3c98a', ground2: '#ecd49a', lot: '#4a5563', road: '#4a5563', curb: '#f4f1e6', tree: ['#23805e', '#43b888'], accent: '#4dc3ff', sky: ['#236a86', '#143848'] },
   { name: 'AUTUMN PARK', ground: '#b5864a', ground2: '#c09253', lot: '#4b4a52', road: '#45444c', curb: '#e2d5c0', tree: ['#c0501c', '#f0902e'], accent: '#ff9a3d', sky: ['#6b4226', '#2e1d14'] },
   { name: 'SNOW TOWN', ground: '#d6e2ee', ground2: '#e4eef7', lot: '#56627a', road: '#4f5a70', curb: '#ffffff', tree: ['#2f6b5c', '#f5fbff'], accent: '#7ad7ff', sky: ['#4a6a94', '#243650'] },
-  { name: 'NIGHT CITY', ground: '#1d2a3f', ground2: '#22314a', lot: '#2b3345', road: '#262d3d', curb: '#5a6a86', tree: ['#16324a', '#1f4a66'], accent: '#ff5fd2', sky: ['#2a1d4a', '#0f0f24'], lamps: true }
+  { name: 'NIGHT CITY', ground: '#1d2a3f', ground2: '#22314a', lot: '#2b3345', road: '#262d3d', curb: '#5a6a86', tree: ['#16324a', '#1f4a66'], accent: '#ff5fd2', sky: ['#2a1d4a', '#0f0f24'], lamps: true },
+  { name: 'DESERT ROAD', ground: '#d9a05b', ground2: '#e3ad69', lot: '#5a4f4a', road: '#51463f', curb: '#f0dcb8', tree: ['#5f8a3a', '#8fbf4d'], accent: '#ff7a3d', sky: ['#b5602f', '#4a2318'] },
+  { name: 'SUNSET HILLS', ground: '#7a5aa6', ground2: '#8667b3', lot: '#453a5c', road: '#3d3352', curb: '#e6c9f0', tree: ['#3a2f6b', '#c65fa8'], accent: '#ffb347', sky: ['#c2567a', '#2b1b4a'] }
 ];
 const HINT_COST = 30;
 const SAVE_KEY = 'carJam.save.v1';
@@ -193,7 +195,7 @@ function board() {
 // Which world the current screen shows.
 function wi() {
   const n = screen === 'game' || screen === 'win' ? level : screen === 'levels' ? page * 20 + 1 : save.unlocked;
-  return Math.min(WORLDS.length - 1, Math.floor((n - 1) / 20));
+  return Math.floor((n - 1) / 20) % WORLDS.length;
 }
 
 // ---- Drawing helpers
@@ -538,7 +540,7 @@ function drawMenu() {
   soundBtns(X(sw - 9), Y(9));
 }
 function drawLevels() {
-  const w = WORLDS[page], cx = X(sw / 2), cols = land ? 5 : 4, rows = 20 / cols, pages = LEVELS.length / 20;
+  const w = WORLDS[page % WORLDS.length], cx = X(sw / 2), cols = land ? 5 : 4, rows = 20 / cols, pages = LEVELS.length / 20;
   backdrop();
   let got = 0; for (let n = page * 20 + 1; n <= page * 20 + 20; n++) got += save.stars[n] || 0;
   label(w.name, cx, Y(7), u * 7, '#fff');
@@ -685,7 +687,7 @@ function drawWin() {
   label('MOVES  ' + moves + '   •   BEST  ' + PAR[level - 1], cx, cy + u * 5, u * 3.6, '#9fb4cf');
   coin(cx - u * 7, cy + u * 12.5, u * 2.8); label('+' + gain, cx - u * 2.5, cy + u * 12.7, u * 4.6, '#ffd84d', 'left');
   if (level < LEVELS.length) button('NEXT LEVEL', cx, cy + u * 24, u * 62 * (1 + Math.sin(time * 4) * 0.02), u * 13, '#3ddc84', '#1f9d55', nextLevel);
-  else label('ALL 100 LEVELS DONE!', cx, cy + u * 24, u * 5, '#ffd84d');
+  else label('ALL ' + LEVELS.length + ' LEVELS DONE!', cx, cy + u * 24, u * 5, '#ffd84d');
   button('REPLAY', cx - u * 16.5, cy + u * 37, u * 29, u * 10, '#4dc3ff', '#2f9fd8', () => startLevel(level), u * 3.8);
   button('LEVELS', cx + u * 16.5, cy + u * 37, u * 29, u * 10, '#9b7bff', '#7a5bd6', leaveLevel, u * 3.8);
   g.restore();

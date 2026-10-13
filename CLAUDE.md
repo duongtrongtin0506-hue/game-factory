@@ -27,7 +27,7 @@ Trên đám mây (routine, Linux): dùng bash; pip install -r tools/requirements
 |---|---|---|---|---|---|
 | Tap Arcade | `web/tap-arcade` | 45 (Journey) | GameMonetize (bản 5 trò) · CrazyGames | 09/10 · 11/10 | chờ duyệt (xem lần cuối 09/10) · bị từ chối 11/10 |
 | Boba Sort | `web/boba-sort` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
-| Car Jam Escape | `web/car-jam` | 100 (+40 dự trữ) | CrazyGames (bản 1) | 11/10 | bị từ chối 11/10; bản 2 chưa nộp, chờ chủ chơi thử |
+| Car Jam Escape | `web/car-jam` | 120 (+40 dự trữ) | CrazyGames (bản 1) | 11/10 | bị từ chối 11/10; bản 2 chưa nộp, chờ chủ chơi thử |
 | Tile Trio | `web/tile-trio` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
 | One Line Fill | `web/one-line` | 120 | chưa nộp | - | chưa có ảnh bìa, video |
 
@@ -39,7 +39,7 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 
 - Cả 5 game đọc màn từ `levels/`; 4 game xếp hình có bộ giải + hàng dự trữ ≥ 30; Tap Arcade chỉ kiểm định dạng.
 - `web/ads.js`: một lớp quảng cáo cho các cổng (gamemonetize, gamedistribution, crazygames, none); `tools/build.py` dán vào từng game; quảng cáo thưởng không bị giữ lại, midgame cách nhau ≥ 60 giây; `tools/test_ads.js` thử với SDK giả, chưa thử với SDK thật.
-- `daily` 06:00 đạt ✅ 3 ngày liền trên Actions (11–13/10). Mỗi thứ hai `run_daily` chuyển 20 màn/game vào Boba Sort, Tile Trio, One Line Fill (hỏng kiểm thử thì trả lại). Car Jam chưa tự thêm (cần cảnh thế giới 6 + sửa chữ "ALL 100 LEVELS").
+- `daily` 06:00 đạt ✅ 3 ngày liền trên Actions (11–13/10). Mỗi thứ hai `run_daily` chuyển 20 màn/game vào Car Jam, Boba Sort, Tile Trio, One Line Fill (hỏng kiểm thử thì trả lại). Car Jam (13/10): 7 cảnh thế giới, hết cảnh thì lặp lại; 120 màn; đã vào `TAKE_GAMES` nên thứ hai cũng tự thêm 20 màn.
 - `run_daily` giữ nguyên phần `## Nhật ký lượt` ở cuối `TRANG-THAI.md`.
 - Chưa có: game nào lên sóng, số liệu, bản Roblox, khóa Roblox.
 ## Chờ chủ (xem `HUONG-DAN-CHU.md`)
@@ -70,7 +70,7 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 | `.github/workflows/weekly-selftest.yml` | Chủ nhật 20:00 giờ VN, không đăng, gửi báo cáo tuần; cũng chạy khi sửa `tools/` hoặc workflow |
 | `THEO-DOI.md` / `NGHIEN-CUU.md` / `HUONG-DAN-CHU.md` | Trạng thái nộp duyệt / nghiên cứu có nguồn / việc chủ phải bấm |
 
-Chạy thử trên máy: launch config `game-web`, cổng 8931, đường dẫn `/web/<game>/`; dùng `?level=N`, `?play=`, `?demo=`, `?selftest=1`.
+Chạy thử trên máy: launch config `game-web` (`.claude/launch.json`), cổng 8931, đường dẫn `/web/<game>/`; dùng `?level=N`, `?play=`, `?demo=`, `?selftest=1`.
 `git` ở `C:\Program Files\Git\cmd` (thêm vào PATH từng lệnh). Khóa đã có ở GitHub Secrets: `DISCORD_WEBHOOK`, `HC_PING`, `BUTLER_API_KEY`, `ITCH_USER`. Chưa có: Roblox.
 
 ## Quy tắc
