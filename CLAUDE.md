@@ -1,5 +1,7 @@
 # ③ GAME – bộ nhớ
 
+**Kế hoạch hiện hành = KE-HOACH-V3.md. Bỏ mọi 'chờ X ngày' và mọi chia giai đoạn cũ.**
+
 Phạm vi: chỉ game. Không YouTube, không bot.
 Thư mục dự án: `C:\Users\Administrator\Desktop\GAME\web` (khung chat có thể mở ở thư mục khác; mọi việc game làm ở đây).
 Trả lời tiếng Việt, ngắn gọn, tự làm; chỉ hỏi khi cần tài khoản, mật khẩu, tiền. Đầu việc ghi "mức: nhẹ/nặng".
@@ -10,11 +12,14 @@ Trả lời tiếng Việt, ngắn gọn, tự làm; chỉ hỏi khi cần tài 
 - Lệnh viết kiểu PowerShell: nối bằng `;`, không dùng `&&`.
 - Thiếu tài khoản / trang nền tảng (itch.io…): bỏ qua, ghi ⚪, không báo 🔴.
 - Việc chỉ chủ làm được: gom vào `HUONG-DAN-CHU.md`, nhắc 1 lần/ngày trong Discord #game, không chờ chủ.
-- Trả lời chủ tối đa 3 dòng.
+- Trả lời chủ 1 dòng.
 - Vẫn phải hỏi: tài khoản, mật khẩu, tiền.
 
-GIAI ĐOẠN HIỆN TẠI: 3 (máy tự thêm màn)
-VIỆC TIẾP THEO: `git pull` rồi đọc `TRANG-THAI.md` + `metrics/history.json`: lần chạy `daily` 06:00 trên GitHub Actions (bản mới, lần đầu 12/10 06:00) có ✅ không; 🔴 thì sửa theo bước lỗi. Đủ 3 ngày ✅ liền (sớm nhất 14/10) thì xong giai đoạn 3 → giai đoạn 4 chỉ bắt đầu khi có game lên sóng. Nếu chưa đủ ngày: Car Jam thêm cảnh thế giới thứ 6 + sửa chữ "ALL 100 LEVELS" để vào `TAKE_GAMES`.
+VIỆC TIẾP THEO: làm `VIEC.md` từ trên xuống (ưu tiên theo mục 4 của kế hoạch). Mỗi lượt: `git pull` → đọc `TRANG-THAI.md` (🔴 thì sửa trước) → làm việc đầu danh sách chưa xong → tích xong, commit + push sau mỗi việc → cuối lượt thêm 1 dòng vào cuối `TRANG-THAI.md` dưới `## Nhật ký lượt` dạng `- DD/MM HH:MM 🎮 Xong … · Gói chờ nộp N · Việc còn N` (giữ 30 dòng mới nhất; `bao-discord.yml` gửi dòng cuối vào Discord #game). Routine đám mây (Sonnet, 08:00/14:00/20:00 giờ VN) bỏ qua việc có nhãn `[nặng]`; khung chat trên máy làm cả `[nặng]`.
+
+Tệp V3: `KE-HOACH-V3.md` (kế hoạch nguyên văn) · `HIEN-TRANG.md` (cái đã có) · `VIEC.md` (hàng việc) · `CONG.md` (cổng) · `XU-HUONG.md` + `Y-TUONG.md` (thứ hai) · `NHAT-KY-CAI-TIEN.md` (chủ nhật) · `CHI-SO.md` · `VAN-HANH.md` · `ASSETS.md` · `THU-NGHIEM.md` · `phat-hanh/<cổng>/<game>/` (gói nộp).
+
+Trên đám mây (routine, Linux): dùng bash; pip install -r tools/requirements.txt; python -m playwright install --with-deps chromium trước khi chạy 	ools/run_daily.py --no-publish hay 	ools/smoke_test.py; không có .env và không có trình duyệt đăng nhập cổng nào, nên việc nộp cổng/chép số ghi vào HUONG-DAN-CHU.md; không tự gọi Discord (đã có ao-discord.yml).
 
 ## Danh sách game
 
@@ -30,15 +35,13 @@ GameDistribution: đăng ký tài khoản 09/10, chờ thư. itch.io: có khóa,
 
 Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhánh `main`; không dùng tài khoản iCloud `77nrw8z5hk-sys`) · Discord: Máy chủ của net24 #game · healthchecks: check "Game"
 
-## Tiến độ theo giai đoạn
+## Đã có (chi tiết: `HIEN-TRANG.md`)
 
-- 0 Dọn + GitHub: XONG (kho có mã, `.gitignore` chặn khóa, quét khóa sạch 12/10).
-- 1 Kiểm kê: XONG, `THEO-DOI.md` đủ 5 game.
-- 2 Chuẩn hóa: XONG 12/10, nhánh `chuan-hoa` đã gộp vào `main` (bảng đo ở `THEO-DOI.md`). Có: `levels/car-jam.json`; Boba Sort (12/10, nhánh `chuan-hoa`: `tools/bobasort.py`, `levels/boba-sort.json` giữ nguyên 100 màn cũ, 40 màn dự trữ, `run_daily` kiểm cả hai); Tile Trio (12/10, cùng nhánh: `tools/tiletrio.py`, `levels/tile-trio.json` giữ nguyên 100 màn cũ, 40 màn dự trữ; quy trình ngày chạy trọn trên máy đạt với cả 3 game). One Line Fill (12/10, cùng nhánh: `tools/oneline.py`, `levels/one-line.json` giữ 99 màn cũ, màn 27 trùng màn 26 nên thay bằng màn mới cùng cỡ, 40 màn dự trữ). Tap Arcade (12/10: 45 chặng Journey ở `levels/tap-arcade.json`, `tools/taparcade.py` chỉ kiểm định dạng vì là trò phản xạ, không có hàng dự trữ). Cả 5 game giờ đọc màn từ `levels/`. Lớp quảng cáo chung `web/ads.js` (12/10): một nguồn cho 4 cổng (gamemonetize, gamedistribution, crazygames, none), `tools/build.py` dán vào từng game; quảng cáo thưởng không bị giữ lại, midgame cách nhau ≥ 60 giây; `tools/test_ads.js` thử với SDK giả, chưa thử với SDK thật của cổng nào. Đo tải (0,7–1,1 giây, giới hạn 5) và cỡ máy tính 1280x720 nằm trong `tools/smoke_test.py`.
-- 3 Máy tự thêm màn: ĐANG LÀM. Có: bộ giải + hàng chờ ≥ 30 cho 4 game xếp hình, `daily.yml`, `weekly-selftest.yml`, Discord, healthchecks. Từ 12/10 `run_daily` mỗi thứ hai chuyển 20 màn/game từ hàng chờ vào Boba Sort, Tile Trio, One Line Fill (hỏng kiểm thử thì trả lại, hôm sau làm bù; lần đầu chạy trên máy 12/10: mỗi game 120 màn), workflow commit cả `levels/` + `web/`. Car Jam chưa tự thêm (cần cảnh thế giới 6). Hướng dẫn nộp bản tháng cho cổng web ở cuối `HUONG-DAN-CHU.md`. Còn thiếu: 3 ngày ✅ liền trên Actions. Chưa có trang itch.io thì `daily` bỏ qua bước đăng, ghi ⚪ (sửa 12/10, chưa chạy thật trên Actions).
-- 4 Đo 14 ngày: chưa bắt đầu, chưa game nào lên sóng.
-- 5 Roblox: chưa làm, chưa có khóa.
-
+- Cả 5 game đọc màn từ `levels/`; 4 game xếp hình có bộ giải + hàng dự trữ ≥ 30; Tap Arcade chỉ kiểm định dạng.
+- `web/ads.js`: một lớp quảng cáo cho các cổng (gamemonetize, gamedistribution, crazygames, none); `tools/build.py` dán vào từng game; quảng cáo thưởng không bị giữ lại, midgame cách nhau ≥ 60 giây; `tools/test_ads.js` thử với SDK giả, chưa thử với SDK thật.
+- `daily` 06:00 đạt ✅ 3 ngày liền trên Actions (11–13/10). Mỗi thứ hai `run_daily` chuyển 20 màn/game vào Boba Sort, Tile Trio, One Line Fill (hỏng kiểm thử thì trả lại). Car Jam chưa tự thêm (cần cảnh thế giới 6 + sửa chữ "ALL 100 LEVELS").
+- `run_daily` giữ nguyên phần `## Nhật ký lượt` ở cuối `TRANG-THAI.md`.
+- Chưa có: game nào lên sóng, số liệu, bản Roblox, khóa Roblox.
 ## Chờ chủ (xem `HUONG-DAN-CHU.md`)
 
 - Chơi thử Car Jam bản 2 → rồi mới tạo bài nộp CrazyGames mới (bài bị từ chối không tải bản mới được).
@@ -72,9 +75,9 @@ Chạy thử trên máy: launch config `game-web`, cổng 8931, đường dẫn 
 
 ## Quy tắc
 
-- Mỗi lượt "làm tiếp": đọc tệp này → làm đúng VIỆC TIẾP THEO → cập nhật VIỆC TIẾP THEO → commit + push. Không nhảy giai đoạn; đổi hướng thì hỏi chủ, ghi Nhật ký quyết định.
-- Mở phiên 3 dòng: giai đoạn mấy, vừa làm gì, làm tiếp gì / cần chủ gì.
-- Không làm game thứ 6 khi chưa có số liệu 14 ngày của 5 game hiện có.
+- Mỗi lượt "làm tiếp": đọc tệp này → làm `VIEC.md` theo thứ tự ưu tiên → commit + push sau mỗi việc. Đổi hướng lớn (bỏ cổng, lên tầng 3, tiêu tiền) thì đề xuất kèm số liệu cho chủ duyệt, ghi Nhật ký quyết định.
+- Báo chủ 1 dòng: vừa xong gì, gói chờ nộp, việc còn.
+- Game mới: mỗi game một cơ chế khác, lấy từ `Y-TUONG.md`, qua bản thử 1 ngày trước khi làm đủ; chỉ học cơ chế, không chép tên, hình, nhân vật, nhạc.
 - Không sửa hay nộp lại bản đang chờ duyệt; sửa ở nhánh riêng.
 - Mọi màn mới phải được bộ giải xác nhận giải được và đo độ khó; khoảng 5 màn chèn 1 màn dễ.
 - Không cờ bạc, không hộp quà may rủi, không link ra ngoài, không thu dữ liệu cá nhân.
@@ -90,3 +93,4 @@ Chạy thử trên máy: launch config `game-web`, cổng 8931, đường dẫn 
 - 2026-10-11 – Màn mới sinh bằng thuật toán + bộ giải, không dùng Gemini – không cần khóa, không hết lượt, chắc chắn giải được.
 - 2026-10-12 – Dọn giai đoạn 0 chỉ áp dụng cho thư mục game; không xóa CLAUDE.md và không dời tệp trong `Videos\noi-dung-video` – thư mục đó là dự án khác đang chạy theo lịch, dời tệp sẽ làm hỏng nó.
 - 2026-10-12 – Màn mới vào game mỗi thứ hai, 20 màn/game (không phải mỗi ngày); cổng web vẫn gom theo tháng – trang chọn màn chia 20 ô nên phải thêm trọn trang; 20 màn/ngày thì tệp game phình nhanh mà chưa có người chơi.
+- 2026-10-13 – Chuyển sang KE-HOACH-V3: bỏ chia giai đoạn và các mốc chờ ngày, làm theo hàng việc VIEC.md; cho làm game mới song song (mục tiêu 2 game/tuần) và nộp nhiều cổng; routine đám mây 3 lượt/ngày – chủ dự án yêu cầu, để không phụ thuộc 1 cổng hay 1 game.

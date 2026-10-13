@@ -27,6 +27,7 @@ HISTORY = ROOT / "metrics" / "history.json"
 VN = timezone(timedelta(hours=7))
 # Game tu them man: man hinh chon man cua 3 game nay tu dai theo so man. Car Jam chua vao: man 101+ can canh the gioi thu 6.
 TAKE_GAMES = (("Boba Sort", bobasort), ("Tile Trio", tiletrio), ("One Line Fill", oneline))
+LOG_MARK = "## Nhật ký lượt"   # tu dong nay tro xuong trong TRANG-THAI.md la cua routine, run_daily khong ghi de
 TAKE_COUNT, TAKE_WEEKDAY = 20, 0   # 20 man = 1 trang chon man; 0 = thu hai
 FIX = {
     "them man": "chay python tools/<game>.py verify; hang du tru phai con du 20 man",
@@ -108,7 +109,7 @@ def step_publish():
         done["itch.io"] = f"da day {pushed} game"
         if missing:
             done["itch.io"] += f"; ⚪ bo qua (chua co trang: {', '.join(missing)})"
-    done["Roblox"] = "bo qua (chua co ban Roblox; cho so lieu 14 ngay de chon game)"
+    done["Roblox"] = "bo qua (chua co ban Roblox; lam khi co game thang)"
     return done
 
 
@@ -183,14 +184,17 @@ def main():
         "- Lượt chơi, thời gian chơi, doanh thu: chưa có, chưa game nào lên sóng", "",
         "| Khóa | Có | Hết hạn |", "|---|---|---|", *keys, "",
     ]
-    (ROOT / "TRANG-THAI.md").write_text("\n".join(status), encoding="utf-8", newline="\n")
+    status_path = ROOT / "TRANG-THAI.md"   # giu nguyen nhat ky luot (routine ghi moi luot 1 dong o cuoi tep)
+    old_status = status_path.read_text(encoding="utf-8") if status_path.exists() else ""
+    log = old_status[old_status.index(LOG_MARK):].rstrip("\n") if LOG_MARK in old_status else LOG_MARK + "\n"
+    status_path.write_text("\n".join(status) + "\n" + log + "\n", encoding="utf-8", newline="\n")
 
     if failed:
         notify.discord(f"🔴 game-factory hỏng ở bước '{failed}': {detail[:250]} | Sửa: {FIX[failed]}", alert=True)
         notify.ping(failed=True)
     else:
         skipped = [f"{k}: {v.split('⚪ ')[1] if '⚪' in v else v}" for k, v in published.items() if "bo qua" in v and k != "Roblox"]
-        todo = len(re.findall(r"^## \d", (ROOT / "HUONG-DAN-CHU.md").read_text(encoding="utf-8"), re.M))
+        todo = len(re.findall(r"^- \[ \]", (ROOT / "HUONG-DAN-CHU.md").read_text(encoding="utf-8"), re.M))
         notify.discord(f"✅ game-factory {now:%d/%m}: {row['games_tested']} game qua kiểm thử, Car Jam {row['levels']} màn + {row['queue']} dự trữ"
                        + (f" | +{took} màn mới vào game" if took > 0 else "")
                        + (f" | ⚪ {'; '.join(skipped)}" if skipped else "")

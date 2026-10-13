@@ -1,0 +1,33 @@
+# Khi TRANG-THAI.md doi tren main (routine ghi 1 dong cuoi moi luot): gui dong cuoi vao Discord #game.
+# Lan day cua daily/weekly (GITHUB_TOKEN) khong kich hoat workflow nay; hai cai do tu bao Discord.
+name: bao-discord
+on:
+  push:
+    branches: [main]
+    paths: ["TRANG-THAI.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  bao:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    env:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Gui dong cuoi TRANG-THAI.md
+        run: |
+          python3 - <<'EOF'
+          import sys
+          sys.path.insert(0, "tools")
+          import notify
+          lines = [l.strip() for l in open("TRANG-THAI.md", encoding="utf-8") if l.strip()]
+          last = lines[-1].lstrip("- ") if lines else ""
+          if not last or last.startswith(("#", "|")):
+              print("khong co dong nhat ky luot, bo qua")
+          else:
+              ok = notify.discord(last, alert="🔴" in last)
+              print("da gui" if ok else "khong gui duoc (thieu DISCORD_WEBHOOK hoac loi mang)")
+          EOF

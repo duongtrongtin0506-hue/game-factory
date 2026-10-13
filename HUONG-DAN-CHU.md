@@ -1,6 +1,26 @@
 # Việc chủ dự án cần tự làm
 
-Xếp theo thứ tự gần tiền nhất. Xong việc nào thì nhắn Claude câu in đậm ở cuối việc đó. Không gửi mật khẩu hay khóa vào khung chat.
+Mỗi việc 1 dòng có link; xong thì nhắn Claude câu in đậm (hoặc nhờ Claude Desktop có Chrome trên máy 2 làm). Không gửi mật khẩu hay khóa vào khung chat. Máy tự thêm/bớt dòng ở 3 mục dưới; `[ ]` = chưa làm.
+
+## CẦN NỘP (1 lần/tuần)
+
+- [ ] Car Jam Escape bản 2 → CrazyGames, bài nộp MỚI: https://developer.crazygames.com/ → **Submit game** → tệp `dist\car-jam\crazygames\index.html`, ảnh bìa + video ở `dist\car-jam\assets`. Nhắn: **đã nộp car jam crazygames**.
+- [ ] Xem kết quả duyệt Tap Arcade trên GameMonetize: https://gamemonetize.com/account/login.php → My Games. Nhắn: **gamemonetize: duyệt / từ chối + lý do**.
+
+## CẦN TẠO TÀI KHOẢN
+
+- [ ] GameDistribution: tìm thư kích hoạt (đăng ký 09/10) trong Gmail, từ GameDistribution hoặc Azerion. Nhắn: **có thư gamedistribution**.
+- [ ] Cài Claude GitHub App cho kho game-factory (để routine đám mây đẩy mã được): https://github.com/apps/claude/installations/select_target → chọn tài khoản → **Only select repositories** → `game-factory` → **Save**. Nhắn: **xong github app**.
+- [ ] Các cổng mới (Playgama, Yandex Games, Poki, GamePix…): xem cột "Đăng ký" trong `CONG.md`, tạo tài khoản cổng nào thì nhắn **xong tài khoản <tên cổng>**.
+- [ ] (không bắt buộc) itch.io: tạo trang `car-jam-escape` theo mục 6 bên dưới.
+
+## CẦN CHÉP SỐ (chủ nhật)
+
+Chưa có: chưa game nào lên sóng.
+
+---
+
+## Hướng dẫn chi tiết (cũ, vẫn đúng)
 
 Khóa của dự án dán vào GitHub Secrets (để máy chủ GitHub chạy hằng ngày dùng được):
 https://github.com/duongtrongtin0506-hue/game-factory/settings/secrets/actions → **New repository secret** → điền Name đúng như ghi dưới, dán giá trị vào Secret → **Add secret**.
@@ -36,7 +56,7 @@ Nếu itch.io không cho lưu khi chưa có tệp: bấm **Upload files**, chọ
 
 ## Chưa cần làm
 
-Tài khoản và khóa Roblox: chưa thấy dấu vết bạn đã có. Chỉ cần khi đã chọn được game làm bản Roblox, tức là sau khi có 14 ngày số liệu.
+Tài khoản và khóa Roblox: chưa thấy dấu vết bạn đã có. Chỉ cần khi có game thắng (top 20% theo số liệu) để làm bản Roblox.
 
 ## Bản cập nhật tháng cho cổng web (chỉ làm khi game ĐÃ được cổng duyệt)
 
