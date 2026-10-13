@@ -197,21 +197,34 @@ def main():
         notify.ping(failed=True)
     else:
         skipped = [f"{k}: {v.split('⚪ ')[1] if '⚪' in v else v}" for k, v in published.items() if "bo qua" in v and k != "Roblox"]
-        todo = len(re.findall(r"^- \[ \]", (ROOT / "HUONG-DAN-CHU.md").read_text(encoding="utf-8"), re.M))
-        notify.discord(f"✅ game-factory {now:%d/%m}: {row['games_tested']} game qua kiểm thử, Car Jam {row['levels']} màn + {row['queue']} dự trữ"
-                       + (f" | +{took} màn mới vào game" if took > 0 else "")
-                       + (f" | ⚪ {'; '.join(skipped)}" if skipped else "")
-                       + (f" | 📌 chờ chủ: {todo} mục trong HUONG-DAN-CHU.md" if todo and publish else "")
-                       + (f" | ⚠️ khóa sắp hết hạn: {', '.join(warn)}" if warn else ""))
+        guide = (ROOT / "HUONG-DAN-CHU.md").read_text(encoding="utf-8")
+        todo = len(re.findall(r"^- \[ \]", guide, re.M))
+        submit = len(re.findall(r"^- \[ \]", guide.split("## CẦN NỘP")[-1].split("\n## ")[0], re.M)) if "## CẦN NỘP" in guide else 0
+        jobs = len(re.findall(r"^- \[ \]", (ROOT / "VIEC.md").read_text(encoding="utf-8"), re.M)) if (ROOT / "VIEC.md").exists() else 0
+        notify.discord(f"🎮 Xong kiểm tra ngày {now:%d/%m}: {row['games_tested']} game đạt"
+                       + (f", +{took} màn mới vào game" if took > 0 else "")
+                       + f" · Gói chờ nộp {submit} · Việc còn {jobs}"
+                       + (f" · ⚪ {'; '.join(skipped)}" if skipped else "")
+                       + (f" · 📌 chờ chủ {todo} việc (đầu HUONG-DAN-CHU.md)" if todo and publish else "")   # daily chay 1 lan/ngay = nhac 1 lan/ngay
+                       + (f" · ⚠️ khóa sắp hết hạn: {', '.join(warn)}" if warn else ""))
         notify.ping()
     if weekly:
         old = next((r for r in reversed(history) if r["date"] <= (now.date() - timedelta(days=7)).isoformat()), None)
         runs = [r for r in history if r["date"] > (now.date() - timedelta(days=7)).isoformat()]
+        def section(name, heading):   # cac dong bang "| ... |" ngay duoi mot tieu de trong tep .md
+            path = ROOT / name
+            text = path.read_text(encoding="utf-8") if path.exists() else ""
+            body = text.split(heading, 1)[1].split("\n## ")[0] if heading in text else ""
+            return [l for l in body.splitlines() if l.startswith("|") and not l.startswith("|---")]
+
+        table = section("THEO-DOI.md", "## Bảng game × cổng")
+        ideas = [l.split("|")[2].strip() for l in section("Y-TUONG.md", "## Tuần")[1:4]]
         notify.discord(
             f"📊 game-factory tuần đến {now:%d/%m}: {sum(r['ok'] for r in runs)}/{len(runs)} lần chạy đạt; "
-            f"màn dự trữ {row['queue']}" + (f" (tuần trước {old['queue']})" if old else " (chưa có số tuần trước)")
-            + "; lượt chơi và doanh thu: chưa có vì chưa game nào được duyệt. "
-            "Đề xuất: xem THEO-DOI.md, việc gần tiền nhất là đưa một game qua vòng duyệt.")
+            f"màn dự trữ Car Jam {row['queue']}" + (f" (tuần trước {old['queue']})" if old else "")
+            + "; lượt chơi và doanh thu: xem bảng.\n" + "\n".join(table)[:1300]
+            + ("\n💡 Ý tưởng tuần: " + ", ".join(ideas) if ideas else "")
+            + "\n👉 Đề xuất: việc gần tiền nhất là nộp các gói ở mục CẦN NỘP (đầu HUONG-DAN-CHU.md).")
     print(status[3])
     sys.exit(1 if failed else 0)
 

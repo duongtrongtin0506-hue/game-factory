@@ -21,7 +21,7 @@ VIỆC TIẾP THEO: làm `VIEC.md` từ trên xuống (ưu tiên theo mục 4 c�
 
 Tệp V3: `KE-HOACH-V3.md` (kế hoạch nguyên văn) · `HIEN-TRANG.md` (cái đã có) · `VIEC.md` (hàng việc) · `CONG.md` (cổng) · `XU-HUONG.md` + `Y-TUONG.md` (thứ hai) · `NHAT-KY-CAI-TIEN.md` (chủ nhật) · `CHI-SO.md` · `VAN-HANH.md` · `ASSETS.md` · `THU-NGHIEM.md` · `phat-hanh/<cổng>/<game>/` (gói nộp).
 
-Trên đám mây (routine, Linux): dùng bash; pip install -r tools/requirements.txt; python -m playwright install --with-deps chromium trước khi chạy 	ools/run_daily.py --no-publish hay 	ools/smoke_test.py; không có .env và không có trình duyệt đăng nhập cổng nào, nên việc nộp cổng/chép số ghi vào HUONG-DAN-CHU.md; không tự gọi Discord (đã có ao-discord.yml).
+Trên đám mây (routine, Linux): dùng bash; `pip install -r tools/requirements.txt; python -m playwright install --with-deps chromium` trước khi chạy `tools/run_daily.py --no-publish` hay `tools/smoke_test.py`; không có `.env` và không có trình duyệt đăng nhập cổng nào, nên việc nộp cổng/chép số ghi vào `HUONG-DAN-CHU.md`; không tự gọi Discord (đã có `bao-discord.yml`).
 
 ## Danh sách game
 
@@ -29,9 +29,9 @@ Trên đám mây (routine, Linux): dùng bash; pip install -r tools/requirements
 |---|---|---|---|---|---|
 | Tap Arcade | `web/tap-arcade` | 45 (Journey) | GameMonetize (bản 5 trò) · CrazyGames | 09/10 · 11/10 | chờ duyệt (xem lần cuối 09/10) · bị từ chối 11/10 |
 | Boba Sort | `web/boba-sort` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
-| Car Jam Escape | `web/car-jam` | 120 (+40 dự trữ) | CrazyGames (bản 1) | 11/10 | bị từ chối 11/10; bản 2 chưa nộp, chờ chủ chơi thử |
+| Car Jam Escape | `web/car-jam` | 120 (+40 dự trữ) | CrazyGames (bản 1) | 11/10 | bị từ chối 11/10; bản giao diện mới có gói, chờ chủ nộp |
 | Tile Trio | `web/tile-trio` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
-| One Line Fill | `web/one-line` | 120 | chưa nộp | - | chưa có ảnh bìa, video |
+| One Line Fill | `web/one-line` | 120 | chưa nộp | - | có gói + ảnh bìa, video; chờ chủ nộp |
 | Merge Harvest | `web/merge-harvest` | vô tận (gộp + idle, 10 bậc) | chưa nộp | - | bản thử 13/10 đạt, đang làm game đủ; mẫu tham chiếu ngôn ngữ thiết kế |
 
 GameDistribution: đăng ký tài khoản 09/10, chờ thư. itch.io: có khóa, chưa có trang game. Chi tiết: `THEO-DOI.md`.
@@ -46,11 +46,11 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 - `run_daily` giữ nguyên phần `## Nhật ký lượt` ở cuối `TRANG-THAI.md`.
 - 13/10: cả 5 game cũ đã đổi giao diện theo `THIET-KE.md` (Car Jam, Boba Sort, Tile Trio nền giấy; One Line Fill, Tap Arcade nền đêm); ảnh bìa mới ở `assets-goc/<game>/`; `tools/build.py` ghi 15 gói `phat-hanh/<cổng>/<game>/` (zip + `mo-ta.md`, lấy mô tả từ mục `store` trong specs). Sửa giao diện game: sửa `index.src.html` rồi `python tools/build.py`; soát hình bằng `python tools/chup.py <game> "?" "?level=3"` (ảnh ra `_build/anh/`).
 - Chưa có: game nào lên sóng, số liệu, bản Roblox, khóa Roblox.
-## Chờ chủ (xem `HUONG-DAN-CHU.md`)
 
-- Chơi thử Car Jam bản 2 → rồi mới tạo bài nộp CrazyGames mới (bài bị từ chối không tải bản mới được).
-- Tạo trang itch.io `car-jam-escape`, nhắn "xong trang itch" → chạy lại `daily` → chủ tích "played in the browser" → đặt `itch` cho 4 game còn lại.
-- Đăng nhập GameMonetize xem kết quả duyệt Tap Arcade.
+## Chờ chủ (xem đầu `HUONG-DAN-CHU.md`)
+
+- Cài Claude GitHub App cho kho game-factory (routine đám mây chưa tạo được: lỗi repo_access_denied; tạo lại bằng skill schedule, cron `0 1,7,13 * * *`, Sonnet).
+- Nộp Car Jam + One Line Fill lên CrazyGames; lấy GameId GameMonetize cho 4 game; xem kết quả duyệt Tap Arcade; thư kích hoạt GameDistribution.
 
 ## Sơ đồ
 
