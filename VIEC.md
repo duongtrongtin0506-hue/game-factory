@@ -15,13 +15,14 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [ ] One Line Fill: nâng chất lượng tối thiểu (hiệu ứng, nhạc, sao) + tạo ảnh bìa các cỡ và 2 video xem trước bằng `?demo=` như Car Jam. [máy 2] cho phần quay video.
 - [ ] Nộp các game đã bị CrazyGames từ chối sang cổng khác đã có gói (xem nhóm 5), không chờ nâng chất lượng: ghi vào CẦN NỘP.
 
-- [ ] Đổi giao diện game cũ sang `THIET-KE.md` (chỉ menu, chọn màn, màn thắng/thua, nút, chữ; không đụng luật chơi, bộ giải, quảng cáo), mỗi game một việc, theo thứ tự: One Line Fill → Tap Arcade (Car Jam, Boba Sort, Tile Trio xong 13/10, xem `web/car-jam/index.src.html`: `C`, `head`, `tag`, `card`, `button`). Dùng lại `C`, `F`, `card`, `pill`, `label` của `web/merge-harvest/index.src.html`. Xong game nào thì chụp lại ảnh bìa game đó. [nặng]
+- [ ] Đổi giao diện game cũ sang `THIET-KE.md` (chỉ menu, chọn màn, màn thắng/thua, nút, chữ; không đụng luật chơi, bộ giải, quảng cáo), mỗi game một việc, còn lại: Tap Arcade (Car Jam, Boba Sort, Tile Trio, One Line Fill xong 13/10; One Line Fill dùng bản nền đêm + nhấn đỏ, xem `web/car-jam/index.src.html`: `C`, `head`, `tag`, `card`, `button`). Dùng lại `C`, `F`, `card`, `pill`, `label` của `web/merge-harvest/index.src.html`. Xong game nào thì chụp lại ảnh bìa game đó. [nặng]
 
 - [x] 13/10 Car Jam đổi giao diện sang `THIET-KE.md`: menu (thẻ đường xe chạy, 1 nút nhấn), chọn màn, gara, thanh trên, nút, màn thắng; luật chơi, bộ giải, quảng cáo giữ nguyên; kiểm thử đạt.
 - [x] 13/10 Boba Sort đổi giao diện sang `THIET-KE.md` + `?demo=cover` + ảnh bìa, video mới (`assets-goc/boba-sort`); `tools/chup.py` chụp nhanh các màn hình để soát.
 - [x] 13/10 Tile Trio đổi giao diện sang `THIET-KE.md` + `?demo=cover` + ảnh bìa, video mới (`assets-goc/tile-trio`).
+- [x] 13/10 One Line Fill đổi giao diện sang `THIET-KE.md` bản nền đêm (nét vẽ là màu nhấn đỏ) + `?demo=cover` + ảnh bìa, video lần đầu có (`assets-goc/one-line`).
 - [x] 13/10 `tools/quay.py <game>`: chụp ảnh bìa mọi cỡ (CrazyGames, GameMonetize, Playgama, Yandex) + 2 video bằng `?demo=` của game, ra `assets-goc/<game>/`; Car Jam đã chụp lại theo giao diện mới.
-- [ ] Thêm `?demo=cover` + `?demo=<tên>` (cùng giao thức `POST /frame` như Car Jam) cho Merge Harvest, One Line Fill, rồi chạy `tools/quay.py`; Boba Sort, Tile Trio, Tap Arcade chụp lại sau khi đổi giao diện.
+- [ ] Thêm `?demo=cover` + `?demo=<tên>` (cùng giao thức `POST /frame` như Car Jam) cho Merge Harvest và Tap Arcade, rồi chạy `tools/quay.py`.
 
 ## 3. Game đang sống / gần lên sóng
 
