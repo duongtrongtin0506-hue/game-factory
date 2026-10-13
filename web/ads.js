@@ -44,17 +44,38 @@ if (!LOCAL && PORTAL === 'gamedistribution' && GAME_ID) {
   window.GD_OPTIONS = { gameId: GAME_ID, onEvent: portalEvent };
   loadScript('https://html5.api.gamedistribution.com/main.min.js', 'gamedistribution-jssdk');
 }
+// Cloud saves (CrazyGames Data module, Playgama Bridge storage): every write to localStorage under the game's
+// key also goes to the portal; on a fresh device the portal copy is restored once and the page reloads so the
+// game starts from it. get(key) resolves to the portal's copy, put(key, value) stores one.
+function mirrorSave(get, put, ready) {
+  const key = typeof SAVE_KEY === 'string' ? SAVE_KEY : '';
+  if (!key) return ready();
+  try {
+    const set = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (k, v) { set.call(this, k, v); if (k === key) { try { put(k, v); } catch (e) {} } };
+  } catch (e) {}
+  Promise.resolve().then(() => get(key)).then(data => {
+    const cloud = data ? (typeof data === 'string' ? data : JSON.stringify(data)) : '';
+    let local = '', again = '';
+    try { local = localStorage.getItem(key) || ''; again = sessionStorage.getItem(key + '.restored') || ''; } catch (e) {}
+    if (cloud && !local && !again) {
+      try { sessionStorage.setItem(key + '.restored', '1'); localStorage.setItem(key, cloud); location.reload(); return; } catch (e) {}
+    }
+    if (local && !cloud) { try { put(key, local); } catch (e) {} }
+    ready();
+  }).catch(ready);
+}
 if (!LOCAL && PORTAL === 'crazygames') {
   loadScript('https://sdk.crazygames.com/crazygames-sdk-v3.js', 'crazygames-sdk', () => {
     window.CrazyGames.SDK.init().then(() => {
       cg = window.CrazyGames.SDK;
-      if (typeof onPortalReady === 'function') onPortalReady();
+      mirrorSave(k => cg.data.getItem(k), (k, v) => cg.data.setItem(k, v), () => { if (typeof onPortalReady === 'function') onPortalReady(); });
     }).catch(() => {});
   });
 }
 // Playgama Bridge: one SDK for Playgama and its partner portals. The bridge tells us when to pause and mute
-// (an ad is open, the tab is hidden); progress is mirrored to the bridge storage because some of its portals
-// wipe localStorage; 'game_ready' hides the portal's loading screen.
+// (an ad is open, the tab is hidden); progress is mirrored to the bridge storage (mirrorSave) because some of
+// its portals wipe localStorage; 'game_ready' hides the portal's loading screen.
 function pgState(state) {
   if (state === 'opened') { clearTimeout(adTimer); pgAd = true; adPlaying = true; }
   else if (state === 'rewarded') rewardSeen = true;
@@ -69,24 +90,8 @@ if (!LOCAL && PORTAL === 'playgama') {
       b.advertisement.on(b.EVENT_NAME.INTERSTITIAL_STATE_CHANGED, pgState);
       b.advertisement.on(b.EVENT_NAME.REWARDED_STATE_CHANGED, pgState);
       b.platform.on(b.EVENT_NAME.PAUSE_STATE_CHANGED, paused => { pgPaused = !!paused; adPlaying = pgPaused || pgAd; });
-      // Saves: every write to localStorage under the game's key also goes to the bridge; on a fresh device the
-      // bridge copy is restored once and the page reloads so the game starts from it.
-      const key = typeof SAVE_KEY === 'string' ? SAVE_KEY : '';
-      const ready = () => { b.platform.sendMessage('game_ready'); if (typeof onPortalReady === 'function') onPortalReady(); };
-      if (!key) return ready();
-      try {
-        const put = Storage.prototype.setItem;
-        Storage.prototype.setItem = function (k, v) { put.call(this, k, v); if (k === key) pgSave(k, v); };
-      } catch (e) {}
-      b.storage.get([key]).then(data => {
-        const cloud = data && data[0] ? (typeof data[0] === 'string' ? data[0] : JSON.stringify(data[0])) : '';
-        let local = '', again = '';
-        try { local = localStorage.getItem(key) || ''; again = sessionStorage.getItem(key + '.restored') || ''; } catch (e) {}
-        if (cloud && !local && !again) {
-          try { sessionStorage.setItem(key + '.restored', '1'); localStorage.setItem(key, cloud); location.reload(); return; } catch (e) {}
-        }
-        ready();
-      }).catch(ready);
+      mirrorSave(k => b.storage.get([k]).then(d => d && d[0]), pgSave,
+        () => { b.platform.sendMessage('game_ready'); if (typeof onPortalReady === 'function') onPortalReady(); });
     }).catch(() => {});
   });
 }

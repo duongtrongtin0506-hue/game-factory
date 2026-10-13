@@ -2,8 +2,7 @@
 
 - Submit page: https://developer.crazygames.com/
 - Game file: `phat-hanh/crazygames/tap-arcade/tap-arcade.zip` (index.html at the root)
-- Covers / video: `assets-goc/tap-arcade/cover-1920x1080.png`, `assets-goc/tap-arcade/cover-800x1200.png`, `assets-goc/tap-arcade/cover-800x800.png`
-- MISSING (run `python tools/quay.py tap-arcade`): preview-landscape-1920x1080.mp4, preview-portrait-1080x1620.mp4
+- Covers / video: `assets-goc/tap-arcade/cover-1920x1080.png`, `assets-goc/tap-arcade/cover-800x1200.png`, `assets-goc/tap-arcade/cover-800x800.png`, `assets-goc/tap-arcade/preview-landscape-1920x1080.mp4`, `assets-goc/tap-arcade/preview-portrait-1080x1620.mp4`
 - Note: Tai len tep index.html trong zip (hoac ca zip). Bai bi tu choi khong tai ban moi duoc: tao bai nop moi. Anh bia va video phai tai lai moi lan doi ban.
 
 Title: Tap Arcade
