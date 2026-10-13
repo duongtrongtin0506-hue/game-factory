@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Tile Trio</title>
 <style>
-html,body{margin:0;height:100%;overflow:hidden;background:#1f6f5c;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden;background:#FFFBF5;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 canvas{display:block;width:100%;height:100%}
 </style>
 </head>
@@ -245,7 +245,7 @@ function makeLevel(n) {
 
 const INK = ['#ff4d5e', '#3d9bff', '#3ddc84', '#ffb020', '#b06cff', '#ff7ab8', '#17c3b2', '#ff8a3d', '#5b6cff', '#8fbf2f', '#e0527f', '#00a6d6', '#c77dff', '#d98a1a'];
 const SAVE_KEY = 'tileTrio.save.v1';
-const FONT = 'system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
+const FONT = 'Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif';
 const TAU = 6.2832;
 
 const cv = document.getElementById('c'), g = cv.getContext('2d');
@@ -302,11 +302,25 @@ resize();
 const X = v => x0 + v * u, Y = v => y0 + v * u;
 
 // ---- Drawing helpers
-function label(str, x, y, size, color, align, stroke) {
-  g.font = '800 ' + size + 'px ' + FONT;
+// Design language (THIET-KE.md): warm paper, white cards, one forest accent; serif headline, sans body, mono label.
+const C = { page: '#FFFBF5', card: '#FFFFFF', line: '#E8E0D5', text: '#1A1A1A', soft: '#8B7E6F', accent: '#2B4A3B' };
+const HEAD = '"Cormorant Garamond","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif';
+const MONO = 'ui-monospace,Menlo,Consolas,monospace';
+function label(str, x, y, size, color, align, font, weight) {
+  g.font = (weight || 500) + ' ' + size + 'px ' + (font || FONT);
   g.textAlign = align || 'center'; g.textBaseline = 'middle';
-  if (stroke) { g.lineWidth = size * 0.16; g.strokeStyle = stroke; g.lineJoin = 'round'; g.strokeText(str, x, y); }
   g.fillStyle = color; g.fillText(str, x, y);
+}
+const head = (str, x, y, size, color, align) => label(str, x, y, size, color || C.text, align, HEAD, 400);
+function tag(str, x, y, size, color, align) {
+  if ('letterSpacing' in g) g.letterSpacing = (size * 0.08) + 'px';
+  label(str.toUpperCase(), x, y, size, color || C.soft, align, MONO, 400);
+  if ('letterSpacing' in g) g.letterSpacing = '0px';
+}
+const hair = () => Math.max(1, u * 0.25);
+function card(x, y, w, h, r) {
+  g.save(); g.shadowColor = 'rgba(0,0,0,.06)'; g.shadowBlur = u * 8; g.shadowOffsetY = u * 0.6;
+  g.fillStyle = C.card; rrect(x, y, w, h, r); g.fill(); g.restore();
 }
 function rrect(x, y, w, h, r) {
   g.beginPath();
@@ -345,11 +359,13 @@ function icon(k, x, y, r) {
     default: g.beginPath(); g.arc(x - r * 0.35, y + r * 0.2, r * 0.5, 0, TAU); g.arc(x + r * 0.35, y + r * 0.2, r * 0.5, 0, TAU); g.arc(x, y - r * 0.2, r * 0.6, 0, TAU); g.fill();   // cloud
   }
 }
+// A free tile is a white card on a soft edge; a covered tile sinks into the paper.
 function drawTile(x, y, s, kind, dim, scale) {
   const k = scale === undefined ? 1 : scale, w = s * 0.94 * k, px = x + (s - w) / 2, py = y + (s - w) / 2;
-  g.fillStyle = dim ? '#8fa39b' : '#c9b48a'; rrect(px, py + w * 0.09, w, w, w * 0.2); g.fill();
-  g.fillStyle = dim ? '#b9c7c1' : '#fffaf0'; rrect(px, py, w, w, w * 0.2); g.fill();
-  g.globalAlpha *= dim ? 0.55 : 1;
+  g.fillStyle = dim ? C.line : '#D9CFC1'; rrect(px, py + w * 0.08, w, w, w * 0.2); g.fill();
+  g.fillStyle = dim ? '#F3EDE3' : C.card; rrect(px, py, w, w, w * 0.2); g.fill();
+  g.lineWidth = hair(); g.strokeStyle = C.line; g.stroke();
+  g.globalAlpha *= dim ? 0.35 : 1;
   icon(kind, px + w / 2, py + w / 2, w * 0.3);
   g.globalAlpha = 1;
 }
@@ -359,18 +375,21 @@ function burst(x, y, color, n) {
     parts.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s - u * 20, life: 0.6 + Math.random() * 0.4, color, size: u * (0.6 + Math.random() * 1.2) });
   }
 }
-function button(str, cx, cy, w, h, color, dark, action, size) {
+// The primary button is the one accent on a screen; every other button is a white pill with a hairline.
+function button(str, cx, cy, w, h, primary, action, size) {
   btns.push({ x: cx - w / 2, y: cy - h / 2, w, h, action });
-  g.fillStyle = dark; rrect(cx - w / 2, cy - h / 2 + u * 1, w, h, h / 2); g.fill();
-  g.fillStyle = color; rrect(cx - w / 2, cy - h / 2, w, h, h / 2); g.fill();
-  label(str, cx, cy, size || h * 0.42, '#fff');
+  rrect(cx - w / 2, cy - h / 2, w, h, h / 2);
+  if (primary) { g.fillStyle = C.accent; g.fill(); }
+  else { g.fillStyle = C.card; g.fill(); g.lineWidth = hair(); g.strokeStyle = C.line; g.stroke(); }
+  label(str, cx, cy + h * 0.02, size || h * 0.34, primary ? '#FFFFFF' : C.text);
 }
 function roundBtn(str, x, y, action, off) {
-  const r = u * 5.5;
+  const r = u * 5;
   btns.push({ x: x - r, y: y - r, w: r * 2, h: r * 2, action });
-  g.fillStyle = '#fffaf0'; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
-  label(str, x, y, u * 5.5, off ? '#b9c7c1' : '#1f6f5c');
-  if (off) { g.strokeStyle = '#ff4d5e'; g.lineWidth = u * 0.8; g.lineCap = 'round'; g.beginPath(); g.moveTo(x - r * 0.5, y + r * 0.5); g.lineTo(x + r * 0.5, y - r * 0.5); g.stroke(); }
+  g.fillStyle = C.card; g.beginPath(); g.arc(x, y, r, 0, TAU); g.fill();
+  g.lineWidth = hair(); g.strokeStyle = C.line; g.stroke();
+  label(str, x, y - u * 0.3, u * 5, off ? C.soft : C.text, 'center', FONT, 400);
+  if (off) { g.strokeStyle = C.soft; g.lineWidth = u * 0.6; g.lineCap = 'round'; g.beginPath(); g.moveTo(x - r * 0.5, y + r * 0.5); g.lineTo(x + r * 0.5, y - r * 0.5); g.stroke(); }
 }
 
 // ---- Board geometry
@@ -457,52 +476,49 @@ function nextLevel() {
 }
 
 // ---- Screens
-function background() {
-  const bg = g.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, '#2a9d7f'); bg.addColorStop(1, '#17594a');
-  g.fillStyle = bg; g.fillRect(0, 0, W, H);
-  g.fillStyle = 'rgba(255,255,255,.05)';
-  for (let i = 0; i < 12; i++) { const s = u * (10 + i % 4 * 6); rrect(((i * 173.3 + time * 6) % (W + s * 2)) - s, (i * 121.7) % H, s, s, s * 0.2); g.fill(); }
-}
+function background() { g.fillStyle = C.page; g.fillRect(0, 0, W, H); }
 function drawMenu() {
-  const cx = X(sw / 2), top = land ? 10 : 26, s = u * (land ? 15 : 19);
-  [0, 3, 5].forEach((k, i) => drawTile(cx + (i - 1.5) * s * 1.08 + s * 0.04, Y(top) + Math.sin(time * 2 + i) * u, s, k));
-  label('TILE', cx, Y(land ? 46 : 74), u * 16, '#fffaf0', 'center', '#134236');
-  label('TRIO', cx, Y(land ? 61 : 92), u * 16, '#ffd23d', 'center', '#134236');
-  const pulse = 1 + Math.sin(time * 4) * 0.03;
-  button('PLAY', cx, Y(land ? 82 : 122), u * 52 * pulse, u * 15 * pulse, '#ff7a59', '#d4573a', () => {
+  const cx = X(sw / 2), s = u * (land ? 15 : 19), hw = s * 3.24 + u * 12, hh = s + u * 12, hy = Y(land ? 34 : 54);
+  // Hero card: one trio. PLAY is the one accent.
+  card(cx - hw / 2, hy, hw, hh, u * 6);
+  [0, 3, 5].forEach((k, i) => drawTile(cx + (i - 1.5) * s * 1.08 + s * 0.04, hy + u * 6 + Math.sin(time * 2 + i) * u * 0.6, s, k));
+  head('Tile Trio', cx, Y(land ? 12 : 26), u * (land ? 14 : 18));
+  tag('Match three', cx, Y(land ? 23 : 40), u * 3);
+  button('Play', cx, Y(land ? 84 : 112), u * (land ? 60 : 84), u * (land ? 12 : 14), true, () => {
     if (save.unlocked === 1 && !save.stars[1]) startLevel(1); else { page = Math.floor((save.unlocked - 1) / 20); screen = 'levels'; }
   });
+  let total = 0; for (const k in save.stars) total += save.stars[k];
+  star(cx - u * 9, Y(land ? 94 : 128) - u * 0.2, u * 2, C.accent); tag(total + ' / ' + LEVELS.length * 3, cx - u * 5, Y(land ? 94 : 128), u * 2.8, C.soft, 'left');
   roundBtn('♪', X(sw - 9), Y(9), () => { save.muted = !save.muted; persist(); }, save.muted);
 }
 function drawLevels() {
   const cx = X(sw / 2), cols = land ? 5 : 4, rows = 20 / cols, pages = LEVELS.length / 20;
-  label('LEVELS', cx, Y(10), u * 8, '#fffaf0');
+  head('Levels', cx, Y(9), u * 8);
   roundBtn('‹', X(9), Y(9), () => { screen = 'menu'; });
   const gx = land ? 30 : 8, gw = sw - gx * 2, gy = 20, gh = sh - 20 - 20;
   const cw = gw / cols, ch = gh / rows, s = Math.min(cw, ch) * 0.86 * u;
   for (let k = 0; k < 20; k++) {
     const n = page * 20 + k + 1;
-    const x = X(gx + (k % cols + 0.5) * cw), y = Y(gy + (Math.floor(k / cols) + 0.5) * ch), open = n <= save.unlocked;
-    g.fillStyle = 'rgba(0,0,0,.25)'; rrect(x - s / 2, y - s / 2 + u * 0.8, s, s, u * 3); g.fill();
-    g.fillStyle = open ? '#fffaf0' : '#3d8c79'; rrect(x - s / 2, y - s / 2, s, s, u * 3); g.fill();
-    label(String(n), x, y - s * 0.1, s * 0.36, open ? '#1f6f5c' : '#2a705f');
+    const x = X(gx + (k % cols + 0.5) * cw), y = Y(gy + (Math.floor(k / cols) + 0.5) * ch), open = n <= save.unlocked, cur = n === save.unlocked && !save.stars[n];
+    if (open) card(x - s / 2, y - s / 2, s, s, u * 4);
+    else { rrect(x - s / 2, y - s / 2, s, s, u * 4); g.lineWidth = hair(); g.strokeStyle = C.line; g.stroke(); }
+    if (cur) { rrect(x - s / 2, y - s / 2, s, s, u * 4); g.lineWidth = u * 0.6; g.strokeStyle = C.accent; g.stroke(); }
+    head(String(n), x, y - s * 0.1, s * 0.44, open ? C.text : C.line);
     const st = save.stars[n] || 0;
-    for (let j = 0; j < 3; j++) star(x + (j - 1) * s * 0.24, y + s * 0.28, s * 0.1, j < st ? '#ffb020' : open ? '#e6dcc6' : '#33806e');
+    if (open) for (let j = 0; j < 3; j++) star(x + (j - 1) * s * 0.22, y + s * 0.28, s * 0.085, j < st ? C.accent : C.line);
     if (open) btns.push({ x: x - s / 2, y: y - s / 2, w: s, h: s, action: () => startLevel(n) });
   }
   const by = Y(sh - 9);
   if (page > 0) roundBtn('‹', cx - u * 22, by, () => { page--; });
-  label((page + 1) + ' / ' + pages, cx, by, u * 5, '#fffaf0');
+  tag((page + 1) + ' / ' + pages, cx, by, u * 3);
   if (page < pages - 1) roundBtn('›', cx + u * 22, by, () => { page++; });
 }
 function drawBoard() {
   const p = geo(), live = tiles.filter(t => !t.gone).sort((a, b) => a.z - b.z || a.y - b.y || a.x - b.x);
   for (const t of live) { const q = tilePos(t, p); drawTile(q.x, q.y, q.s, t.kind, !isFree(t, tiles)); }
   // tray
-  g.fillStyle = 'rgba(0,0,0,.25)'; rrect(p.tx - u * 2, p.ty - u * 1.5 + u, TRAY * p.slot + u * 4, p.slot + u * 3, u * 4); g.fill();
-  g.fillStyle = '#134236'; rrect(p.tx - u * 2, p.ty - u * 1.5, TRAY * p.slot + u * 4, p.slot + u * 3, u * 4); g.fill();
-  for (let i = 0; i < TRAY; i++) { g.fillStyle = 'rgba(255,255,255,.08)'; rrect(p.tx + i * p.slot + p.slot * 0.06, p.ty + p.slot * 0.06, p.slot * 0.88, p.slot * 0.88, p.slot * 0.18); g.fill(); }
+  card(p.tx - u * 2, p.ty - u * 1.5, TRAY * p.slot + u * 4, p.slot + u * 3, u * 4);
+  for (let i = 0; i < TRAY; i++) { g.fillStyle = C.page; rrect(p.tx + i * p.slot + p.slot * 0.06, p.ty + p.slot * 0.06, p.slot * 0.88, p.slot * 0.88, p.slot * 0.18); g.fill(); }
   tray.forEach((e, i) => { if (!flying.some(f => f.tile === e.tile)) drawTile(p.tx + i * p.slot, p.ty, p.slot, e.kind); });
   for (const f of flying) {
     const i = tray.findIndex(e => e.tile === f.tile), k = Math.min(1, f.t / 0.2), e = k * k * (3 - 2 * k);
@@ -515,7 +531,7 @@ function drawBoard() {
     const want = free.find(t => tray.some(e => e.kind === t.kind)) || free.find(t => free.filter(o => o.kind === t.kind).length >= 2) || free[0];
     if (want) {
       const q = tilePos(want, p), ax = q.x + q.s / 2, ay = q.y - u * 1 + Math.sin(time * 6) * u * 1.5;
-      g.fillStyle = '#ff7a59';
+      g.fillStyle = C.accent;
       g.beginPath(); g.moveTo(ax, ay); g.lineTo(ax - u * 3.2, ay - u * 4.5); g.lineTo(ax - u * 1.2, ay - u * 4.5);
       g.lineTo(ax - u * 1.2, ay - u * 9); g.lineTo(ax + u * 1.2, ay - u * 9); g.lineTo(ax + u * 1.2, ay - u * 4.5); g.lineTo(ax + u * 3.2, ay - u * 4.5); g.closePath(); g.fill();
     }
@@ -524,44 +540,44 @@ function drawBoard() {
 function drawGame() {
   const cx = X(sw / 2);
   roundBtn('‹', X(9), Y(9), () => { gameplay(false); page = Math.floor((level - 1) / 20); screen = 'levels'; });
-  label('LEVEL ' + level, cx, Y(7.5), u * 6.5, '#fffaf0');
-  label('TILES LEFT  ' + tiles.filter(t => !t.gone).length, cx, Y(14.5), u * 3.6, '#bfe6da');
+  head('Level ' + level, cx, Y(7.5), u * 7.2);
+  tag('Tiles left ' + tiles.filter(t => !t.gone).length, cx, Y(15), u * 2.6);
   roundBtn('♪', X(sw - 9), Y(9), () => { save.muted = !save.muted; persist(); }, save.muted);
   drawBoard();
   const list = [
-    [undos > 0 ? 'UNDO  ' + undos : '▶  UNDO', '#9b7bff', '#7a5bd6', undoMove, history.length > 0],
-    [shuffles > 0 ? 'SHUFFLE  ' + shuffles : '▶  SHUFFLE', '#ffb020', '#d98a1a', shuffleBoard, true],
-    ['RESTART', '#3d9bff', '#1f6fd0', () => startLevel(level), true]
+    [undos > 0 ? 'Undo  ' + undos : '▶  Undo', undoMove, history.length > 0],
+    [shuffles > 0 ? 'Shuffle  ' + shuffles : '▶  Shuffle', shuffleBoard, true],
+    ['Restart', () => startLevel(level), true]
   ];
   list.forEach((it, i) => {
     const bx = land ? X(137) : cx + (i - 1) * u * 31, by = land ? Y(34 + i * 16) : Y(sh - 10);
-    g.globalAlpha = it[4] ? 1 : 0.45;
-    button(it[0], bx, by, u * (land ? 40 : 29), u * 11, it[1], it[2], it[3], u * 3.6);
+    g.globalAlpha = it[2] ? 1 : 0.45;
+    button(it[0], bx, by, u * (land ? 40 : 29), u * 10, false, it[1], u * 3.3);
     g.globalAlpha = 1;
   });
 }
 function drawEnd() {
   const cx = X(sw / 2), cy = Y(sh / 2), a = Math.min(1, endT / 0.35), won = screen === 'win';
   drawBoard();
-  g.fillStyle = 'rgba(8,36,29,' + (0.72 * a) + ')'; g.fillRect(0, 0, W, H);
+  g.fillStyle = 'rgba(26,26,26,' + (0.4 * a) + ')'; g.fillRect(0, 0, W, H);
   if (endT < 0.45) return;
   const pw = u * 84, ph = u * 82;
-  g.fillStyle = '#fffaf0'; rrect(cx - pw / 2, cy - ph / 2, pw, ph, u * 6); g.fill();
-  label('LEVEL ' + level, cx, cy - u * 32, u * 5, '#7fa89b');
-  label(won ? 'CLEARED!' : 'TRAY FULL!', cx, cy - u * 23, u * 9, won ? '#1f9d7a' : '#ff4d5e');
+  card(cx - pw / 2, cy - ph / 2, pw, ph, u * 6);
+  tag('Level ' + level, cx, cy - u * 33, u * 2.8);
+  head(won ? (earned === 3 ? 'Perfect' : 'Cleared') : 'Tray full', cx, cy - u * 23, u * 13);
   if (won) {
     for (let j = 0; j < 3; j++) {
       const k = Math.max(0, Math.min(1, (endT - 0.55 - j * 0.2) / 0.2));
-      star(cx + (j - 1) * u * 17, cy - u * 7 - (j === 1 ? u * 2 : 0), u * 8 * (j < earned ? 0.6 + 0.4 * k : 1), j < earned && k > 0 ? '#ffb020' : '#e6dcc6');
+      star(cx + (j - 1) * u * 16, cy - u * 6, u * 6 * (j < earned ? 0.6 + 0.4 * k : 1), j < earned && k > 0 ? C.accent : C.line);
     }
-    if (level < LEVELS.length) button('NEXT LEVEL', cx, cy + u * 15, u * 62, u * 13, '#ff7a59', '#d4573a', nextLevel);
-    else label('ALL ' + LEVELS.length + ' LEVELS DONE!', cx, cy + u * 15, u * 5, '#1f9d7a');
+    if (level < LEVELS.length) button('Next level', cx, cy + u * 15, u * 68, u * 13, true, nextLevel);
+    else tag('All ' + LEVELS.length + ' levels done', cx, cy + u * 15, u * 3);
   } else {
-    label('No room left for another tile.', cx, cy - u * 10, u * 3.8, '#7fa89b');
-    if (!revived) button('▶  SECOND CHANCE', cx, cy + u * 4, u * 66, u * 13, '#ff7a59', '#d4573a', revive, u * 4.6);
+    label('No room left for another tile.', cx, cy - u * 9, u * 3.6, C.soft, 'center', FONT, 400);
+    if (!revived) button('▶  Second chance', cx, cy + u * 6, u * 68, u * 13, true, revive);
   }
-  button('REPLAY', cx - u * 16.5, cy + u * 31, u * 29, u * 10, '#3d9bff', '#1f6fd0', () => startLevel(level), u * 4);
-  button('LEVELS', cx + u * 16.5, cy + u * 31, u * 29, u * 10, '#9b7bff', '#7a5bd6', () => { page = Math.floor((level - 1) / 20); screen = 'levels'; }, u * 4);
+  button('Replay', cx - u * 17.5, cy + u * 31, u * 33, u * 10, false, () => startLevel(level), u * 3.4);
+  button('Levels', cx + u * 17.5, cy + u * 31, u * 33, u * 10, false, () => { page = Math.floor((level - 1) / 20); screen = 'levels'; }, u * 3.4);
 }
 
 // ---- Input
@@ -654,6 +670,16 @@ async function demoLoop() {
   }
   await fetch('/frame?v=' + DEMO + '&n=done', { method: 'POST', body: 'x' });
 }
+// Local cover renderer (?demo=cover&w=&h=): a board in play under the title, posted as a PNG.
+async function coverShot() {
+  persist = () => {};
+  startLevel(24); time = 0.4;
+  background(); drawBoard();
+  head('Tile Trio', X(sw / 2), Y(land ? 9 : 11), u * (land ? 11 : 14));
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  await fetch('/frame?v=' + DEMO + '-' + W + 'x' + H + '&n=cover&ext=png', { method: 'POST', body: blob });
+  await fetch('/frame?v=' + DEMO + '-' + W + 'x' + H + '&n=done', { method: 'POST', body: 'x' });
+}
 let last = performance.now();
 function frame(now) {
   const dt = Math.min(0.05, (now - last) / 1000);
@@ -662,7 +688,7 @@ function frame(now) {
   draw();
   requestAnimationFrame(frame);
 }
-if (DEMO) demoLoop(); else requestAnimationFrame(frame);
+if (DEMO === 'cover') coverShot(); else if (DEMO) demoLoop(); else requestAnimationFrame(frame);
 })();
 </script>
 </body>
