@@ -29,7 +29,7 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [x] 13/10 Car Jam: thêm 2 cảnh (DESERT ROAD, SUNSET HILLS), cảnh lặp lại khi hết, chữ thắng tính theo số màn, 120 màn, vào `TAKE_GAMES`; `run_daily --no-publish` đạt.
 - [x] 13/10 `tools/carjam.py harden`: leo đồi đổi màn dễ trong hàng dự trữ thành màn ≥ 16 bước; nửa hàng dự trữ (20/40) đã là màn 16–23 bước; `run_daily` chạy thêm 40 giây mỗi ngày. Màn 101–120 đã vào game giữ nguyên (8–21 bước).
 - [x] 13/10 Car Jam có thử thách ngày: 1 màn/ngày theo ngày (màn 21 trở đi), chuỗi ngày liên tiếp, thưởng 25–55 xu một lần/ngày, nút ở menu, `?daily=1` để thử.
-- [ ] Chép thử thách ngày sang Boba Sort, Tile Trio, One Line Fill (cùng cách: `dayKey`, `dailyLevel`, `startDaily`, lưu `dailyDay` + `streak`; ba game này chưa có xu nên thưởng là chuỗi ngày + sao hiển thị ở menu).
+- [x] 13/10 Thử thách ngày đã có ở Boba Sort, Tile Trio, One Line Fill (nút ở menu, chuỗi ngày, `?daily=1`).
 - [ ] Car Jam: chọn mức khó + chướng ngại (ô khóa) theo `NGHIEN-CUU.md` mục game cùng thể loại. [nặng]
 
 ## 4. Game mới từ `Y-TUONG.md`

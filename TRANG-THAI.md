@@ -1,6 +1,6 @@
 # Trạng thái game-factory
 
-- Lần chạy cuối: 2026-10-13 16:42 (giờ VN), chạy thử, không đăng
+- Lần chạy cuối: 2026-10-13 16:51 (giờ VN), chạy thử, không đăng
 - Kết quả: ✅ đạt
 - Car Jam Escape: 120 màn trong game, 40 màn dự trữ đã kiểm (cần ≥ 30)
 - Boba Sort: 120 màn trong game, 40 màn dự trữ đã kiểm (cần ≥ 30)
