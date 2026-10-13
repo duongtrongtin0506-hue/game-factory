@@ -32,7 +32,7 @@ Trên đám mây (routine, Linux): dùng bash; `pip install -r tools/requirement
 | Boba Sort | `web/boba-sort` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
 | Car Jam Escape | `web/car-jam` | 120 (+40 dự trữ) | CrazyGames (bản 1) | 11/10 | bị từ chối 11/10; bản giao diện mới có gói, chờ chủ nộp |
 | Tile Trio | `web/tile-trio` | 120 | CrazyGames | 11/10 | bị từ chối 11/10 |
-| One Line Fill | `web/one-line` | 120 | CrazyGames · Playgama | 13/10 · 13/10 | chờ duyệt (máy tự nộp) · Sandbox |
+| One Line Fill | `web/one-line` | 120 | CrazyGames · Playgama · GameDistribution · itch.io | 13/10 · 13/10 · 14/10 · 13/10 | chờ duyệt · Sandbox · In Review · trang nháp |
 | Sprout Merge (thư mục và khóa lưu vẫn là `merge-harvest`) | `web/merge-harvest` | vô tận (gộp + idle, 10 bậc, mùa) | CrazyGames | 13/10 | chờ duyệt (máy tự nộp); đổi tên 13/10 vì "Merge Harvest" trùng game có thật; mẫu tham chiếu ngôn ngữ thiết kế |
 
 GameDistribution: đăng ký tài khoản 09/10, chờ thư. itch.io: có khóa, chưa có trang game. Chi tiết: `THEO-DOI.md`.
@@ -52,7 +52,7 @@ Kho GitHub: game-factory (`duongtrongtin0506-hue/game-factory`, riêng tư, nhá
 ## Chờ chủ (xem đầu `HUONG-DAN-CHU.md`)
 
 - Routine đám mây đã chạy từ 13/10: `trig_01VLA47WPmdk5S1ZJWS1QDub` (cron `0 1,7,13 * * *`, Sonnet; GitHub App đã có quyền vào kho). Xem lượt chạy bằng RemoteTrigger `list_runs`.
-- Playgama: có tài khoản từ 13/10, One Line Fill ở Sandbox (cần 100 lượt + 5:00 phút/lượt rồi mới gửi duyệt); Buy Traffic là tiền, phải hỏi chủ. GameDistribution: chờ chủ đăng nhập/xác minh email.
+- Playgama: có tài khoản từ 13/10, One Line Fill ở Sandbox (cần 100 lượt + 5:00 phút/lượt rồi mới gửi duyệt); Buy Traffic là tiền, phải hỏi chủ. GameDistribution: có tài khoản, One Line Fill In Review từ 14/10.
 - GameMonetize tạm dừng (từ chối Tap Arcade 13/10, cổng không nhận game làm bằng AI). CrazyGames: máy tự nộp, cách làm ở `CONG.md`.
 
 ## Sơ đồ

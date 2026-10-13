@@ -6,7 +6,7 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 
 - [ ] Xem `TRANG-THAI.md` + lần chạy `daily`, `weekly-selftest`, `bao-discord` gần nhất; 🔴 thì sửa theo bước lỗi (việc thường trực, mỗi lượt).
 - [x] 13/10 CrazyGames: SDK thật đã chạy trong công cụ QA của cổng với One Line Fill và Sprout Merge (init, Gameplay Start, Data Get/Set Item); quảng cáo chưa thử được vì Basic Launch tắt quảng cáo.
-- [ ] GameDistribution, Playgama: thử SDK thật khi có tài khoản (GameDistribution có gameId thử) và ghi kết quả vào `CONG.md`.
+- [x] 14/10 SDK thật: GameDistribution xác nhận interstitial + rewarded của One Line Fill; Playgama chạy được trên Sandbox.
 - [ ] Firefox của Playwright không khởi động trên máy này ("spawn UNKNOWN"): tìm nguyên nhân hoặc chạy `python tools/smoke_test.py firefox` trên Actions.
 
 ## 2. Game bị cổng từ chối
@@ -31,7 +31,8 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 - [ ] [máy 2] itch.io One Line Fill: sau lần `daily` đầu tiên đẩy được tệp (xem `TRANG-THAI.md` dòng itch.io), mở https://itch.io/dashboard → Edit game → tích "This file will be played in the browser", đặt khung 960x600 + nút fullscreen + Mobile friendly, tải ảnh bìa `assets-goc/one-line/cover-800x470.png` (nút Upload Cover Image tạo ô tệp động, có thể phải chặn hộp chọn tệp như CrazyGames), rồi chuyển Public. Nếu butler báo "invalid game" thì kiểm tra `ITCH_USER` có đúng `trong-tin`. Làm tương tự cho Sprout Merge (tạo trang `sprout-merge`, điền `itch` trong `specs/merge-harvest.json`).
 - [ ] Tra TikTok Mini Games (chủ hỏi 13/10): có nhận nhà phát triển cá nhân/HTML5 không, qua đối tác nào; ghi vào `CONG.md`. Poki: vẫn KHÔNG nộp (độc quyền web), trừ khi chủ đổi ý.
 
-- [ ] Mỗi lượt trên máy: mở https://developer.crazygames.com/games xem kết quả duyệt One Line Fill và Sprout Merge (nộp 13/10); ghi vào `THEO-DOI.md`; bị từ chối thì chép nguyên văn lý do.
+- [ ] [máy 2] Sprout Merge → GameDistribution: New Game lấy GameId, điền `specs/merge-harvest.json`, build, tải zip, thử SDK, ảnh (`assets-goc/merge-harvest/*.jpg`), Request Activation (các bước ở `CONG.md`).
+- [ ] Mỗi lượt trên máy: xem https://developer.gamedistribution.com/games (One Line Fill In Review từ 14/10) và mở https://developer.crazygames.com/games xem kết quả duyệt One Line Fill và Sprout Merge (nộp 13/10); ghi vào `THEO-DOI.md`; bị từ chối thì chép nguyên văn lý do.
 - [ ] Ảnh bìa dọc/vuông của Car Jam, Boba Sort, Tile Trio, Tap Arcade: đưa tên game ra khỏi góc trên bên trái (cổng phủ nhãn, số đo ở `CONG.md`), như đã làm với One Line Fill và Sprout Merge.
 - [ ] Sprout Merge không hiện tên game ở đâu trong game (CrazyGames yêu cầu tên nộp trùng tên trong game): thêm tên nhỏ ở màn chính.
 

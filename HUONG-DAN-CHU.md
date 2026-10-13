@@ -20,7 +20,7 @@ Từ 13/10 khung chat trên máy tự nộp CrazyGames bằng Chrome đang đăn
 - [ ] GameDistribution: 13/10 máy đã tìm trong Gmail, chưa có thư nào từ GameDistribution hoặc Azerion (mục Spam chưa xem). Nếu chủ nhớ đã đăng ký xong thì xem Spam; chưa thì đăng ký lại ở https://developer.gamedistribution.com/ (máy không được tự tạo tài khoản). Nhắn: **có thư gamedistribution**.
 - [x] 13/10 Claude GitHub App đã có quyền vào kho `game-factory` (chủ nhập mã xác minh, máy thêm kho); routine đám mây "Game factory - luot tu dong" đã tạo: https://claude.ai/code/routines/trig_01VLA47WPmdk5S1ZJWS1QDub (08:00/14:00/20:00 giờ VN, Sonnet), lượt đầu 08:00 ngày 14/10.
 - [x] 13/10 Playgama: tài khoản xong (chủ đăng nhập Google và bấm gửi form), One Line Fill đã lên Sandbox: https://playgama.ai/play/3gmcpm4dkz.
-- [ ] GameDistribution: email đã có tài khoản Azerion từ 09/10 nhưng chưa xác minh; đăng nhập bằng email + mật khẩu đã đặt (không dùng nút Google) tại https://developer.gamedistribution.com/, quên thì bấm **Forgot Password?**. Xong nhắn **xong tài khoản gamedistribution**.
+- [x] 14/10 GameDistribution: chủ đã đăng nhập; máy đã gửi duyệt One Line Fill (In Review).
 - [x] 13/10 Chủ trả lời: KHÔNG dùng ngân sách lúc này → không Buy Traffic; chỉ dùng boost miễn phí và chia sẻ.
 - [ ] Cổng khác (Yandex Games, GamePix…): chưa cần, xem `CONG.md`.
 - [x] 13/10 itch.io: máy đã tạo trang nháp https://trong-tin.itch.io/one-line-fill (HTML, No payments, khai có nội dung AI: Graphics, Sounds, Code). Tệp game do `daily` 06:00 đẩy bằng butler; sau đó máy tích "played in the browser" và chuyển Public.
