@@ -1,4 +1,4 @@
-# Merge Harvest -> gamemonetize
+# Sprout Merge -> gamemonetize
 
 - Submit page: https://gamemonetize.com/account/
 - Game file: `phat-hanh/gamemonetize/merge-harvest/merge-harvest.zip` (index.html at the root)
@@ -6,7 +6,7 @@
 - BLOCKED: portal_ids.gamemonetize is empty in specs/merge-harvest.json
 - Note: Moi game can GameId rieng: tao game tren cong, chep GameId vao specs/<game>.json muc portal_ids.gamemonetize, build lai roi moi tai zip.
 
-Title: Merge Harvest
+Title: Sprout Merge
 
 Short description: Plant seeds, merge them into bigger crops and fill the orders.
 

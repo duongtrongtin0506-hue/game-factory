@@ -35,12 +35,12 @@ Tải đo trên bản không quảng cáo, giả lập máy yếu (CPU chậm 4 
 
 | Game | CrazyGames | GameMonetize | GameDistribution | Playgama | Yandex |
 |---|---|---|---|---|---|
-| Car Jam Escape (giao diện mới, 120 màn) | bản 1 từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
-| Boba Sort (giao diện mới) | từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
-| Tile Trio (giao diện mới) | từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
-| One Line Fill (giao diện mới) | gói, chưa nộp lần nào | gói, thiếu GameId | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
-| Tap Arcade (giao diện mới) | từ chối 11/10 · gói bản mới | bản 5 trò nộp 09/10, chờ duyệt | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
-| Merge Harvest (game đủ 13/10) | gói, chưa nộp (tra trùng tên trước) | gói, thiếu GameId | gói, chờ tài khoản | chưa có SDK | chưa có SDK |
+| Car Jam Escape (giao diện mới, 120 màn) | bản 1 từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
+| Boba Sort (giao diện mới) | từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
+| Tile Trio (giao diện mới) | từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
+| One Line Fill (giao diện mới) | gói, chưa nộp lần nào | gói, thiếu GameId | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
+| Tap Arcade (giao diện mới) | từ chối 11/10 · gói bản mới | bản 5 trò nộp 09/10, chờ duyệt | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
+| Sprout Merge (thư mục `merge-harvest`, game đủ 13/10) | gói, chưa nộp | gói, thiếu GameId | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
 
 Lượt chơi, doanh thu: chưa có, chưa game nào lên sóng.
 

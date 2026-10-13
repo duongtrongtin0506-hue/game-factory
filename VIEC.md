@@ -36,7 +36,9 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 
 - [x] 13/10 Bản thử "Merge Harvest" ở `web/merge-harvest/` theo `THIET-KE.md`: lưới 5x6, 10 bậc, đơn hàng, xu theo giây + xu vắng mặt, nâng cấp hạt, bán, lưu tiến trình, tắt tiếng, quảng cáo thưởng (nạp hạt, nhân đôi xu vắng mặt), bot `?selftest=1`; đã vào `build.py` + `smoke_test.py`. ĐẠT.
 - [x] 13/10 Merge Harvest thành game đủ: mùa (giao Golden Tree → làm lại, mọi xu x1,5 mỗi mùa, nâng cấp đắt x4), thưởng ngày theo chuỗi, vòng sáng khi gộp, mô tả `store`, `tools/merge_sim.js` (bot tới Golden Tree ~17 phút mỗi mùa; người thật ước 25–35 phút, chưa đo), đã vào `phat-hanh/`.
-- [ ] Merge Harvest: tra tên "Merge Harvest" có trùng game/nhãn hiệu có thật không (trùng thì đổi tên trong `specs`, tiêu đề, ảnh bìa) TRƯỚC khi chủ nộp; nhạc nền nhẹ có nút tắt; đổi màu lá theo mùa.
+- [x] 13/10 Đổi tên phát hành thành Sprout Merge ("Merge Harvest" trùng "Farm: Merge Harvest" trên Playgama); thư mục và khóa lưu giữ `merge-harvest`.
+- [ ] Tra trùng tên 5 game còn lại (Car Jam Escape, Boba Sort, Tile Trio, One Line Fill, Tap Arcade) trên cổng sắp nộp; trùng chính xác thì đề xuất tên mới ở đầu `HUONG-DAN-CHU.md` (game đã nộp không tự đổi).
+- [ ] Sprout Merge: nhạc nền nhẹ có nút tắt; đổi màu lá theo mùa.
 - [x] 13/10 Merge Harvest: ảnh bìa mọi cỡ + 2 video (`assets-goc/merge-harvest`), `?demo=cover` và `?demo=<tên>`.
 - [ ] Bản thử ý tưởng kế tiếp theo điểm (Mini Garden Idle hoặc Bolt Jam) sau khi game trên có kết luận. [nặng]
 - [ ] Thứ hai hằng tuần: quét xu hướng → thêm mục tuần vào `XU-HUONG.md`, ≥ 5 ý tưởng mới vào `Y-TUONG.md` (lần tới: 19/10; thử mở thẳng trang New của từng cổng).
@@ -44,7 +46,9 @@ Cách dùng: làm từ trên xuống; xong thì đổi `[ ]` thành `[x]` kèm n
 ## 5. Đóng gói cho mọi cổng
 
 - [x] 13/10 `tools/build.py` có `release()`: `phat-hanh/<cổng>/<game>/<game>.zip` + `mo-ta.md` cho 5 game × 3 cổng (15 gói), zip có trong git, ảnh bìa dùng chung ở `assets-goc/<game>/` (không chép lặp); `run_daily` và `daily.yml` cập nhật gói mỗi lần build.
-- [ ] Thêm cổng vào `web/ads.js` + `PORTALS` + `tools/test_ads.js` theo `CONG.md`, mỗi cổng một việc: Playgama Bridge; Yandex Games (kèm tiếng Nga + `LoadingAPI.ready()`); Poki; GamePix. Tra lại tài liệu SDK ngay trước khi viết, ghi nguồn.
+- [x] 13/10 Cổng `playgama` (Playgama Bridge v2) trong `web/ads.js`, `tools/build.py` (zip kèm `playgama-bridge-config.json`), `tools/test_ads.js`; 6 gói ở `phat-hanh/playgama/`. Chi tiết và phần chưa xác minh: `CONG.md`.
+- [ ] Cổng `yandex` (kèm tiếng Nga + `LoadingAPI.ready()`) và `gamepix`: tra lại tài liệu ngay trước khi viết, ghi nguồn. Poki: không làm (độc quyền). [nặng]
+- [ ] Playgama: đọc `platform.language` và `AUDIO_STATE_CHANGED`; khi chủ có tài khoản thì chạy Test Game và sửa theo kết quả.
 - [x] 13/10 Mục `store` (mô tả tiếng Anh) cho 5 game trong `specs/`.
 Quy ước: sau mỗi gói mới thì thêm dòng vào CẦN NỘP ở đầu `HUONG-DAN-CHU.md` (game, cổng, đường dẫn zip, link trang nộp) và cập nhật bảng game × cổng trong `THEO-DOI.md`.
 

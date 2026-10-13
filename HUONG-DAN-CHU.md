@@ -8,6 +8,7 @@ Mỗi gói có sẵn tệp zip và `mo-ta.md` (tên, mô tả, thẻ tiếng Anh
 
 - [ ] Car Jam Escape → CrazyGames (bài nộp MỚI): https://developer.crazygames.com/ · `phat-hanh\crazygames\car-jam\car-jam.zip` · mô tả `phat-hanh\crazygames\car-jam\mo-ta.md`. Nhắn: **đã nộp car jam crazygames**.
 - [ ] One Line Fill → CrazyGames (chưa nộp lần nào): https://developer.crazygames.com/ · `phat-hanh\crazygames\one-line\one-line.zip` · `phat-hanh\crazygames\one-line\mo-ta.md`. Nhắn: **đã nộp one line crazygames**.
+- [ ] Sprout Merge (game mới, cơ chế gộp + idle, chưa nộp lần nào) → CrazyGames: https://developer.crazygames.com/ · `phat-hanh\crazygames\merge-harvest\merge-harvest.zip` · `phat-hanh\crazygames\merge-harvest\mo-ta.md`. Nhắn: **đã nộp sprout merge crazygames**.
 - [ ] (sau khi 2 game trên có kết quả) Boba Sort, Tile Trio, Tap Arcade → CrazyGames, bài nộp mới: `phat-hanh\crazygames\<game>\`.
 - [ ] Xem kết quả duyệt Tap Arcade trên GameMonetize: https://gamemonetize.com/account/login.php → My Games. Nhắn: **gamemonetize: duyệt / từ chối + lý do**.
 - [ ] GameMonetize, 4 game còn lại (Car Jam, Boba Sort, Tile Trio, One Line Fill): https://gamemonetize.com/account/ → thêm game mới để lấy GameId của từng game → nhắn **gameid <tên game> <mã>** (mã game không phải mật khẩu) → máy build lại → tải `phat-hanh\gamemonetize\<game>\<game>.zip`.
@@ -15,7 +16,8 @@ Mỗi gói có sẵn tệp zip và `mo-ta.md` (tên, mô tả, thẻ tiếng Anh
 
 - [ ] GameDistribution: tìm thư kích hoạt (đăng ký 09/10) trong Gmail, từ GameDistribution hoặc Azerion. Nhắn: **có thư gamedistribution**.
 - [ ] Cài Claude GitHub App cho kho game-factory (để routine đám mây đẩy mã được): https://github.com/apps/claude/installations/select_target → chọn tài khoản → **Only select repositories** → `game-factory` → **Save**. Nhắn: **xong github app**.
-- [ ] Các cổng mới (Playgama, Yandex Games, Poki, GamePix…): xem cột "Đăng ký" trong `CONG.md`, tạo tài khoản cổng nào thì nhắn **xong tài khoản <tên cổng>**.
+- [ ] Playgama (một lần nộp ra nhiều cổng đối tác, 6 gói đã sẵn): tạo tài khoản nhà phát triển tại https://developer.playgama.com/ → nhắn **xong tài khoản playgama** → máy chỉ từng bước Add Game / Test Game / Submit với `phat-hanh\playgama\<game>\<game>.zip`.
+- [ ] Cổng khác (Yandex Games, GamePix…): chưa cần, xem `CONG.md`.
 - [ ] (không bắt buộc) itch.io: tạo trang `car-jam-escape` theo mục 6 bên dưới.
 
 ## CẦN CHÉP SỐ (chủ nhật)

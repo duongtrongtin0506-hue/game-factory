@@ -1,5 +1,5 @@
 {
-  "name": "Merge Harvest",
+  "name": "Sprout Merge",
   "genre": "merge idle",
   "levels": null,
   "solver": "bot trong game (?selftest=1): 500 nuoc khong ket; tools/merge_sim.js do nhip do (bot toi Golden Tree ~17 phut moi mua)",
@@ -31,7 +31,7 @@
     "gamedistribution": ""
   },
   "store": {
-    "title": "Merge Harvest",
+    "title": "Sprout Merge",
     "short": "Plant seeds, merge them into bigger crops and fill the orders.",
     "long": "A calm merge and idle garden. Plant seeds, drag two of the same crop together to grow the next one, and deliver what each order asks for. Bigger crops earn coins every second, even while you are away. Discover all ten crops up to the Golden Tree, then start a new season with every coin worth more. Come back daily for a bonus on your first order.",
     "how_to_play": "Tap Plant seed. Drag a crop onto the same crop to merge. Drag the crop an order asks for onto the order card. Drag anything onto Sell to make room.",

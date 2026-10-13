@@ -20,9 +20,12 @@ function load(portal, id, host) {
   };
   const code = SRC.replace('/*PORTAL*/', portal).replace('/*GAME_ID*/', id) +
     '\nreturn { showAd, gameplay, happy, playing: () => adPlaying, ready: f => { onPortalReady = f; } };';
-  const api = new Function(...Object.keys(env), 'let onPortalReady;' + code)(...Object.values(env));
+  env.Storage = function () {}; env.Storage.prototype.setItem = function () {};   // kho luu gia: ads.js boc setItem de chep sang cong
+  const store = new env.Storage(); store.getItem = () => null;
+  env.localStorage = store; env.sessionStorage = { getItem: () => null, setItem() {} };
+  const api = new Function(...Object.keys(env), 'let onPortalReady; const SAVE_KEY = "t.save";' + code)(...Object.values(env));
   const tick = ms => { now += ms; timers.forEach(t => { if (t.f && t.at <= now) { const f = t.f; t.f = null; f(); } }); };
-  return { api, window, scripts, tick };
+  return { api, window, scripts, tick, store };
 }
 const result = (api, type) => { const r = { v: 'chua goi' }; api.showAd(type, ok => { r.v = ok; }); return r; };
 
@@ -112,6 +115,48 @@ const result = (api, type) => { const r = { v: 'chua goi' }; api.showAd(type, ok
   cb.adError({ code: 'adsDisabledBasicLaunch' });
   check('cg Basic Launch (chua co quang cao) van cho goi y', r.v, true);
 
-  console.log(bad.length ? 'LOI ' + bad.join(' | ') : 'ads.js: dat (gamemonetize, gamedistribution, crazygames, none)');
+  // Playgama Bridge: thuong chi khi trang thai 'rewarded'; tam dung theo PAUSE_STATE_CHANGED; bao game_ready; luu tien trinh qua bridge
+  t = load('playgama', '');
+  check('pg nap SDK', t.scripts[0] && t.scripts[0].src, 'https://bridge.playgama.com/v2/stable/playgama-bridge.js');
+  const on = {}, sent = [], shownPg = [], saved = [];
+  t.window.bridge = {
+    EVENT_NAME: { INTERSTITIAL_STATE_CHANGED: 'i', REWARDED_STATE_CHANGED: 'r', PAUSE_STATE_CHANGED: 'p' },
+    initialize: () => Promise.resolve(),
+    advertisement: { on: (e, f) => { on[e] = f; }, isInterstitialSupported: true, isRewardedSupported: true,
+      showInterstitial: id => shownPg.push('i:' + id), showRewarded: id => shownPg.push('r:' + id) },
+    platform: { on: (e, f) => { on[e] = f; }, sendMessage: m => sent.push(m) },
+    storage: { get: () => Promise.resolve([null]), set: (k, v) => { saved.push(k[0] + '=' + v[0]); return Promise.resolve(); } }
+  };
+  ready = 0; t.api.ready(() => { ready++; });
+  t.scripts[0].onload();
+  await new Promise(f => setImmediate(f)); await new Promise(f => setImmediate(f));
+  check('pg bao game_ready', sent.join(','), 'game_ready');
+  check('pg goi onPortalReady', ready, 1);
+  r = result(t.api, 'rewarded');
+  on.r('loading'); on.r('opened');
+  check('pg dang chieu', t.api.playing(), true);
+  on.r('rewarded'); on.r('closed');
+  check('pg xem het thi thuong', shownPg[0] + ':' + r.v, 'r:reward:true');
+  check('pg het chieu', t.api.playing(), false);
+  r = result(t.api, 'rewarded');
+  on.r('opened'); on.r('closed');
+  check('pg bo ngang thi khong thuong', r.v, false);
+  r = result(t.api, 'rewarded');
+  t.tick(4000);
+  check('pg SDK im lang thi khong thuong sau 4 giay', r.v, false);
+  t.tick(60000);
+  r = result(t.api, 'midgame');
+  on.i('opened'); on.i('closed');
+  check('pg midgame', shownPg[shownPg.length - 1] + ':' + r.v, 'i:level_completed:true');
+  on.p(true);
+  check('pg tam dung khi cong bao', t.api.playing(), true);
+  on.p(false);
+  check('pg choi tiep', t.api.playing(), false);
+  t.store.setItem('t.save', '{"a":1}'); t.store.setItem('khac', 'x');
+  check('pg luu tien trinh qua bridge', saved.join(','), 't.save={"a":1}');
+  t.window.bridge.advertisement.isRewardedSupported = false;
+  check('pg cong khong co quang cao thuong thi khong thuong', result(t.api, 'rewarded').v, false);
+
+  console.log(bad.length ? 'LOI ' + bad.join(' | ') : 'ads.js: dat (gamemonetize, gamedistribution, crazygames, playgama, none)');
   process.exit(bad.length ? 1 : 0);
 })();

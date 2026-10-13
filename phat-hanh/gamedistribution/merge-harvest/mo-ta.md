@@ -1,4 +1,4 @@
-# Merge Harvest -> gamedistribution
+# Sprout Merge -> gamedistribution
 
 - Submit page: https://developer.gamedistribution.com/
 - Game file: `phat-hanh/gamedistribution/merge-harvest/merge-harvest.zip` (index.html at the root)
@@ -6,7 +6,7 @@
 - BLOCKED: portal_ids.gamedistribution is empty in specs/merge-harvest.json
 - Note: Can tai khoan da kich hoat va gameId (portal_ids.gamedistribution). Co anh cong yeu cau: chua xac minh, xem CONG.md.
 
-Title: Merge Harvest
+Title: Sprout Merge
 
 Short description: Plant seeds, merge them into bigger crops and fill the orders.
 

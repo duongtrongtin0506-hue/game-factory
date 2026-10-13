@@ -12,6 +12,6 @@ Kiểm 13/10/2026 bằng cách tìm trong mọi `web/*/index.src.html` và `web/
 | Thư viện bên thứ ba trong game | không có | - |
 | Công cụ dựng (không nằm trong game): Python, Playwright, Node, ffmpeg | cài trên máy dựng | mã nguồn mở, không phân phối kèm game |
 
-Tên game: Car Jam Escape, Boba Sort, Tile Trio, One Line Fill, Tap Arcade, Merge Harvest. Chưa tra trùng tên/nhãn hiệu một cách hệ thống (việc trong `VIEC.md` trước khi đưa game lên tầng 2).
+Tên game: Car Jam Escape, Boba Sort, Tile Trio, One Line Fill, Tap Arcade, Sprout Merge. 13/10: tìm trên web thấy "Merge Harvest" trùng "Farm: Merge Harvest" (đang có trên Playgama) nên đổi thành Sprout Merge (một lượt tìm không thấy game trùng tên chính xác; chưa phải tra nhãn hiệu). 5 tên còn lại chưa tra (việc trong `VIEC.md`).
 
 Quy tắc khi thêm tài nguyên ngoài (hình AI vẽ, font nhúng, âm thanh tải về): thêm 1 dòng vào bảng trên gồm tệp, nguồn (link), giấy phép, ngày lấy; chỉ dùng giấy phép cho phép thương mại; không dùng tên, hình, nhân vật, nhạc của game khác.

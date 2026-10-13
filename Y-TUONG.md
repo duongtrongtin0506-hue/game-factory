@@ -8,7 +8,7 @@ Trạng thái: 💡 mới · 🧪 đang làm bản thử · ✅ đạt, làm gam
 
 | # | Tên tạm | Tổng | ND | CT | H5 | Giữ | QC | Rb | Trạng thái |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | Merge Harvest Idle | 26 | 4 | 3 | 5 | 5 | 5 | 4 | ✅ bản thử 13/10 đạt: `web/merge-harvest/`, bot 500 nước không kẹt, có gợi ý không chữ; game đủ xong 13/10 (mùa, thưởng ngày) |
+| 1 | Merge Harvest Idle → tên phát hành: Sprout Merge | 26 | 4 | 3 | 5 | 5 | 5 | 4 | ✅ bản thử 13/10 đạt: `web/merge-harvest/`, bot 500 nước không kẹt, có gợi ý không chữ; game đủ xong 13/10 (mùa, thưởng ngày) |
 | 2 | Mini Garden Idle | 26 | 4 | 2 | 5 | 5 | 5 | 5 | 💡 |
 | 3 | Bolt Jam | 24 | 5 | 2 | 4 | 4 | 5 | 4 | 💡 |
 | 4 | Hex Stack | 24 | 4 | 3 | 5 | 4 | 4 | 4 | 💡 |

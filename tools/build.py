@@ -11,7 +11,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 GAMES = ["tap-arcade", "boba-sort", "car-jam", "tile-trio", "one-line", "merge-harvest"]
-PORTALS = ["gamemonetize", "crazygames", "gamedistribution", "none"]
+PORTALS = ["gamemonetize", "crazygames", "gamedistribution", "playgama", "none"]
+# Tep phai nam canh index.html o tung cong (ten tep -> noi dung)
+EXTRA = {"playgama": {"playgama-bridge-config.json": json.dumps({"advertisement": {"minimumDelayBetweenInterstitial": 60, "interstitial": {"placements": [{"id": "level_completed"}]}, "rewarded": {"placements": [{"id": "reward"}]}}}, indent=2) + "\n"}}
 PAR = {"car-jam"}   # game can them mang PAR (so buoc it nhat cua tung man)
 # Goi nop cong: phat-hanh/<cong>/<game>/ = zip + mo-ta.md. Chi game co muc "store" trong specs moi duoc dong goi.
 # cong -> (trang nop, cac anh bia can nop lay tu assets-goc/<game>/, ghi chu)
@@ -20,6 +22,8 @@ RELEASE = {
                    "Tai len tep index.html trong zip (hoac ca zip). Bai bi tu choi khong tai ban moi duoc: tao bai nop moi. Anh bia va video phai tai lai moi lan doi ban."),
     "gamemonetize": ("https://gamemonetize.com/account/", ["cover-512x384.jpg", "cover-512x512.jpg", "cover-512x340.jpg"],
                      "Moi game can GameId rieng: tao game tren cong, chep GameId vao specs/<game>.json muc portal_ids.gamemonetize, build lai roi moi tai zip."),
+    "playgama": ("https://developer.playgama.com/", ["cover-800x800.png", "cover-1080x1920.png", "cover-1920x1080.png"],
+                 "Zip co index.html + playgama-bridge-config.json o goc. Bam Add Game, chay Test Game (cong cu kiem cua cong) truoc khi Submit. Chua co tieng Nga: bo chon cong doi tac Yandex/VK o muc Distribution. Lop SDK moi thu voi SDK gia."),
     "gamedistribution": ("https://developer.gamedistribution.com/", ["cover-512x512.jpg", "cover-512x384.jpg", "cover-1920x1080.png"],
                          "Can tai khoan da kich hoat va gameId (portal_ids.gamedistribution). Co anh cong yeu cau: chua xac minh, xem CONG.md."),
 }
@@ -62,8 +66,11 @@ def build():
             stage = ROOT / "dist" / game / portal
             stage.mkdir(parents=True, exist_ok=True)
             (stage / "index.html").write_text(html, encoding="utf-8", newline="\n")
+            for name, text in EXTRA.get(portal, {}).items():
+                (stage / name).write_text(text, encoding="utf-8", newline="\n")
             with zipfile.ZipFile(ROOT / "dist" / game / f"{game}-{portal}.zip", "w", zipfile.ZIP_DEFLATED) as z:
-                z.write(stage / "index.html", "index.html")
+                for name in ["index.html", *EXTRA.get(portal, {})]:
+                    z.write(stage / name, name)
             if portal == "gamemonetize":
                 (ROOT / "web" / game / "index.html").write_text(html, encoding="utf-8", newline="\n")
         out.append(f"{game} {len(html.encode('utf-8')) // 1024}KB")
@@ -81,10 +88,11 @@ def release():
         for portal, (link, covers, note) in RELEASE.items():
             out = ROOT / "phat-hanh" / portal / game
             out.mkdir(parents=True, exist_ok=True)
-            info = zipfile.ZipInfo("index.html", (2026, 1, 1, 0, 0, 0))
-            info.compress_type = zipfile.ZIP_DEFLATED
             with zipfile.ZipFile(out / f"{game}.zip", "w") as z:
-                z.writestr(info, (ROOT / "dist" / game / portal / "index.html").read_bytes())
+                for name in ["index.html", *EXTRA.get(portal, {})]:
+                    info = zipfile.ZipInfo(name, (2026, 1, 1, 0, 0, 0))
+                    info.compress_type = zipfile.ZIP_DEFLATED
+                    z.writestr(info, (ROOT / "dist" / game / portal / name).read_bytes())
             have = [c for c in covers if (ROOT / "assets-goc" / game / c).exists()]
             missing = [c for c in covers if c not in have]
             need_id = portal in spec.get("portal_ids", {}) and not spec["portal_ids"][portal]

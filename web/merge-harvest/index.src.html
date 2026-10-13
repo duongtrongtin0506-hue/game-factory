@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Merge Harvest</title>
+<title>Sprout Merge</title>
 <style>
 html,body{margin:0;height:100%;overflow:hidden;background:#FFFBF5;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
 canvas{display:block;width:100%;height:100%}
@@ -394,8 +394,8 @@ async function coverShot() {
   item(9, cx, cy + R * 0.05, R * 0.62);
   [[1, -0.72, -0.7], [2, 0.72, -0.72], [4, -0.74, 0.7], [6, 0.74, 0.7], [5, 0, -0.78]].forEach(q => item(q[0], cx + q[1] * R, cy + q[2] * R, R * 0.13));
   const size = wide ? Math.min(W * 0.075, H * 0.2) : Math.min(W * 0.13, H * 0.1);
-  if (wide) { text('Merge', W * 0.2, H * 0.42, size, C.text, 'center', F.head); text('Harvest', W * 0.2, H * 0.42 + size * 0.95, size, C.text, 'center', F.head); }
-  else text('Merge Harvest', W / 2, H * 0.14, size, C.text, 'center', F.head);
+  if (wide) { text('Sprout', W * 0.2, H * 0.42, size, C.text, 'center', F.head); text('Merge', W * 0.2, H * 0.42 + size * 0.95, size, C.text, 'center', F.head); }
+  else text('Sprout Merge', W / 2, H * 0.14, size, C.text, 'center', F.head);
   await post('cover', await new Promise(r => cv.toBlob(r, 'image/png')));
   await post('coverdone', 'x');
 }

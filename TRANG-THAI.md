@@ -1,6 +1,6 @@
 # Trạng thái game-factory
 
-- Lần chạy cuối: 2026-10-13 17:02 (giờ VN), chạy thử, không đăng
+- Lần chạy cuối: 2026-10-13 17:08 (giờ VN), chạy thử, không đăng
 - Kết quả: ✅ đạt
 - Car Jam Escape: 120 màn trong game, 40 màn dự trữ đã kiểm (cần ≥ 30)
 - Boba Sort: 120 màn trong game, 40 màn dự trữ đã kiểm (cần ≥ 30)
@@ -28,3 +28,4 @@
 - 13/10 10:20 🎮 Xong tools/quay.py + ảnh bìa, video Car Jam theo giao diện mới · Gói chờ nộp 1 (Car Jam → CrazyGames) · Việc còn 28 · ⚪ routine đám mây chờ chủ cài Claude GitHub App
 - 13/10 12:30 🎮 Xong đổi giao diện cả 5 game theo THIET-KE.md + ảnh bìa mới + 15 gói phat-hanh (3 cổng) · Gói chờ nộp 2 (Car Jam, One Line Fill → CrazyGames) · Việc còn 24 · ⚪ routine đám mây chờ chủ cài Claude GitHub App
 - 13/10 15:00 🎮 Xong thử thách ngày cho 4 game, Merge Harvest thành game đủ (mùa, thưởng ngày, ảnh bìa, video), 18 gói, VAN-HANH/CHI-SO/ASSETS · Gói chờ nộp 2 · Việc còn 14 · ⚪ routine đám mây chờ chủ cài Claude GitHub App
+- 13/10 16:30 🎮 Xong cổng Playgama (SDK + 6 gói), đổi tên game mới thành Sprout Merge (tên cũ trùng game có thật) · Gói chờ nộp 3 (Car Jam, One Line Fill, Sprout Merge → CrazyGames) · Việc còn 16 · ⚪ routine đám mây chờ chủ cài Claude GitHub App

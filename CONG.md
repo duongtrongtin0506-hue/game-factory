@@ -9,7 +9,7 @@ Tra 13/10/2026 (kèm `NGHIEN-CUU.md` 11–12/10). Chỉ ghi điều đọc đư�
 | GameMonetize | có | https://gamemonetize.com/account/login.php | có (qua Verify) | Tap Arcade bản 5 trò 09/10 → chờ duyệt | 45% · PayPal/USDT, Net 30; ngưỡng chưa xác minh | không | 1 |
 | CrazyGames | có | https://developer.crazygames.com/ | có | Tap Arcade, Boba Sort, Car Jam bản 1, Tile Trio 11/10 → cả 4 bị từ chối ("overall quality") | tỉ lệ không nêu · ngưỡng 100 EUR qua Tipalti, nhận khai cá nhân | không | 1 (Car Jam bản 2) |
 | GameDistribution | đăng ký 09/10, chờ thư | https://developer.gamedistribution.com/ | có (chưa thử thật) | chưa | chưa xác minh (nguồn thứ cấp: 33%, 100 EUR) | không | 2 |
-| Playgama | CHƯA | https://developer.playgama.com/ | CHƯA | chưa | 50% (trên Playgama/iframe), 70–90% site đối tác · ngưỡng 100 USD, chuyển khoản | một phần: MCP tải bản lên sandbox, nộp duyệt vẫn bấm tay | 1 (một SDK ra nhiều cổng) |
+| Playgama | CHƯA | https://developer.playgama.com/ | có từ 13/10 (mới thử SDK giả) | chưa; 6 gói sẵn ở `phat-hanh/playgama/` | 50% (trên Playgama/iframe), 70–90% site đối tác · ngưỡng 100 USD, chuyển khoản | một phần: MCP tải bản lên sandbox, nộp duyệt vẫn bấm tay | 1 (một SDK ra nhiều cổng) |
 | Yandex Games | CHƯA | bảng điều khiển trong https://yandex.com/dev/games/doc/en/ | CHƯA | chưa | tỉ lệ không nêu · ngưỡng 150 USD; cá nhân ở VN: chưa xác minh | không | 3 (cần tiếng Nga; có thể đi qua Playgama) |
 | Poki | CHƯA | https://app.poki.dev/signin/ | CHƯA | chưa | 50/50, lượt trực tiếp 100% | không | KHÔNG nộp lúc này: mặc định đòi độc quyền web 5 năm, trái mục tiêu ≥ 5 cổng/game |
 | GamePix | CHƯA | chưa xác minh (docs.gamepix.com không đọc được) | CHƯA | chưa | chưa xác minh | chưa xác minh | 3, tra lại |
@@ -41,7 +41,9 @@ Khả năng cá nhân ở Việt Nam nhận tiền: chưa cổng nào ghi rõ (C
 - SDK: `https://bridge.playgama.com/v2/stable/playgama-bridge.js`; `bridge.initialize()` trước mọi lời gọi; `bridge.platform.sendMessage('game_ready')` khi chơi được; đọc `bridge.platform.language`; lưu tiến trình qua bridge storage (không dùng thẳng `localStorage`); nghe `PAUSE_STATE_CHANGED`, `AUDIO_STATE_CHANGED`. Giữa ván: `bridge.advertisement.showInterstitial()` (trạng thái loading/opened/closed/failed, cách nhau mặc định 60 giây). Thưởng: `bridge.advertisement.showRewarded()` và chỉ thưởng khi trạng thái `rewarded`. Nguồn: https://wiki.playgama.com/playgama/bridge-sdk/setup.md · https://wiki.playgama.com/playgama/bridge-sdk/api.md
 - Duyệt 3–5 ngày làm việc; lên cổng đối tác tới 2 tuần. Cổng đối tác Yandex/VK đòi tiếng Nga; chưa có tiếng Nga thì bỏ chọn các cổng đó ở mục Distribution. Nguồn: https://wiki.playgama.com/playgama/faq/game-moderation.md · https://wiki.playgama.com/playgama/game-requirements/platform-specific-requirements.md
 - Tiền: https://wiki.playgama.com/playgama/faq/payments-and-statistics.md
-- Việc phải đổi trong game: lớp lưu tiến trình chung (hiện mỗi game gọi `localStorage` trực tiếp).
+- Đã làm 13/10 trong `web/ads.js` (cổng `playgama`): nạp bridge, `initialize()`, `game_ready`, quảng cáo giữa ván `showInterstitial('level_completed')`, quảng cáo thưởng `showRewarded('reward')` chỉ thưởng khi trạng thái `rewarded`, tạm dừng theo `PAUSE_STATE_CHANGED`, và chép mọi lần ghi `localStorage` của khóa lưu game sang `bridge.storage` (máy mới thì khôi phục từ bridge rồi tải lại trang 1 lần). `tools/build.py` đặt `playgama-bridge-config.json` cạnh `index.html` trong zip.
+- CHƯA làm / chưa xác minh: đọc `platform.language` (game chỉ có tiếng Anh); `AUDIO_STATE_CHANGED` (game đang tắt tiếng theo cờ tạm dừng); cấu trúc đầy đủ của tệp config (trang https://wiki.playgama.com/playgama/bridge-sdk/config.md chỉ nêu ví dụ, không nói trường nào bắt buộc); chưa chạy với SDK thật: phải dùng nút Test Game trên trang nhà phát triển sau khi có tài khoản.
+- Nguồn 13/10: https://wiki.playgama.com/playgama/bridge-sdk/api/advertisement/interstitial.md · https://wiki.playgama.com/playgama/bridge-sdk/api/advertisement/rewarded.md · https://wiki.playgama.com/playgama/bridge-sdk/api/storage.md · https://wiki.playgama.com/playgama/bridge-sdk/api/platform.md
 
 ### Yandex Games
 - Kỹ thuật: ≤ 100 MB giải nén, `index.html` ở gốc, tên tệp không dấu cách/chữ Nga; quảng cáo chỉ qua SDK; bắt buộc gọi `LoadingAPI.ready()`; tự nhận ngôn ngữ qua SDK; không đòi đăng nhập. Nguồn: https://yandex.com/dev/games/doc/en/concepts/requirements
@@ -60,7 +62,7 @@ Tắt tiếng + tạm dừng khi quảng cáo mở; chỉ thưởng khi cổng b
 ## Thứ tự làm
 
 1. Car Jam bản 2 → CrazyGames (bài nộp mới) và GameMonetize.
-2. Thêm cổng `playgama` vào `web/ads.js` → đóng gói 5 game → CẦN NỘP.
+2. Playgama: gói đã có; chờ chủ tạo tài khoản → Test Game → Submit.
 3. GameDistribution ngay khi tài khoản được kích hoạt.
 4. Tiếng Nga + cổng `yandex` cho game đầu tiên có số liệu tốt.
 5. Cổng 60 ngày không đem lại gì → đề xuất bỏ (mục 7 kế hoạch).
