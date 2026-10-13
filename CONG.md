@@ -6,8 +6,8 @@ Tra 13/10/2026 (kèm `NGHIEN-CUU.md` 11–12/10). Chỉ ghi điều đọc đư�
 
 | Cổng | Tài khoản | Đăng ký / nộp | Trong `web/ads.js` | Game đã nộp → kết quả | Chia tiền · rút | Tự đẩy được? | Ưu tiên |
 |---|---|---|---|---|---|---|---|
-| GameMonetize | có | https://gamemonetize.com/account/login.php | có (qua Verify) | Tap Arcade bản 5 trò 09/10 → chờ duyệt | 45% · PayPal/USDT, Net 30; ngưỡng chưa xác minh | không | 1 |
-| CrazyGames | có | https://developer.crazygames.com/ | có | Tap Arcade, Boba Sort, Car Jam bản 1, Tile Trio 11/10 → cả 4 bị từ chối ("overall quality") | tỉ lệ không nêu · ngưỡng 100 EUR qua Tipalti, nhận khai cá nhân | không | 1 (Car Jam bản 2) |
+| GameMonetize | có | https://gamemonetize.com/account/login.php | có (qua Verify) | Tap Arcade bản 5 trò 09/10 → BỊ TỪ CHỐI (trạng thái BANNED, xem 13/10): không đạt chuẩn chất lượng, cổng ghi "no longer accept AI-generated games", nộp lặp lại bản kém có thể bị khóa tài khoản | 45% · PayPal/USDT, Net 30; ngưỡng chưa xác minh | không | TẠM DỪNG: không nộp thêm cho tới khi có 1 game được cổng khác duyệt |
+| CrazyGames | có | https://developer.crazygames.com/ | có | Tap Arcade, Boba Sort, Car Jam bản 1, Tile Trio 11/10 → cả 4 bị từ chối ("overall quality") · One Line Fill nộp 13/10 → chờ duyệt | tỉ lệ không nêu · ngưỡng 100 EUR qua Tipalti, nhận khai cá nhân | có, bằng Chrome đang đăng nhập của chủ (cách làm ở mục chi tiết) | 1 |
 | GameDistribution | đăng ký 09/10, chờ thư | https://developer.gamedistribution.com/ | có (chưa thử thật) | chưa | chưa xác minh (nguồn thứ cấp: 33%, 100 EUR) | không | 2 |
 | Playgama | CHƯA | https://developer.playgama.com/ | có từ 13/10 (mới thử SDK giả) | chưa; 6 gói sẵn ở `phat-hanh/playgama/` | 50% (trên Playgama/iframe), 70–90% site đối tác · ngưỡng 100 USD, chuyển khoản | một phần: MCP tải bản lên sandbox, nộp duyệt vẫn bấm tay | 1 (một SDK ra nhiều cổng) |
 | Yandex Games | CHƯA | bảng điều khiển trong https://yandex.com/dev/games/doc/en/ | CHƯA | chưa | tỉ lệ không nêu · ngưỡng 150 USD; cá nhân ở VN: chưa xác minh | không | 3 (cần tiếng Nga; có thể đi qua Playgama) |
@@ -31,6 +31,14 @@ Khả năng cá nhân ở Việt Nam nhận tiền: chưa cổng nào ghi rõ (C
 - Chất lượng: vào chơi nhanh, hướng dẫn bằng hình, mục tiêu rõ, hình/tiếng đồng đều, không dùng Escape/Ctrl+W làm phím game, hỗ trợ bàn phím AZERTY. Nguồn: https://docs.crazygames.com/requirements/quality/ → Car Jam đang dùng Esc để thoát: bỏ ở bản crazygames.
 - Lý do từ chối 11/10: "The overall quality of the game does not yet meet the expectations of our platform". Bài bị từ chối không tải bản mới được, phải tạo bài nộp mới; ảnh bìa và video bị xóa mỗi lần đổi bản.
 - Ảnh đã làm: bìa 1920x1080, 800x1200, 800x800 (+ bản lớn), video ngang 1920x1080 và dọc 1080x1620.
+- Lưu tiến trình (13/10): `web/ads.js` chép khóa lưu của game sang `SDK.data` (hàm `mirrorSave`, dùng chung với Playgama); form nộp chọn "Yes, using the Data Module". Công cụ QA của cổng đã nhận ra `Get Item` và `Gameplay Start` ở One Line Fill.
+- Ảnh bìa: góc trên bên trái bị cổng phủ nhãn (ngang ~35% rộng × 12% cao; dọc ~40% × 8%; vuông ~35% × 30%), không đặt tên game ở đó.
+- Cách khung chat tự nộp bằng Chrome của chủ (đã làm được 13/10 với One Line Fill), 4 bước Upload → QA → Details → Submit tại https://developer.crazygames.com/submit:
+  1. Upload: ô tệp là ô chọn THƯ MỤC (`webkitdirectory`); tệp đưa vào bằng công cụ không có `webkitRelativePath` nên máy chủ trả 400 "Missing required fields". Trước khi đưa tệp, gắn trình nghe `change` (pha capture) đặt `webkitRelativePath = 'game/' + tên tệp` cho từng tệp; tải `dist/<game>/crazygames/index.html`. Chọn engine HTML5, Data Module, tích mobile (BOTH).
+  2. QA: bấm Preview, chơi thử vài giây, bấm Continue trong tab xem trước; KHÔNG đóng tab xem trước cho tới khi trang "QA Results" hiện ra (đóng sớm thì mất kết quả, phải Restart preview). Đóng tab bằng công cụ làm mất nhóm tab: cứ để nguyên.
+  3. Details: Category, Tags (bấm từng mục trong danh sách, gõ chữ không lọc được), Description, Controls. Ảnh bìa: ô tệp chỉ nhận sau khi bấm nút Upload (nút đặt "UploadType"); chặn hộp chọn tệp bằng cách thay `HTMLInputElement.prototype.click` cho ô tệp, bấm nút Upload, đưa tệp vào ô, rồi gọi `onChange` trong `__reactProps` của ô đó; xác nhận khung cắt. Video đưa thẳng vào ô tệp là được.
+  4. Submit: tích 2 ô (điều khoản, PEGI 12) rồi "Submit for approval".
+- Kiểm thử trình duyệt 13/10: 6 game đạt trên Chromium và WebKit (`python tools/smoke_test.py webkit`); Firefox không khởi động được trên máy này (lỗi "spawn UNKNOWN"), chưa thử.
 
 ### GameDistribution
 - SDK: nạp `https://html5.api.gamedistribution.com/main.min.js` một lần; `window.GD_OPTIONS = {gameId, onEvent}`; `SDK_GAME_PAUSE`/`SDK_GAME_START`/`SDK_REWARDED_WATCH_COMPLETE`; `gdsdk.showAd()` từ thao tác người chơi; `gdsdk.preloadAd('rewarded')` rồi `gdsdk.showAd('rewarded')`; phải bật cờ rewarded cho game trên trang nhà phát triển. Nguồn: https://github.com/GameDistribution/GD-HTML5/wiki/SDK-Implementation · https://github.com/GameDistribution/GD-HTML5/wiki/Rewarded-Ads

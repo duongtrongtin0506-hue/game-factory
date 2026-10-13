@@ -678,7 +678,7 @@ async function coverShot() {
   startLevel(46); time = 0.4;
   line = lv.path.slice(0, Math.floor(lv.path.length * 0.62));
   background(); drawBoard();
-  head('One Line Fill', X(sw / 2), Y(land ? 9 : 12), u * (land ? 11 : 13));
+  head('One Line Fill', X(sw / 2), Y(land ? 9 : 19), u * (land ? 11 : 12));   // portrait/square: below the top-left corner, which portals cover with a label
   const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
   await fetch('/frame?v=' + DEMO + '-' + W + 'x' + H + '&n=cover&ext=png', { method: 'POST', body: blob });
   await fetch('/frame?v=' + DEMO + '-' + W + 'x' + H + '&n=done', { method: 'POST', body: 'x' });

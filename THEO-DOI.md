@@ -1,6 +1,6 @@
 # Theo dõi game
 
-Cập nhật: 2026-10-11. Trạng thái duyệt là lần kiểm tra gần nhất, chưa xem lại sau ngày ghi.
+Cập nhật: 2026-10-13. Trạng thái duyệt là lần kiểm tra gần nhất, chưa xem lại sau ngày ghi.
 
 ## Kiểm kê
 
@@ -35,12 +35,12 @@ Tải đo trên bản không quảng cáo, giả lập máy yếu (CPU chậm 4 
 
 | Game | CrazyGames | GameMonetize | GameDistribution | Playgama | Yandex |
 |---|---|---|---|---|---|
-| Car Jam Escape (giao diện mới, 120 màn) | bản 1 từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
-| Boba Sort (giao diện mới) | từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
-| Tile Trio (giao diện mới) | từ chối 11/10 · gói bản mới | gói, thiếu GameId | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
-| One Line Fill (giao diện mới) | gói, chưa nộp lần nào | gói, thiếu GameId | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
-| Tap Arcade (giao diện mới) | từ chối 11/10 · gói bản mới | bản 5 trò nộp 09/10, chờ duyệt | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
-| Sprout Merge (thư mục `merge-harvest`, game đủ 13/10) | gói, chưa nộp | gói, thiếu GameId | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
+| Car Jam Escape (giao diện mới, 120 màn) | bản 1 từ chối 11/10 · gói bản mới | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
+| Boba Sort (giao diện mới) | từ chối 11/10 · gói bản mới | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
+| Tile Trio (giao diện mới) | từ chối 11/10 · gói bản mới | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
+| One Line Fill (giao diện mới) | NỘP 13/10, chờ duyệt (https://developer.crazygames.com/games/32ccf42a-82c6-4ee2-8076-a8d117e15517) | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
+| Tap Arcade (giao diện mới) | từ chối 11/10 · gói bản mới | bản 5 trò nộp 09/10 → BỊ TỪ CHỐI (xem 13/10) | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
+| Sprout Merge (thư mục `merge-harvest`, game đủ 13/10) | gói, chưa nộp | tạm dừng cổng | gói, chờ tài khoản | gói, chờ tài khoản | chưa có SDK |
 
 Lượt chơi, doanh thu: chưa có, chưa game nào lên sóng.
 
@@ -48,12 +48,12 @@ Lượt chơi, doanh thu: chưa có, chưa game nào lên sóng.
 
 | Game | Cổng | Ngày | Trạng thái | SDK đúng cổng |
 |---|---|---|---|---|
-| Tap Arcade (bản 5 trò) | GameMonetize | 2026-10-09 | Đang chờ duyệt (xem lần cuối 2026-10-09) | Có, đã qua Verify |
+| Tap Arcade (bản 5 trò) | GameMonetize | 2026-10-09 | BỊ TỪ CHỐI, trạng thái BANNED (xem 2026-10-13) | Có, đã qua Verify |
 | Tap Arcade (bản Journey) | CrazyGames | 2026-10-11 | BỊ TỪ CHỐI 2026-10-11 | Có |
 | Boba Sort | CrazyGames | 2026-10-11 | BỊ TỪ CHỐI 2026-10-11 | Có |
 | Car Jam Escape | CrazyGames | 2026-10-11 | BỊ TỪ CHỐI 2026-10-11 | Có |
 | Tile Trio | CrazyGames | 2026-10-11 | BỊ TỪ CHỐI 2026-10-11 | Có |
-| One Line Fill | Chưa nộp | - | Chưa có ảnh bìa, video | Có sẵn trong mã |
+| One Line Fill | CrazyGames | 2026-10-13 | Chờ duyệt (Awaiting review) | Có, QA của cổng nhận Gameplay Start + Data |
 | (tài khoản) | GameDistribution | 2026-10-09 | Đã gửi đăng ký, chờ thư | Chưa viết |
 
 Ghi chú:
@@ -61,6 +61,8 @@ Ghi chú:
 - CrazyGames giai đoạn Basic Launch chưa chia tiền quảng cáo.
 - 2026-10-11: cả 4 game gửi CrazyGames bị từ chối trong ngày, cùng một câu: "The overall quality of the game does not yet meet the expectations of our platform". Không nêu lỗi kỹ thuật. Không gửi lại bản cũ; chỉ gửi lại sau khi nâng chất lượng rõ rệt một game.
 - CrazyGames xóa ảnh bìa và video mỗi khi tải bản game mới; phải tải lại.
+- 2026-10-13, GameMonetize từ chối Tap Arcade bản 5 trò: game không đạt chuẩn chất lượng "regardless of whether it was made with AI or not"; cổng ghi không nhận game làm bằng AI nữa và nộp lặp lại bản kém có thể bị khóa tài khoản. Tạm dừng cổng này (không lấy GameId cho 5 game còn lại) cho tới khi có game được cổng khác duyệt.
+- 2026-10-13, One Line Fill nộp CrazyGames do khung chat tự làm bằng Chrome của chủ; cách làm ghi ở `CONG.md`.
 
 ## Car Jam Escape bản 2 (nhánh `car-jam-v2`, 2026-10-11)
 

@@ -2,16 +2,15 @@
 
 Mỗi việc 1 dòng có link; xong thì nhắn Claude câu in đậm (hoặc nhờ Claude Desktop có Chrome trên máy 2 làm). Không gửi mật khẩu hay khóa vào khung chat. Máy tự thêm/bớt dòng ở 3 mục dưới; `[ ]` = chưa làm.
 
-## CẦN NỘP (1 lần/tuần)
+## CẦN NỘP
 
-Mỗi gói có sẵn tệp zip và `mo-ta.md` (tên, mô tả, thẻ tiếng Anh để dán, danh sách ảnh bìa/video). Trước khi nộp: `git pull`. Nên nộp 2 game đầu trước, 3 game sau chờ kết quả (cả 4 game cũ từng bị CrazyGames chê chất lượng; nay đã đổi giao diện, nộp dồn một lúc mà bị từ chối tiếp thì hại tài khoản).
+Từ 13/10 khung chat trên máy tự nộp CrazyGames bằng Chrome đang đăng nhập của chủ (cách làm ở `CONG.md`). Chủ không phải bấm gì ở mục này; chỉ cần giữ Chrome đăng nhập CrazyGames.
 
-- [ ] Car Jam Escape → CrazyGames (bài nộp MỚI): https://developer.crazygames.com/ · `phat-hanh\crazygames\car-jam\car-jam.zip` · mô tả `phat-hanh\crazygames\car-jam\mo-ta.md`. Nhắn: **đã nộp car jam crazygames**.
-- [ ] One Line Fill → CrazyGames (chưa nộp lần nào): https://developer.crazygames.com/ · `phat-hanh\crazygames\one-line\one-line.zip` · `phat-hanh\crazygames\one-line\mo-ta.md`. Nhắn: **đã nộp one line crazygames**.
-- [ ] Sprout Merge (game mới, cơ chế gộp + idle, chưa nộp lần nào) → CrazyGames: https://developer.crazygames.com/ · `phat-hanh\crazygames\merge-harvest\merge-harvest.zip` · `phat-hanh\crazygames\merge-harvest\mo-ta.md`. Nhắn: **đã nộp sprout merge crazygames**.
-- [ ] (sau khi 2 game trên có kết quả) Boba Sort, Tile Trio, Tap Arcade → CrazyGames, bài nộp mới: `phat-hanh\crazygames\<game>\`.
-- [ ] Xem kết quả duyệt Tap Arcade trên GameMonetize: https://gamemonetize.com/account/login.php → My Games. Nhắn: **gamemonetize: duyệt / từ chối + lý do**.
-- [ ] GameMonetize, 4 game còn lại (Car Jam, Boba Sort, Tile Trio, One Line Fill): https://gamemonetize.com/account/ → thêm game mới để lấy GameId của từng game → nhắn **gameid <tên game> <mã>** (mã game không phải mật khẩu) → máy build lại → tải `phat-hanh\gamemonetize\<game>\<game>.zip`.
+- [x] 13/10 One Line Fill → CrazyGames: đã nộp, chờ duyệt.
+- [ ] (máy tự làm) Sprout Merge → CrazyGames.
+- [ ] (máy tự làm, sau khi One Line Fill có kết quả) Car Jam Escape, Boba Sort, Tile Trio, Tap Arcade → CrazyGames, bài nộp mới.
+- [x] 13/10 Đã xem GameMonetize: Tap Arcade bản 5 trò BỊ TỪ CHỐI (không đạt chuẩn chất lượng; cổng không nhận game làm bằng AI, nộp lặp lại có thể khóa tài khoản). Máy tạm dừng cổng này, không lấy GameId cho các game khác. Muốn nộp tiếp thì nhắn: **nộp tiếp gamemonetize**.
+
 ## CẦN CHỌN (không chặn máy; chưa chọn thì máy giữ tên cũ)
 
 - [ ] Tên game trùng game có thật (bảng ở `ASSETS.md`): Tile Trio trùng chính xác một app cùng thể loại; Boba Sort trùng một game itch.io và gần giống 2 app; Car Jam Escape trùng một trang web game. Tên thay thế đề xuất (mỗi tên đã tìm 0 lượt, máy sẽ tra trước khi đổi): Tile Trio → **Three of a Tile**; Boba Sort → **Pearl Cup Sort**; Car Jam Escape → **Red Car Out**. Nhắn: **đổi tên <tên cũ> thành <tên mới>** hoặc **giữ tên**. Nên chọn trước khi nộp 3 game này.
@@ -19,7 +18,7 @@ Mỗi gói có sẵn tệp zip và `mo-ta.md` (tên, mô tả, thẻ tiếng Anh
 ## CẦN TẠO TÀI KHOẢN
 
 - [ ] GameDistribution: tìm thư kích hoạt (đăng ký 09/10) trong Gmail, từ GameDistribution hoặc Azerion. Nhắn: **có thư gamedistribution**.
-- [ ] Cài Claude GitHub App cho kho game-factory (để routine đám mây đẩy mã được): https://github.com/apps/claude/installations/select_target → chọn tài khoản → **Only select repositories** → `game-factory` → **Save**. Nhắn: **xong github app**.
+- [ ] Cài Claude GitHub App cho kho game-factory (để routine đám mây đẩy mã được). 13/10 máy đã thử làm thay: GitHub dừng ở trang "Confirm access" đòi xác minh danh tính qua email (mã gửi về hộp thư), bước này máy không được tự làm. Chủ mở https://github.com/settings/installations/167740239 → **Verify via email** → nhập mã → **Only select repositories** → thêm `game-factory` → **Save**. Nhắn: **xong github app**.
 - [ ] Playgama (một lần nộp ra nhiều cổng đối tác, 6 gói đã sẵn): tạo tài khoản nhà phát triển tại https://developer.playgama.com/ → nhắn **xong tài khoản playgama** → máy chỉ từng bước Add Game / Test Game / Submit với `phat-hanh\playgama\<game>\<game>.zip`.
 - [ ] Cổng khác (Yandex Games, GamePix…): chưa cần, xem `CONG.md`.
 - [ ] (không bắt buộc) itch.io: tạo trang `car-jam-escape` theo mục 6 bên dưới.

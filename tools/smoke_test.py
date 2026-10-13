@@ -42,20 +42,21 @@ class Quiet(http.server.SimpleHTTPRequestHandler):
             super().do_GET()
 
 
-def run():
+def run(engine="chromium"):
     server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(ROOT / "dist")))
     threading.Thread(target=server.serve_forever, daemon=True).start()
     base = f"http://127.0.0.1:{server.server_address[1]}"
     counts = {g: len(json.loads(f.read_text(encoding="utf-8"))) if (f := ROOT / "levels" / f"{g}.json").exists() else 0 for g in CASES}
     results, failed = [], False
     with sync_playwright() as p:
-        browser = p.chromium.launch()
+        browser = getattr(p, engine).launch()
+        mobile = engine != "firefox"   # Firefox khong co che do is_mobile
         for game, extra in CASES.items():
             errors, load = [], 0.0
             for w, h, phone in SIZES:
-                ctx = browser.new_context(viewport={"width": w, "height": h}, device_scale_factor=2 if phone else 1, is_mobile=phone, has_touch=phone)
+                ctx = browser.new_context(viewport={"width": w, "height": h}, device_scale_factor=2 if phone else 1, is_mobile=phone and mobile, has_touch=phone)
                 page = ctx.new_page()
-                if w < h:
+                if w < h and engine == "chromium":
                     slow = ctx.new_cdp_session(page)
                     slow.send("Network.enable")
                     slow.send("Network.emulateNetworkConditions", {"offline": False, "latency": 150, "downloadThroughput": 200000, "uploadThroughput": 100000})
@@ -100,6 +101,7 @@ def run():
 
 
 if __name__ == "__main__":
-    lines, bad = run()
+    # python tools/smoke_test.py [chromium|firefox|webkit]; do tai tren may yeu chi co o chromium
+    lines, bad = run(sys.argv[1] if len(sys.argv) > 1 else "chromium")
     print("\n".join(lines))
     sys.exit(1 if bad else 0)
