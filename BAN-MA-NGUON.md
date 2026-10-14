@@ -21,12 +21,44 @@ Rút ra: giá thực tế của MỘT game nhỏ không độc quyền trên ch�
 
 Không bán nguyên bản game đang nộp cổng (One Line Fill, Sprout Merge đang chờ duyệt/In Review: cổng đòi nội dung nguyên bản; người mua đăng lại sẽ thành bản trùng).
 
-| Sản phẩm | Vì sao | Giá dự kiến | Trạng thái |
+Chủ dặn 14/10: CHIA NHỎ để bán, không gộp lẫn chủ đề. Mỗi sản phẩm một chủ đề, một trang bán riêng (thêm trang là thêm chỗ được tìm thấy); gói chỉ gộp các sản phẩm CÙNG chủ đề và đăng THÊM bên cạnh các trang lẻ, không thay chúng. Số CodeCanyon ủng hộ: game lẻ giá 17–35 USD chiếm đa số trang bán chạy của năm, gói cùng loại đứng đầu bảng.
+
+### Nhóm A: 9 trò phản xạ tách từ Tap Arcade (mỗi trò một sản phẩm)
+
+| # | Sản phẩm (tên tạm, tra trùng trước khi đăng) | Nguồn | Giá dự kiến |
 |---|---|---|---|
-| Tap Arcade (9 trò, 45 chặng) | Bị từ chối ở cả CrazyGames và GameMonetize, không còn kế hoạch nộp cổng; nhiều trò trong một gói nên hợp người mua cần nội dung | 29 USD | chưa đóng gói |
-| "Puzzle Level Kit": bộ sinh màn + bộ giải (`tools/carjam.py`, `bobasort.py`, `tiletrio.py`, `oneline.py`) kèm một game mẫu đổi hình | Cái khác biệt thật của xưởng là bộ giải bảo đảm màn giải được; trên chợ đa số là game đơn không có công cụ sinh màn | 49 USD | chưa đóng gói; chốt game mẫu sau khi có kết quả duyệt |
-| "Portal Ads Layer": `web/ads.js` (CrazyGames, GameDistribution, Playgama, GameMonetize) + `tools/test_ads.js` + hướng dẫn | Đã được GameDistribution và công cụ QA của CrazyGames xác nhận chạy đúng | 19 USD hoặc tặng kèm | chưa đóng gói |
-| Gói tất cả | Nhóm giá 89–299 USD trên chợ đều là gói | 89 USD | sau khi có 3 sản phẩm lẻ |
+| A1 | Balloon Pop (bắn bóng đúng màu) | `balloonGame` | 15 USD |
+| A2 | Whack a Mole (đập chuột) | `moleGame` | 15 USD |
+| A3 | Number Tap (chạm số theo thứ tự) | `numberGame` | 12 USD |
+| A4 | Ink or Word (màu mực, kiểu Stroop) | `stroopGame` | 12 USD |
+| A5 | Memory Pairs (lật thẻ nhớ) | `memoryGame` | 15 USD |
+| A6 | Quick Math (tính nhẩm) | `mathGame` | 12 USD |
+| A7 | Odd Tile (tìm ô khác màu) | `oddGame` | 12 USD |
+| A8 | Simon Pads (lặp chuỗi sáng) | `simonGame` | 12 USD |
+| A9 | Basket Catch (hứng đồ) | `catchGame` | 15 USD |
+| A-gói | 9 Reflex Mini Games Bundle (cả 9 trò + chế độ Journey 45 chặng) | cả `web/tap-arcade` | 49 USD |
+
+Tách trò = mỗi trò thành một tệp chạy độc lập có menu, điểm cao, tắt tiếng, chỗ gắn quảng cáo. Rủi ro: trò lẻ quá mỏng có thể bị chợ từ chối duyệt; trò nào bị từ chối thì chỉ để trong gói A.
+
+### Nhóm B: công cụ cho người làm game xếp hình (mỗi bộ giải một sản phẩm)
+
+| # | Sản phẩm | Nguồn | Giá dự kiến |
+|---|---|---|---|
+| B1 | Sliding Car Puzzle Generator + Solver | `tools/carjam.py` | 19 USD |
+| B2 | Color Sort Puzzle Generator + Solver | `tools/bobasort.py` | 19 USD |
+| B3 | Triple Tile Puzzle Generator + Solver | `tools/tiletrio.py` | 19 USD |
+| B4 | One-Stroke Puzzle Generator + Solver | `tools/oneline.py` | 19 USD |
+| B-gói | Puzzle Level Tools Bundle (B1–B4) | – | 49 USD |
+
+Chỉ bán công cụ sinh màn, KHÔNG kèm mã game đang nộp cổng. Chưa xác minh: chợ có mục cho công cụ Python không (CodeCanyon có mục Python; Codester: phải xem).
+
+### Nhóm C: lớp quảng cáo cổng (một sản phẩm, không gộp với nhóm khác)
+
+| # | Sản phẩm | Nguồn | Giá dự kiến |
+|---|---|---|---|
+| C1 | HTML5 Portal Ads Layer (CrazyGames, GameDistribution, Playgama, GameMonetize) + bộ thử SDK giả | `web/ads.js`, `tools/test_ads.js` | 19 USD |
+
+Tổng cộng 14 trang lẻ + 2 gói cùng chủ đề. Thứ tự làm: A-gói và A1, A2, A5, A9 (dễ hiểu nhất với người mua) → C1 → B1–B4 → các trò còn lại.
 
 Mỗi gói bán phải có: mã nguồn đọc được (không nén), `README.md` tiếng Anh (chạy thử, đổi hình/màu/chữ, thêm màn, gắn quảng cáo từng cổng), `LICENSE.txt` nêu người mua được làm gì, bản chạy thử trực tuyến (trang itch.io), 5 ảnh chụp, 1 video. Ghi rõ trong mô tả: mã do AI hỗ trợ viết (khai thật, như đã khai ở itch.io và Playgama).
 

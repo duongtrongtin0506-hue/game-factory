@@ -41,3 +41,4 @@
 - 14/10 03:40 🎮 Xong đổi tên 3 game: Red Car Out, Pearl Cup Sort, Three of a Tile (trong game, ảnh bìa, video, gói nộp) · Gói chờ nộp 0 (3 game này chờ kết quả One Line Fill) · Việc còn 20
 - 14/10 04:10 🎮 Xong quét xu hướng trực tiếp 5 trang cổng, chọn 2 đề tài tuần này (Arrow Garden, Deck of Letters), đặt chuẩn ra lò 8 điều · Gói chờ nộp 0 · Việc còn 23
 - 14/10 04:50 🎮 Xong kế hoạch bán mã nguồn có giá chợ thật (BAN-MA-NGUON.md), 5 việc mới trong VIEC · Gói chờ nộp 0 · Việc còn 28 · 📌 chờ chủ tạo tài khoản người bán Codester
+- 14/10 05:10 🎮 Xong chia nhỏ danh mục bán mã nguồn: 14 sản phẩm lẻ + 2 gói cùng chủ đề (BAN-MA-NGUON.md) · Gói chờ nộp 0 · Việc còn 29 · 📌 chờ chủ tạo tài khoản người bán
