@@ -73,6 +73,16 @@ Mỗi gói bán phải có: mã nguồn đọc được (không nén), `README.m
 
 Bán KHÔNG độc quyền trên mọi sàn để đăng được nhiều nơi. Để dễ được duyệt: đăng gói 9 trò và các công cụ B trước (dày, có nét riêng), kèm bản chạy thử, ảnh, video, README tiếng Anh; trò lẻ chỉ đăng sau khi gói được duyệt ở ít nhất một sàn; khai rõ có dùng AI. Trước khi đăng ở sàn nào thì đọc quy định duyệt và quy định AI của sàn đó, ghi vào đây.
 
+## Quy định về AI của từng sàn (đọc tận nơi)
+
+| Sàn | Quy định | Kết luận |
+|---|---|---|
+| Codester | Trang đăng sản phẩm ghi: "AI may assist your work, but must not be the main creator. AI-generated output must be substantially reviewed, developed, tested and refined by you." Còn đòi: bản chạy thử trực tuyến, ảnh xem trước 1600x800, biểu tượng 200x200, zip ảnh chụp, hồ sơ người bán đầy đủ; cấm sản phẩm giá trị thấp hoặc trùng sản phẩm đã có (xem 14/10, https://www.codester.com/upload/index/) | TẠM KHÔNG ĐĂNG: mã của xưởng do AI viết là chính, đăng là trái quy định. Chỉ đăng khi chủ thật sự tự xem, sửa, thử từng gói và chịu trách nhiệm khai như vậy |
+| itch.io | Có mục "AI generation disclosure": khai Yes và chọn loại (Graphics, Sounds, Text, Code) | ĐĂNG ĐƯỢC, khai thật |
+| CodeCanyon, SellAnyCode | Chưa đọc | Đọc trước khi tạo tài khoản; nếu giống Codester thì bỏ |
+
+Hệ quả cho cả mũi bán mã nguồn: sàn không qua duyệt và cho khai AI (itch.io) là kênh chính lúc này; các chợ mã nguồn lớn có thể đều chặn sản phẩm do AI làm chính. GameMonetize đã từ chối game vì cùng lý do.
+
 ## Trạng thái tài khoản bán (kiểm 14/10 chiều)
 
 | Sàn | Trạng thái | Còn thiếu |
@@ -86,7 +96,7 @@ Bán KHÔNG độc quyền trên mọi sàn để đăng được nhiều nơi. 
 
 | Mã | Sản phẩm | Ai làm | Ngày |
 |---|---|---|---|
-| AG | 9 Reflex Mini Games Bundle (49 USD) | khung chat trên máy | 14/10 |
+| AG | 9 Reflex Mini Games Bundle (49 USD). Trang bán NHÁP trên itch.io: https://trong-tin.itch.io/9-reflex-mini-games-html5-source-code (tệp `AG.zip` đã tải, giá 49 USD, đã khai AI); còn thiếu ảnh bìa, ảnh chụp, bản chạy thử rồi mới chuyển Public | khung chat trên máy | 14/10 |
 | C1 | HTML5 Portal Ads Layer (19 USD) | routine đám mây 08:00 | 14/10 |
 | B1–B4 | 4 bộ sinh màn + bộ giải (19 USD mỗi cái) | công cụ đã hỗ trợ, đóng thử trên máy 14/10 | 14/10 |
 

@@ -9,10 +9,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 AI_NOTE = "The code was written with the help of an AI assistant (Claude) and tested by automated scripts."
 
-LICENSE = """{name} - Commercial License
+LICENSE = """{name}
 
-You may use this code in unlimited personal and commercial projects, modify it, and publish games or products built with it.
-You may NOT resell, redistribute or share the source code itself (original or modified) as a code product, template or asset pack.
+The license you bought on the marketplace applies to this item (Regular License: one personal or commercial project;
+Extended License where the marketplace offers it). In short:
+- you may use and modify the code in your own project and publish and earn money from the game or product you build with it;
+- you may NOT resell, redistribute or share the source code itself (original or modified) as a code product, template or asset pack.
 The code comes as is, without warranty. {ai}
 """
 

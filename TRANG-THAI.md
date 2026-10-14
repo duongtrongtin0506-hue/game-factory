@@ -45,3 +45,4 @@
 - 14/10 08:10 🎮 Xong tools/dong_goi_ban.py (đóng gói C1, B1–B4, nhóm A khi có tach_tro) + gói Portal Ads Layer · Gói chờ nộp 0 · Việc còn 28
 - 14/10 08:40 🎮 Xong gói 9 trò (AG) gộp vào tools/dong_goi_ban.py của routine, chốt thứ tự sàn bán; routine đám mây lượt đầu 08:00 chạy và đẩy mã được · Gói chờ nộp 0 · Việc còn 29 · 📌 chờ chủ khai cách nhận tiền itch.io, tạo tài khoản Codester/Envato
 - 14/10 15:10 🎮 Xong kiểm tài khoản bán: Codester dùng được (đã điền hồ sơ), itch.io đã lưu chế độ nhận tiền · Việc còn 30 · 📌 chờ chủ khai thuế itch.io; Envato đang mở nhầm trang
+- 14/10 15:50 🎮 Xong trang bán nháp đầu tiên trên itch.io (gói 9 trò, 49 USD); Codester không đăng vì sàn cấm sản phẩm do AI làm chính · Việc còn 31 · 📌 chờ chủ khai thuế itch.io

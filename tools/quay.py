@@ -18,10 +18,10 @@ from urllib.parse import parse_qs, urlparse
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parent.parent
-# (rong, cao, duoi): CrazyGames 1920x1080 / 800x1200 / 800x800 lay tu ban lon; GameMonetize 512x*; Playgama 800x800, 1080x1920, 1920x1080; Yandex 800x470; GameDistribution 512x384, 512x512, 200x120, 1280x720, 1280x550 (jpg)
+# (rong, cao, duoi): CrazyGames 1920x1080 / 800x1200 / 800x800 lay tu ban lon; GameMonetize 512x*; Playgama 800x800, 1080x1920, 1920x1080; Yandex 800x470; GameDistribution 512x384, 512x512, 200x120, 1280x720, 1280x550 (jpg); Codester anh xem truoc 800x400
 COVERS = [(2880, 1620, "png"), (1200, 1800, "png"), (800, 1200, "png"), (1200, 1200, "png"), (1920, 1080, "png"), (1080, 1920, "png"), (800, 800, "png"),
           (800, 470, "png"), (512, 512, "jpg"), (512, 384, "jpg"), (512, 340, "jpg"),
-          (1280, 720, "jpg"), (1280, 550, "jpg"), (200, 120, "jpg")]
+          (1280, 720, "jpg"), (1280, 550, "jpg"), (200, 120, "jpg"), (800, 400, "jpg")]
 VIDEOS = [("landscape", 1920, 1080), ("portrait", 1080, 1620)]
 frames, done = {}, threading.Event()
 

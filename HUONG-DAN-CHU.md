@@ -20,7 +20,7 @@ Từ 13/10 khung chat trên máy tự nộp CrazyGames bằng Chrome đang đăn
 - [x] 14/10 itch.io: máy đã lưu chế độ "Collected by itch.io, paid later".
 - [ ] itch.io, khai thuế (bắt buộc trước khi rút tiền): https://itch.io/user/settings → **Tax information** → làm "Tax interview" (thông tin cá nhân và mã số thuế: chủ tự điền). Xong nhắn **xong thuế itch**.
 - [ ] CodeCanyon/Envato: chủ đang ở nhầm trang Envato Elements (ảnh stock) và trang giá thuê bao: đừng mua gói nào. Đường đúng: tạo tài khoản ở https://codecanyon.net/ (Sign in → Create account) rồi vào mục **Become an author** (chủ tự tạo, tự khai thuế và nhận tiền). Xong nhắn **xong tài khoản envato**.
-- [x] 14/10 Codester: chủ đã tạo tài khoản người bán; máy đã điền hồ sơ. Rút tiền bằng PayPal (từ 50 USD) hoặc chuyển khoản (từ 250 USD), khai khi có doanh thu.
+- [x] 14/10 Codester: tài khoản dùng được nhưng máy KHÔNG đăng sản phẩm: sàn ghi rõ AI không được là tác giả chính, mà mã của xưởng do AI viết là chính. Muốn đăng thì chủ phải tự xem, sửa và thử từng gói rồi nhắn **tôi đã tự soát gói <mã>**. Rút tiền bằng PayPal (từ 50 USD) hoặc chuyển khoản (từ 250 USD), khai khi có doanh thu.
 - [ ] PayPal (không gấp): mở bị quay mãi thì thử cửa sổ ẩn danh hoặc tắt tiện ích tự dịch trang, hoặc dùng ứng dụng điện thoại; máy không thao tác trang PayPal.
 
 - [ ] GameDistribution: 13/10 máy đã tìm trong Gmail, chưa có thư nào từ GameDistribution hoặc Azerion (mục Spam chưa xem). Nếu chủ nhớ đã đăng ký xong thì xem Spam; chưa thì đăng ký lại ở https://developer.gamedistribution.com/ (máy không được tự tạo tài khoản). Nhắn: **có thư gamedistribution**.
