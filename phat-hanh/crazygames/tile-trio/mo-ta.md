@@ -2,7 +2,8 @@
 
 - Submit page: https://developer.crazygames.com/
 - Game file: `phat-hanh/crazygames/tile-trio/tile-trio.zip` (index.html at the root)
-- Covers / video: `assets-goc/tile-trio/cover-1920x1080.png`, `assets-goc/tile-trio/cover-800x1200.png`, `assets-goc/tile-trio/cover-800x800.png`, `assets-goc/tile-trio/preview-landscape-1920x1080.mp4`, `assets-goc/tile-trio/preview-portrait-1080x1620.mp4`
+- Covers / video: `assets-goc/tile-trio/cover-1920x1080.png`, `assets-goc/tile-trio/cover-800x1200.png`, `assets-goc/tile-trio/cover-800x800.png`
+- MISSING (run `python tools/quay.py tile-trio`): preview-landscape-1920x1080.mp4, preview-portrait-1080x1620.mp4
 - Note: Tai len tep index.html trong zip (hoac ca zip). Bai bi tu choi khong tai ban moi duoc: tao bai nop moi. Anh bia va video phai tai lai moi lan doi ban.
 
 Title: Three of a Tile
