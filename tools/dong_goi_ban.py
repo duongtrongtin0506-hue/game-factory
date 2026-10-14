@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Dong goi san pham ban ma nguon: python tools/dong_goi_ban.py <ma san pham>  (vd C1, B1, A1)
+"""Dong goi san pham ban ma nguon: python tools/dong_goi_ban.py <ma san pham>  (vd C1, B1, A1, AG = goi 9 tro)
 Ghi ban/<ma>/<ma>.zip gom ma nguon khong nen, README.md tieng Anh, LICENSE.txt. Ma san pham theo bang trong BAN-MA-NGUON.md.
 Nhom A can ban/<tro>/index.html do tools/tach_tro.py tao ra truoc. Ban chay thu va anh chup lam rieng."""
 import sys
@@ -92,20 +92,71 @@ Colours, texts and difficulty are constants near the top of the script in index.
 """}
 
 
+# Goi cung chu de: ca 9 tro + che do Journey (khong can tach_tro). Tep ghi dang (nguon, ten trong zip).
+PRODUCTS["AG"] = {"name": "9 Reflex Mini Games Bundle",
+                  "files": [("dist/tap-arcade/none/index.html", "game/index.html"), ("web/tap-arcade/index.src.html", "source/index.src.html"),
+                            ("levels/tap-arcade.json", "source/levels.json"), ("web/ads.js", "source/ads.js")],
+                  "readme": """# 9 Reflex Mini Games Bundle
+
+Nine tap and reflex mini games in one HTML5 file, with a 45-stage Journey mode. Pure JavaScript and canvas, no engine, no image or sound files.
+
+## Features
+
+- 9 games: Balloon Pop, Whack a Mole, Number Tap, Ink or Word (Stroop), Memory Pairs, Quick Math, Odd Tile, Simon Pads, Basket Catch
+- Journey mode: 45 stages read from one JSON file, each with a goal and a star rating
+- One HTML file, about 65 KB, loads in under a second; every shape is drawn in code and every sound is synthesised, so there are no assets to license
+- Works with mouse and touch, portrait and landscape, phone to desktop; progress saved in localStorage
+- Ad layer included for CrazyGames, GameDistribution, Playgama and GameMonetize (midgame and rewarded); set two constants to switch it on
+- Tested with Playwright in Chromium and WebKit
+
+## Run it
+
+Open `game/index.html` in a browser, or upload the `game` folder to any web host. Nothing to install.
+
+## What is in the box
+
+- `game/index.html` - the game, ready to publish, ads switched off.
+- `source/index.src.html` - the same game before the stages and the ad layer are pasted in. The markers `/*LEVELS*/` and `/*ADS*/` show where `levels.json` and `ads.js` go.
+- `source/levels.json` - the 45 Journey stages: which mini game, the goal and the star thresholds.
+- `source/ads.js` - the portal ad layer.
+
+To rebuild `game/index.html` after editing the source: replace `/*LEVELS*/` with the content of `levels.json` and `/*ADS*/` with the content of `ads.js`, and save the result as `index.html`.
+
+## Change the look
+
+Colours, corner radius and fonts are constants near the top of the script (search for `const C =` and `const FONT`). All drawing is canvas code, one function per mini game (`balloonGame`, `moleGame`, `numberGame`, `stroopGame`, `memoryGame`, `mathGame`, `oddGame`, `simonGame`, `catchGame`). The title text is in `<title>` and in the menu drawing function.
+
+## Add or change stages
+
+Edit `source/levels.json` and rebuild. Each stage names a mini game and its goal. Opening the game on localhost with `?selftest=1` checks every stage and puts the result in the page title.
+
+## Switch on ads
+
+In the built `index.html` set `const PORTAL` to one of `'crazygames'`, `'gamedistribution'`, `'playgama'`, `'gamemonetize'` and, for GameDistribution and GameMonetize, set `const GAME_ID` to the id the portal gives you. Ads never load on localhost. The game calls `showAd('midgame', done)` between stages and `showAd('rewarded', done)` when the player asks for a reward; you do not need to touch those calls.
+
+## Useful URL switches
+
+These only work on a local test server (localhost): `?stage=N` opens Journey stage N, `?play=<game>` opens one mini game, `?selftest=1` runs the built-in checks.
+
+## Notes
+""" + AI_NOTE + "\n"}
+
+
 def main():
     if len(sys.argv) < 2 or sys.argv[1] not in PRODUCTS:
         sys.exit("dung: python tools/dong_goi_ban.py <" + "|".join(PRODUCTS) + ">")
     code = sys.argv[1]
     p = PRODUCTS[code]
-    missing = [f for f in p["files"] if not (ROOT / f).exists()]
+    files = [f if isinstance(f, tuple) else (f, f.replace("ban/", "", 1)) for f in p["files"]]
+    missing = [f for f, _ in files if not (ROOT / f).exists()]
     if missing:
         sys.exit("thieu tep: " + ", ".join(missing) + (" (chay tools/tach_tro.py truoc)" if code.startswith("A") else ""))
     out = ROOT / "ban" / code
     out.mkdir(parents=True, exist_ok=True)
     dest = out / f"{code}.zip"
     with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as z:
-        for f in p["files"]:
-            z.write(ROOT / f, f.replace("ban/", "", 1))
+        for f, name in files:
+            z.write(ROOT / f, name)
         z.writestr("README.md", p["readme"])
         z.writestr("LICENSE.txt", LICENSE.format(name=p["name"], ai=AI_NOTE))
     print(f"da ghi {dest.relative_to(ROOT)} ({dest.stat().st_size // 1024} KB, {len(p['files']) + 2} tep)")

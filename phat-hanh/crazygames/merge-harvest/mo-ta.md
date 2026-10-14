@@ -2,8 +2,7 @@
 
 - Submit page: https://developer.crazygames.com/
 - Game file: `phat-hanh/crazygames/merge-harvest/merge-harvest.zip` (index.html at the root)
-- Covers / video: `assets-goc/merge-harvest/cover-1920x1080.png`, `assets-goc/merge-harvest/cover-800x1200.png`, `assets-goc/merge-harvest/cover-800x800.png`
-- MISSING (run `python tools/quay.py merge-harvest`): preview-landscape-1920x1080.mp4, preview-portrait-1080x1620.mp4
+- Covers / video: `assets-goc/merge-harvest/cover-1920x1080.png`, `assets-goc/merge-harvest/cover-800x1200.png`, `assets-goc/merge-harvest/cover-800x800.png`, `assets-goc/merge-harvest/preview-landscape-1920x1080.mp4`, `assets-goc/merge-harvest/preview-portrait-1080x1620.mp4`
 - Note: Tai len tep index.html trong zip (hoac ca zip). Bai bi tu choi khong tai ban moi duoc: tao bai nop moi. Anh bia va video phai tai lai moi lan doi ban.
 
 Title: Sprout Merge

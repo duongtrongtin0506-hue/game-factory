@@ -17,6 +17,8 @@ Từ 13/10 khung chat trên máy tự nộp CrazyGames bằng Chrome đang đăn
 
 ## CẦN TẠO TÀI KHOẢN
 
+- [ ] itch.io, khai cách nhận tiền (để bán gói mã nguồn đầu tiên, đã đóng xong): https://itch.io/user/settings/seller → chọn cách nhận tiền và điền thông tin (máy không điền thông tin thanh toán). Xong nhắn **xong nhận tiền itch**.
+- [ ] CodeCanyon/Envato: tạo tài khoản tác giả tại https://author.envato.com/ (chủ tự tạo, tự khai thuế và nhận tiền). Xong nhắn **xong tài khoản envato**.
 - [ ] Codester (bán mã nguồn, người bán giữ 70%, không đòi độc quyền): mở https://www.codester.com/info/seller → **Start selling**, tạo tài khoản và khai cách nhận tiền (máy không tự làm hai bước này). Xong nhắn **xong tài khoản codester**. Kế hoạch và giá: `BAN-MA-NGUON.md`.
 
 - [ ] GameDistribution: 13/10 máy đã tìm trong Gmail, chưa có thư nào từ GameDistribution hoặc Azerion (mục Spam chưa xem). Nếu chủ nhớ đã đăng ký xong thì xem Spam; chưa thì đăng ký lại ở https://developer.gamedistribution.com/ (máy không được tự tạo tài khoản). Nhắn: **có thư gamedistribution**.

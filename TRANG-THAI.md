@@ -43,3 +43,4 @@
 - 14/10 04:50 🎮 Xong kế hoạch bán mã nguồn có giá chợ thật (BAN-MA-NGUON.md), 5 việc mới trong VIEC · Gói chờ nộp 0 · Việc còn 28 · 📌 chờ chủ tạo tài khoản người bán Codester
 - 14/10 05:10 🎮 Xong chia nhỏ danh mục bán mã nguồn: 14 sản phẩm lẻ + 2 gói cùng chủ đề (BAN-MA-NGUON.md) · Gói chờ nộp 0 · Việc còn 29 · 📌 chờ chủ tạo tài khoản người bán
 - 14/10 08:10 🎮 Xong tools/dong_goi_ban.py (đóng gói C1, B1–B4, nhóm A khi có tach_tro) + gói Portal Ads Layer · Gói chờ nộp 0 · Việc còn 28
+- 14/10 08:40 🎮 Xong gói 9 trò (AG) gộp vào tools/dong_goi_ban.py của routine, chốt thứ tự sàn bán; routine đám mây lượt đầu 08:00 chạy và đẩy mã được · Gói chờ nộp 0 · Việc còn 29 · 📌 chờ chủ khai cách nhận tiền itch.io, tạo tài khoản Codester/Envato

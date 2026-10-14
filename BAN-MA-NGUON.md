@@ -62,6 +62,25 @@ Tổng cộng 14 trang lẻ + 2 gói cùng chủ đề. Thứ tự làm: A-gói 
 
 Mỗi gói bán phải có: mã nguồn đọc được (không nén), `README.md` tiếng Anh (chạy thử, đổi hình/màu/chữ, thêm màn, gắn quảng cáo từng cổng), `LICENSE.txt` nêu người mua được làm gì, bản chạy thử trực tuyến (trang itch.io), 5 ảnh chụp, 1 video. Ghi rõ trong mô tả: mã do AI hỗ trợ viết (khai thật, như đã khai ở itch.io và Playgama).
 
+## Bán ở đâu (máy quyết, chủ giao 14/10: ưu tiên được duyệt, đa sàn)
+
+| Thứ tự | Sàn | Vì sao | Cần chủ |
+|---|---|---|---|
+| 1 | itch.io | Đã có tài khoản, không qua duyệt nên lên ngay; dùng làm bản chạy thử cho các sàn khác | Khai cách nhận tiền ở https://itch.io/user/settings/seller (trang tạo game báo "You don't have payment configured") |
+| 2 | Codester | Người bán giữ 70%, không đòi độc quyền, tự đặt giá | Tạo tài khoản người bán + cách nhận tiền |
+| 3 | CodeCanyon | Chợ lớn nhất (8.783 game HTML5, có số lượt mua thật), nhưng duyệt kỹ nhất | Tạo tài khoản tác giả Envato + cách nhận tiền |
+| 4 | SellAnyCode | Thêm một chỗ bày hàng; lúc xem trang tìm kiếm còn lỗi | Tạo tài khoản |
+
+Bán KHÔNG độc quyền trên mọi sàn để đăng được nhiều nơi. Để dễ được duyệt: đăng gói 9 trò và các công cụ B trước (dày, có nét riêng), kèm bản chạy thử, ảnh, video, README tiếng Anh; trò lẻ chỉ đăng sau khi gói được duyệt ở ít nhất một sàn; khai rõ có dùng AI. Trước khi đăng ở sàn nào thì đọc quy định duyệt và quy định AI của sàn đó, ghi vào đây.
+
+## Đã đóng gói (zip không nằm trong git: chạy `python tools/build.py` rồi `python tools/dong_goi_ban.py <mã>` để tạo lại)
+
+| Mã | Sản phẩm | Ai làm | Ngày |
+|---|---|---|---|
+| AG | 9 Reflex Mini Games Bundle (49 USD) | khung chat trên máy | 14/10 |
+| C1 | HTML5 Portal Ads Layer (19 USD) | routine đám mây 08:00 | 14/10 |
+| B1–B4 | 4 bộ sinh màn + bộ giải (19 USD mỗi cái) | công cụ đã hỗ trợ, đóng thử trên máy 14/10 | 14/10 |
+
 ## Việc phải có chủ
 
 - Tạo tài khoản người bán Codester (https://www.codester.com/info/seller → Start selling) và khai cách nhận tiền: máy không tự tạo tài khoản, không điền thông tin thanh toán.

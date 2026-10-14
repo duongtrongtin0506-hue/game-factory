@@ -22,7 +22,9 @@ Game mới và game nâng cấp chỉ được nộp khi đủ 8 điều; thiế
 
 - [x] `tools/dong_goi_ban.py <mã sản phẩm>`: ghi `ban/<mã>/<mã>.zip` gồm mã nguồn không nén, `README.md` tiếng Anh, `LICENSE.txt`. Chủ dặn 14/10 CHIA NHỎ, mỗi sản phẩm một chủ đề (bảng A1–A9, B1–B4, C1 trong `BAN-MA-NGUON.md`); gói chỉ gộp cùng chủ đề.
 - [ ] Tách Tap Arcade thành từng trò chạy độc lập: `tools/tach_tro.py <trò>` lấy phần dùng chung + một trò từ `web/tap-arcade/index.src.html` ra `ban/<trò>/index.html` (menu, điểm cao, tắt tiếng, chỗ gắn quảng cáo); làm trước A1, A2, A5, A9; kiểm bằng Playwright không lỗi console.
-- [ ] Viết `README.md` cho gói Tap Arcade: chạy thử, đổi màu/chữ, thêm trò, gắn quảng cáo từng cổng; khai rõ mã do AI hỗ trợ viết.
+- [x] 14/10 Gói 9 trò: `python tools/dong_goi_ban.py AG` (README đã đối chiếu với mã nguồn: hằng `C`, `FONT`, `?stage=`, `?play=`, `?selftest=1`).
+- [ ] Dịch chú thích trong `tools/test_ads.js` sang tiếng Anh (đang là tiếng Việt không dấu) rồi đóng lại C1; soát chú thích tiếng Việt trong `tools/carjam.py`, `bobasort.py`, `tiletrio.py`, `oneline.py` trước khi bán B1–B4.
+- [ ] [máy 2] itch.io: tạo trang bán `reflex-mini-games-source` (loại tải về, tệp `ban/AG/AG.zip`, ảnh `assets-goc/tap-arcade/`), để Draft cho tới khi chủ khai cách nhận tiền rồi đặt giá 49 USD và chuyển Public; tạo thêm trang chạy thử miễn phí của Tap Arcade để dẫn link.
 - [x] Gói "Portal Ads Layer" (`python tools/dong_goi_ban.py C1` đã ghi zip + README tiếng Anh; chờ ảnh chụp/mô tả bán): `web/ads.js` + `tools/test_ads.js` + hướng dẫn từng cổng (lấy từ `CONG.md`, dịch sang tiếng Anh).
 - [ ] [máy 2] Đọc quy định Codester (mục đăng game JavaScript thuần, sản phẩm làm bằng AI, phí rút) tại https://www.codester.com/info/seller và trang điều khoản; thử lại CodeCanyon; ghi vào `BAN-MA-NGUON.md`.
 - [ ] [máy 2] Khi chủ có tài khoản người bán: đăng gói Tap Arcade (ảnh từ `assets-goc/tap-arcade/`, bản chạy thử là trang itch.io).
