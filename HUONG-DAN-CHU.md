@@ -17,9 +17,11 @@ Từ 13/10 khung chat trên máy tự nộp CrazyGames bằng Chrome đang đăn
 
 ## CẦN TẠO TÀI KHOẢN
 
-- [ ] itch.io, khai cách nhận tiền (để bán gói mã nguồn đầu tiên, đã đóng xong): https://itch.io/user/settings/seller → chọn cách nhận tiền và điền thông tin (máy không điền thông tin thanh toán). Xong nhắn **xong nhận tiền itch**.
-- [ ] CodeCanyon/Envato: tạo tài khoản tác giả tại https://author.envato.com/ (chủ tự tạo, tự khai thuế và nhận tiền). Xong nhắn **xong tài khoản envato**.
-- [ ] Codester (bán mã nguồn, người bán giữ 70%, không đòi độc quyền): mở https://www.codester.com/info/seller → **Start selling**, tạo tài khoản và khai cách nhận tiền (máy không tự làm hai bước này). Xong nhắn **xong tài khoản codester**. Kế hoạch và giá: `BAN-MA-NGUON.md`.
+- [x] 14/10 itch.io: máy đã lưu chế độ "Collected by itch.io, paid later".
+- [ ] itch.io, khai thuế (bắt buộc trước khi rút tiền): https://itch.io/user/settings → **Tax information** → làm "Tax interview" (thông tin cá nhân và mã số thuế: chủ tự điền). Xong nhắn **xong thuế itch**.
+- [ ] CodeCanyon/Envato: chủ đang ở nhầm trang Envato Elements (ảnh stock) và trang giá thuê bao: đừng mua gói nào. Đường đúng: tạo tài khoản ở https://codecanyon.net/ (Sign in → Create account) rồi vào mục **Become an author** (chủ tự tạo, tự khai thuế và nhận tiền). Xong nhắn **xong tài khoản envato**.
+- [x] 14/10 Codester: chủ đã tạo tài khoản người bán; máy đã điền hồ sơ. Rút tiền bằng PayPal (từ 50 USD) hoặc chuyển khoản (từ 250 USD), khai khi có doanh thu.
+- [ ] PayPal (không gấp): mở bị quay mãi thì thử cửa sổ ẩn danh hoặc tắt tiện ích tự dịch trang, hoặc dùng ứng dụng điện thoại; máy không thao tác trang PayPal.
 
 - [ ] GameDistribution: 13/10 máy đã tìm trong Gmail, chưa có thư nào từ GameDistribution hoặc Azerion (mục Spam chưa xem). Nếu chủ nhớ đã đăng ký xong thì xem Spam; chưa thì đăng ký lại ở https://developer.gamedistribution.com/ (máy không được tự tạo tài khoản). Nhắn: **có thư gamedistribution**.
 - [x] 13/10 Claude GitHub App đã có quyền vào kho `game-factory` (chủ nhập mã xác minh, máy thêm kho); routine đám mây "Game factory - luot tu dong" đã tạo: https://claude.ai/code/routines/trig_01VLA47WPmdk5S1ZJWS1QDub (08:00/14:00/20:00 giờ VN, Sonnet), lượt đầu 08:00 ngày 14/10.

@@ -73,6 +73,15 @@ Mỗi gói bán phải có: mã nguồn đọc được (không nén), `README.m
 
 Bán KHÔNG độc quyền trên mọi sàn để đăng được nhiều nơi. Để dễ được duyệt: đăng gói 9 trò và các công cụ B trước (dày, có nét riêng), kèm bản chạy thử, ảnh, video, README tiếng Anh; trò lẻ chỉ đăng sau khi gói được duyệt ở ít nhất một sàn; khai rõ có dùng AI. Trước khi đăng ở sàn nào thì đọc quy định duyệt và quy định AI của sàn đó, ghi vào đây.
 
+## Trạng thái tài khoản bán (kiểm 14/10 chiều)
+
+| Sàn | Trạng thái | Còn thiếu |
+|---|---|---|
+| Codester | Tài khoản người bán dùng được (tên đăng nhập `td1`, tên hiển thị "TD"); máy đã điền tiêu đề + giới thiệu hồ sơ. Rút tiền: PayPal từ 50 USD hoặc chuyển khoản ngân hàng từ 250 USD (không bắt buộc PayPal). Giấy phép "Regular" của sàn là bắt buộc và chỉ cho MỘT dự án | Ảnh đại diện + ảnh nền hồ sơ (máy làm); đăng sản phẩm (máy làm); `LICENSE.txt` trong gói phải khớp giấy phép Regular của sàn (đang ghi "unlimited projects": sửa trước khi đăng) |
+| itch.io | Đã lưu chế độ "Collected by itch.io, paid later" (itch thu hộ, rút gộp sau; chưa cần PayPal) | Chủ làm "Tax interview" (khai thuế qua bên thứ ba Tax Identity; không khai mã số thuế thì bị giữ 30%): https://itch.io/user/settings → Tax information |
+| CodeCanyon | Chưa có tài khoản tác giả. Chủ đang mở nhầm trang Envato Elements (tác giả ảnh/stock) và trang bảng giá thuê bao Elements: KHÔNG mua gói nào | Tạo tài khoản Envato Market rồi bấm Become an Author ở https://codecanyon.net/ (cần xem lại đường dẫn đúng) |
+| PayPal | Chủ mở bị quay mãi; máy không thao tác trang PayPal (tạo tài khoản tài chính). Chưa chặn việc gì: itch.io và Codester đều có đường khác | Thử lại bằng cửa sổ ẩn danh hoặc tắt tiện ích tự dịch trang (tiện ích này đã làm lệch nhiều form trong các lượt trước), hoặc dùng ứng dụng PayPal trên điện thoại |
+
 ## Đã đóng gói (zip không nằm trong git: chạy `python tools/build.py` rồi `python tools/dong_goi_ban.py <mã>` để tạo lại)
 
 | Mã | Sản phẩm | Ai làm | Ngày |
