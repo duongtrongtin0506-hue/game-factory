@@ -20,10 +20,10 @@ Game mới và game nâng cấp chỉ được nộp khi đủ 8 điều; thiế
 
 ## 0b. Bán mã nguồn (mũi doanh thu thứ hai, kế hoạch ở `BAN-MA-NGUON.md`)
 
-- [ ] `tools/dong_goi_ban.py <mã sản phẩm>`: ghi `ban/<mã>/<mã>.zip` gồm mã nguồn không nén, `README.md` tiếng Anh, `LICENSE.txt`. Chủ dặn 14/10 CHIA NHỎ, mỗi sản phẩm một chủ đề (bảng A1–A9, B1–B4, C1 trong `BAN-MA-NGUON.md`); gói chỉ gộp cùng chủ đề.
+- [x] `tools/dong_goi_ban.py <mã sản phẩm>`: ghi `ban/<mã>/<mã>.zip` gồm mã nguồn không nén, `README.md` tiếng Anh, `LICENSE.txt`. Chủ dặn 14/10 CHIA NHỎ, mỗi sản phẩm một chủ đề (bảng A1–A9, B1–B4, C1 trong `BAN-MA-NGUON.md`); gói chỉ gộp cùng chủ đề.
 - [ ] Tách Tap Arcade thành từng trò chạy độc lập: `tools/tach_tro.py <trò>` lấy phần dùng chung + một trò từ `web/tap-arcade/index.src.html` ra `ban/<trò>/index.html` (menu, điểm cao, tắt tiếng, chỗ gắn quảng cáo); làm trước A1, A2, A5, A9; kiểm bằng Playwright không lỗi console.
 - [ ] Viết `README.md` cho gói Tap Arcade: chạy thử, đổi màu/chữ, thêm trò, gắn quảng cáo từng cổng; khai rõ mã do AI hỗ trợ viết.
-- [ ] Gói "Portal Ads Layer": `web/ads.js` + `tools/test_ads.js` + hướng dẫn từng cổng (lấy từ `CONG.md`, dịch sang tiếng Anh).
+- [x] Gói "Portal Ads Layer" (`python tools/dong_goi_ban.py C1` đã ghi zip + README tiếng Anh; chờ ảnh chụp/mô tả bán): `web/ads.js` + `tools/test_ads.js` + hướng dẫn từng cổng (lấy từ `CONG.md`, dịch sang tiếng Anh).
 - [ ] [máy 2] Đọc quy định Codester (mục đăng game JavaScript thuần, sản phẩm làm bằng AI, phí rút) tại https://www.codester.com/info/seller và trang điều khoản; thử lại CodeCanyon; ghi vào `BAN-MA-NGUON.md`.
 - [ ] [máy 2] Khi chủ có tài khoản người bán: đăng gói Tap Arcade (ảnh từ `assets-goc/tap-arcade/`, bản chạy thử là trang itch.io).
 

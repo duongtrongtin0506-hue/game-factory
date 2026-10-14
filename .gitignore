@@ -33,3 +33,4 @@ _khong-phai-game/
 
 # Goi nop cong: zip nho, co trong git de may nao cung lay duoc
 !phat-hanh/**/*.zip
+ban/*/*.zip
