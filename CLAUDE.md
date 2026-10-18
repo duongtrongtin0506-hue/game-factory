@@ -1,3 +1,9 @@
+> **18/10/2026 – CHỦ ĐẦU TƯ CHỐT (đọc trước mọi thứ):** dự án này là **Agent 3 – xưởng sản xuất** trong hệ chung (luật: kho `net24-he-thong`, tệp `06-Tai-lieu/CHIA-VIEC-3-AGENT.md`).
+> 1. Tự chạy 24/7 KHÔNG CẦN CLAUDE: vận hành hằng ngày = GitHub Actions (`daily`, `weekly-selftest`, `bao-discord`). **Bỏ routine Claude 3 lượt/ngày** (KE-HOACH-V3 mục 8) – Claude Code chỉ là kiểm soát viên khi chủ mở.
+> 2. Dòng tự động chỉ làm BIẾN THỂ từ bộ khung đã chạy tốt (màn mới, skin/chủ đề, sự kiện mùa, ngôn ngữ) → bộ giải + Playwright kiểm → đạt mới đóng gói. "AI tự nghĩ tự viết trọn game mới" cho ra game tệ: cơ chế mới chỉ làm khi chủ mở Claude, có phiếu, chạy thử kỹ.
+> 3. KHÔNG LƯU TRÊN MÁY NHÀ: mã + tài liệu → GitHub (push ngay); tệp nặng (video, ảnh gốc, bản dựng > 50 MB) → Google Drive hoặc GitHub Releases, chỉ ghi link vào kho. Xong việc thì xóa bản tạm trên máy.
+> 4. Nhận phiếu đặt việc ở `net24-he-thong/YEU-CAU/agent3/`, giao vào `net24-he-thong/BAN-GIAO/` theo bộ nghiệm thu 7 mục.
+
 # ③ GAME – bộ nhớ
 
 **Kế hoạch hiện hành = KE-HOACH-V3.md. Bỏ mọi 'chờ X ngày' và mọi chia giai đoạn cũ.**
