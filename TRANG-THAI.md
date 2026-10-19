@@ -1,6 +1,6 @@
 # Trạng thái game-factory
 
-- Lần chạy cuối: 2026-10-19 06:18 (giờ VN), chạy hằng ngày
+- Lần chạy cuối: 2026-10-20 06:24 (giờ VN), chạy hằng ngày
 - Kết quả: ✅ đạt
 - Red Car Out: 140 màn trong game, 40 màn dự trữ đã kiểm (cần ≥ 30)
 - Pearl Cup Sort: 140 màn trong game, 40 màn dự trữ đã kiểm (cần ≥ 30)
@@ -8,7 +8,7 @@
 - One Line Fill: 140 màn trong game, 40 màn dự trữ đã kiểm (cần ≥ 30)
 - Tap Arcade: 45 chặng Journey đã kiểm (trò phản xạ, không có hàng dự trữ)
 - Kiểm bản web cỡ điện thoại: 6/6 game đạt
-- Thêm màn tuần này: đã chuyển 80 màn từ hàng dự trữ vào game
+- Thêm màn tuần này: không phải hôm nay (mỗi thứ hai 20 màn mỗi game: Red Car Out, Pearl Cup Sort, Three of a Tile, One Line Fill)
 - Đăng: itch.io: da day 1 game; ⚪ bo qua (chua co trang: car-jam-escape); Roblox: bo qua (chua co ban Roblox; lam khi co game thang)
 - Lượt chơi, thời gian chơi, doanh thu: chưa có, chưa game nào lên sóng
 
