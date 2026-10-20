@@ -1,6 +1,6 @@
 # Trạng thái game-factory
 
-- Lần chạy cuối: 2026-10-20 08:09 (giờ VN), chạy thử, không đăng
+- Lần chạy cuối: 2026-10-20 12:50 (giờ VN), chạy thử, không đăng
 - Kết quả: ✅ đạt
 - Red Car Out: 140 màn trong game, 40 màn dự trữ đã kiểm (cần ≥ 30)
 - Pearl Cup Sort: 140 màn trong game, 40 màn dự trữ đã kiểm (cần ≥ 30)
