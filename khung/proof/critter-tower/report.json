@@ -1,0 +1,41 @@
+{
+  "id": "critter-tower",
+  "errors": [],
+  "loads": {
+    "phone-portrait-360x640": 1.01,
+    "phone-landscape-640x360": 1.01,
+    "desktop-1280x720": 0.62
+  },
+  "selftest": "selftest:0:",
+  "autoplay": {
+    "levels": 10,
+    "won": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "lost": [],
+    "seconds": 68
+  },
+  "fps": {
+    "median": 60.0,
+    "p10": 60.0,
+    "samples": 68
+  },
+  "video": "autoplay-10-levels.webm",
+  "zip_kb": {
+    "critter-tower-crazygames.zip": 25,
+    "critter-tower-gamedistribution.zip": 25,
+    "critter-tower-gamemonetize.zip": 25,
+    "critter-tower-none.zip": 25,
+    "critter-tower-playgama.zip": 25
+  },
+  "pass": true
+}

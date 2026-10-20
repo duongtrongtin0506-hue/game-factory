@@ -1,0 +1,41 @@
+{
+  "id": "orbit-stack",
+  "errors": [],
+  "loads": {
+    "phone-portrait-360x640": 1.01,
+    "phone-landscape-640x360": 1.0,
+    "desktop-1280x720": 0.62
+  },
+  "selftest": "selftest:0:",
+  "autoplay": {
+    "levels": 10,
+    "won": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "lost": [],
+    "seconds": 19
+  },
+  "fps": {
+    "median": 60.0,
+    "p10": 60.0,
+    "samples": 19
+  },
+  "video": "autoplay-10-levels.webm",
+  "zip_kb": {
+    "orbit-stack-crazygames.zip": 24,
+    "orbit-stack-gamedistribution.zip": 24,
+    "orbit-stack-gamemonetize.zip": 24,
+    "orbit-stack-none.zip": 24,
+    "orbit-stack-playgama.zip": 24
+  },
+  "pass": true
+}

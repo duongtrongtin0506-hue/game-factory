@@ -1,0 +1,33 @@
+name: khung (Drop & Merge frame)
+# Rebuilds the five Drop & Merge games and runs the full automatic check (solver replays every level,
+# autoplay 10 levels on video, FPS, console errors, load time). No Claude, no secrets.
+on:
+  push:
+    paths: ["khung/**", "web/ads.js", ".github/workflows/khung.yml"]
+  schedule:
+    - cron: "30 0 * * 1"   # Monday 07:30 VN
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "22" }
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - run: pip install playwright==1.48.0 && python -m playwright install --with-deps chromium && sudo apt-get install -y ffmpeg
+      - name: Levels still solvable with the current engine
+        run: node -e "const E=require('./khung/engine.js');let bad=0;for(const v of require('./khung/variants.json')){for(const lv of require('./khung/levels/'+v.id+'.json')){const r=E.newRun(lv),l=E.spawnList(lv.seed,lv.drops+8,lv.lo,lv.hi);for(const c of lv.moves)E.step(lv,r,c,l);if(!r.won){bad++;console.log('unsolved',v.id,lv.n)}}}process.exit(bad?1:0)"
+      - run: python khung/build.py
+      - run: python khung/test.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: khung-proof
+          path: |
+            khung/proof/REPORT.md
+            khung/proof/*/report.json
+            khung/proof/*/size-*.png
+          retention-days: 14

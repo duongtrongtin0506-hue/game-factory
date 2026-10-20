@@ -1,0 +1,7 @@
+[
+  { "id": "orchard-drop", "title": "Orchard Drop", "theme": "fruit", "rule": "reach", "seed": 11, "levels": 40 },
+  { "id": "gem-kiln", "title": "Gem Kiln", "theme": "gems", "rule": "stones", "seed": 23, "levels": 40 },
+  { "id": "orbit-stack", "title": "Orbit Stack", "theme": "space", "rule": "make", "seed": 37, "levels": 40 },
+  { "id": "bento-drop", "title": "Bento Drop", "theme": "food", "rule": "ice", "seed": 41, "levels": 40 },
+  { "id": "critter-tower", "title": "Critter Tower", "theme": "animals", "rule": "score", "seed": 53, "levels": 40 }
+]

@@ -1,0 +1,41 @@
+{
+  "id": "orchard-drop",
+  "errors": [],
+  "loads": {
+    "phone-portrait-360x640": 1.02,
+    "phone-landscape-640x360": 0.96,
+    "desktop-1280x720": 0.62
+  },
+  "selftest": "selftest:0:",
+  "autoplay": {
+    "levels": 10,
+    "won": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "lost": [],
+    "seconds": 22
+  },
+  "fps": {
+    "median": 60,
+    "p10": 60,
+    "samples": 22
+  },
+  "video": "autoplay-10-levels.webm",
+  "zip_kb": {
+    "orchard-drop-crazygames.zip": 24,
+    "orchard-drop-gamedistribution.zip": 24,
+    "orchard-drop-gamemonetize.zip": 24,
+    "orchard-drop-none.zip": 24,
+    "orchard-drop-playgama.zip": 24
+  },
+  "pass": true
+}

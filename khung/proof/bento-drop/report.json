@@ -1,0 +1,41 @@
+{
+  "id": "bento-drop",
+  "errors": [],
+  "loads": {
+    "phone-portrait-360x640": 0.89,
+    "phone-landscape-640x360": 0.99,
+    "desktop-1280x720": 0.63
+  },
+  "selftest": "selftest:0:",
+  "autoplay": {
+    "levels": 10,
+    "won": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "lost": [],
+    "seconds": 24
+  },
+  "fps": {
+    "median": 60,
+    "p10": 60.0,
+    "samples": 24
+  },
+  "video": "autoplay-10-levels.webm",
+  "zip_kb": {
+    "bento-drop-crazygames.zip": 24,
+    "bento-drop-gamedistribution.zip": 24,
+    "bento-drop-gamemonetize.zip": 24,
+    "bento-drop-none.zip": 24,
+    "bento-drop-playgama.zip": 24
+  },
+  "pass": true
+}

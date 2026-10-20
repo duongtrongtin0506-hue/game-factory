@@ -1,0 +1,42 @@
+{
+  "orchard-drop": {
+    "title": "Orchard Drop â€“ Fruit Merge Puzzle",
+    "open": "Drop fruit into the columns and watch matching pieces merge into bigger, juicier fruit. Short levels with a clear goal make it easy to play one more.",
+    "bullets": ["40 levels, each checked by a solver so it can always be won", "Merge 3 or more at once to jump several fruit sizes", "Endless mode with a best-score chase", "Hammer and hint helpers when a board gets tight", "Plays in portrait and landscape, phone or desktop, progress saved"],
+    "faq": [["How do I play?", "Tap a column to drop the next fruit. Two or more equal fruits that touch merge into the next fruit."], ["What is the goal of a level?", "Make the fruit shown in the goal card before you run out of drops."], ["Is every level possible?", "Yes. Every level was played through by a solver before release."], ["Does it save my progress?", "Yes, on your device (and in your portal account where the portal supports it)."], ["Are there ads during play?", "No. Ads only show between levels, and helper videos are always optional."]],
+    "tags": ["merge", "puzzle", "fruit", "casual", "drop"],
+    "genre": "Puzzle"
+  },
+  "gem-kiln": {
+    "title": "Gem Kiln â€“ Merge Gems, Break the Stones",
+    "open": "Merge falling gems next to the old stones to crack them open. Every level is a small tactical puzzle you can finish in a minute.",
+    "bullets": ["40 stone-breaking levels, all verified solvable", "Merges crack every stone they touch â€“ plan your chains", "Calm night palette with twelve hand-drawn gem tiers", "Endless mode for long sessions", "One-tap controls on phone, mouse or keyboard on desktop"],
+    "faq": [["How do stones break?", "Any merge that touches a stone breaks it."], ["Can I move a stone?", "No, stones stay in place. Tiles above them rest on them."], ["What if I run out of drops?", "Try again, or watch an optional video for five more drops."], ["Is every level possible?", "Yes. A solver finished every level before release."], ["Does it work offline?", "Once loaded, the game runs without a connection."]],
+    "tags": ["merge", "puzzle", "gems", "strategy", "casual"],
+    "genre": "Puzzle"
+  },
+  "orbit-stack": {
+    "title": "Orbit Stack â€“ Merge Planets, Fill Orders",
+    "open": "Drop moons, comets and worlds into the sky and merge them into ringed giants and stars. Each level asks for a set of planets â€“ make them before the drops run out.",
+    "bullets": ["40 order levels, every one solver-verified", "Twelve space tiers from pebble to galaxy", "Chain merges count toward the order", "Endless mode with rising tiers", "Portrait and landscape, phone and desktop"],
+    "faq": [["What is an order?", "A number of tiles of a tier (or higher) you must create by merging."], ["Do bigger tiles count?", "Yes, any merge at or above the asked tier counts."], ["How do merges chain?", "When tiles fall after a merge they can merge again, and each one counts."], ["Is there a time limit?", "No. You have a number of drops, not a timer."], ["Is my progress saved?", "Yes, on this device and in your portal account where supported."]],
+    "tags": ["merge", "space", "puzzle", "planets", "casual"],
+    "genre": "Puzzle"
+  },
+  "bento-drop": {
+    "title": "Bento Drop â€“ Merge Snacks, Melt the Ice",
+    "open": "Merge rice balls, dumplings and sweets next to frozen snacks to melt them free. Clear all the ice in a few smart drops.",
+    "bullets": ["40 ice levels, each one checked by a solver", "Thawed snacks fall and can chain into new merges", "Twelve food tiers up to a full bento box", "Endless mode for a high score", "Bright, flat art that reads well on small screens"],
+    "faq": [["How does ice melt?", "Any merge that touches an ice block melts it. The snack inside is then free to fall and merge."], ["Can frozen snacks merge?", "Not until the ice melts."], ["How long is a level?", "Most take under two minutes."], ["Is every level possible?", "Yes, every level was solved by a solver before release."], ["Are there ads during play?", "No. Ads only appear between levels; helper videos are optional."]],
+    "tags": ["merge", "food", "puzzle", "casual", "cute"],
+    "genre": "Puzzle"
+  },
+  "critter-tower": {
+    "title": "Critter Tower â€“ Merge Cute Animals",
+    "open": "Drop chicks, bunnies and pups on a busy tower and merge them up to lions and whales. Hit the score target with smart chains before the drops run out.",
+    "bullets": ["40 score levels with ready-made starting towers", "Every level verified by a solver", "Twelve animal tiers drawn as friendly flat faces", "Endless mode with a best-score chase", "One-tap play, portrait or landscape"],
+    "faq": [["How do I score?", "Every merge scores points; bigger animals score much more."], ["Why does the tower start full?", "Each level starts from a set tower, so you plan around what is already there."], ["What happens when the tower is full?", "The level ends. An optional video can clear the top rows once."], ["Is every level possible?", "Yes, a solver finished each level first."], ["Is it for kids?", "It is a general-audience puzzle with no chat, no data collection and no in-app purchases."]],
+    "tags": ["merge", "animals", "puzzle", "cute", "casual"],
+    "genre": "Puzzle"
+  }
+}

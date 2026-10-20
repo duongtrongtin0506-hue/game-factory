@@ -1,0 +1,41 @@
+{
+  "id": "gem-kiln",
+  "errors": [],
+  "loads": {
+    "phone-portrait-360x640": 1.01,
+    "phone-landscape-640x360": 1.01,
+    "desktop-1280x720": 0.62
+  },
+  "selftest": "selftest:0:",
+  "autoplay": {
+    "levels": 10,
+    "won": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "lost": [],
+    "seconds": 18
+  },
+  "fps": {
+    "median": 60,
+    "p10": 60,
+    "samples": 18
+  },
+  "video": "autoplay-10-levels.webm",
+  "zip_kb": {
+    "gem-kiln-crazygames.zip": 24,
+    "gem-kiln-gamedistribution.zip": 24,
+    "gem-kiln-gamemonetize.zip": 24,
+    "gem-kiln-none.zip": 24,
+    "gem-kiln-playgama.zip": 24
+  },
+  "pass": true
+}
