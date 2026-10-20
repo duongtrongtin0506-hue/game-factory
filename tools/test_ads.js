@@ -1,12 +1,12 @@
-// Kiem lop quang cao chung web/ads.js voi SDK gia cua tung cong: node tools/test_ads.js
-// Moi cong: nap ads.js nhu trong game, gia lap SDK, roi xem showAd goi done(ok) dung luc va dung gia tri. In 1 dong; thoat 1 neu sai.
+// Tests the shared ad layer web/ads.js against a mock SDK for each portal: node tools/test_ads.js
+// Per portal: load ads.js as the game does, mock the SDK, then check showAd calls done(ok) at the right time with the right value. Prints 1 line; exits 1 on failure.
 const fs = require('fs');
 const path = require('path');
 const SRC = fs.readFileSync(path.join(__dirname, '..', 'web', 'ads.js'), 'utf8');
 const bad = [];
 const check = (name, got, want) => { if (got !== want) bad.push(`${name}: ra ${got}, can ${want}`); };
 
-// -> { api: cac ham cua ads.js, window, scripts: cac the script da nap, tick(ms): cho dong ho gia chay }
+// -> { api: ads.js functions, window, scripts: injected script tags, tick(ms): advances the fake clock }
 function load(portal, id, host) {
   let now = 1e6;
   const timers = [], scripts = [];
@@ -20,7 +20,7 @@ function load(portal, id, host) {
   };
   const code = SRC.replace('/*PORTAL*/', portal).replace('/*GAME_ID*/', id) +
     '\nreturn { showAd, gameplay, happy, playing: () => adPlaying, ready: f => { onPortalReady = f; } };';
-  env.Storage = function () {}; env.Storage.prototype.setItem = function () {};   // kho luu gia: ads.js boc setItem de chep sang cong
+  env.Storage = function () {}; env.Storage.prototype.setItem = function () {};   // fake storage: ads.js wraps setItem to mirror saves to the portal
   const store = new env.Storage(); store.getItem = () => null;
   env.localStorage = store; env.sessionStorage = { getItem: () => null, setItem() {} };
   const api = new Function(...Object.keys(env), 'let onPortalReady; const SAVE_KEY = "t.save";' + code)(...Object.values(env));
@@ -30,7 +30,7 @@ function load(portal, id, host) {
 const result = (api, type) => { const r = { v: 'chua goi' }; api.showAd(type, ok => { r.v = ok; }); return r; };
 
 (async () => {
-  // khong SDK: tren may, cong 'none', hoac thieu ma game
+  // no SDK: local machine, portal 'none', or missing game id
   for (const [portal, id, host] of [['none', '', ''], ['gamemonetize', 'abc', 'localhost'], ['gamemonetize', '', ''], ['gamedistribution', '', '']]) {
     const t = load(portal, id, host);
     check(`${portal}/${host || 'web'} khong nap SDK`, t.scripts.length, 0);
@@ -38,7 +38,7 @@ const result = (api, type) => { const r = { v: 'chua goi' }; api.showAd(type, ok
     check(`${portal}/${host || 'web'} midgame`, result(t.api, 'midgame').v, true);
   }
 
-  // GameMonetize: mot dang quang cao, SDK bao PAUSE roi START
+  // GameMonetize: a single ad type; the SDK signals PAUSE then START
   let t = load('gamemonetize', 'abc');
   check('gm nap SDK', t.scripts[0] && t.scripts[0].src, 'https://api.gamemonetize.com/sdk.js');
   check('gm ma game', t.window.SDK_OPTIONS.gameId, 'abc');
@@ -62,7 +62,7 @@ const result = (api, type) => { const r = { v: 'chua goi' }; api.showAd(type, ok
   result(t.api, 'midgame');
   check('gm midgame sau 60 giay', shown, 3);
 
-  // GameDistribution: thuong chi khi co SDK_REWARDED_WATCH_COMPLETE
+  // GameDistribution: reward only on SDK_REWARDED_WATCH_COMPLETE
   t = load('gamedistribution', 'gd1');
   check('gd nap SDK', t.scripts[0] && t.scripts[0].src, 'https://html5.api.gamedistribution.com/main.min.js');
   const asked = [];
@@ -87,7 +87,7 @@ const result = (api, type) => { const r = { v: 'chua goi' }; api.showAd(type, ok
   ev('SDK_GAME_PAUSE'); ev('SDK_GAME_START');
   check('gd midgame', asked[asked.length - 1] + ':' + r.v, 'undefined:true');
 
-  // CrazyGames: SDK v3, chi adblock moi mat thuong
+  // CrazyGames: SDK v3; only an ad blocker withholds the reward
   t = load('crazygames', '');
   check('cg nap SDK', t.scripts[0] && t.scripts[0].src, 'https://sdk.crazygames.com/crazygames-sdk-v3.js');
   const calls = [];
@@ -115,7 +115,7 @@ const result = (api, type) => { const r = { v: 'chua goi' }; api.showAd(type, ok
   cb.adError({ code: 'adsDisabledBasicLaunch' });
   check('cg Basic Launch (chua co quang cao) van cho goi y', r.v, true);
 
-  // Playgama Bridge: thuong chi khi trang thai 'rewarded'; tam dung theo PAUSE_STATE_CHANGED; bao game_ready; luu tien trinh qua bridge
+  // Playgama Bridge: reward only on state 'rewarded'; pause follows PAUSE_STATE_CHANGED; reports game_ready; saves progress through the bridge
   t = load('playgama', '');
   check('pg nap SDK', t.scripts[0] && t.scripts[0].src, 'https://bridge.playgama.com/v2/stable/playgama-bridge.js');
   const on = {}, sent = [], shownPg = [], saved = [];
