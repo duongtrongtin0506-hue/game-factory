@@ -8,5 +8,6 @@
 {"date": "2026-10-17", "ok": true, "levels": 120, "queue": 40, "games_tested": 6},
 {"date": "2026-10-18", "ok": true, "levels": 120, "queue": 40, "games_tested": 6},
 {"date": "2026-10-19", "ok": true, "levels": 140, "queue": 40, "games_tested": 6, "took": 80},
-{"date": "2026-10-20", "ok": true, "levels": 140, "queue": 40, "games_tested": 6}
+{"date": "2026-10-20", "ok": true, "levels": 140, "queue": 40, "games_tested": 6},
+{"date": "2026-10-21", "ok": true, "levels": 140, "queue": 40, "games_tested": 6}
 ]
