@@ -23,6 +23,10 @@ import zipfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+import os as _os
+HANG = Path(_os.environ.get("N24_LAM", r"D:\Net24\lam")) / "sach" / "HANG"   # bản dựng nặng ở ổ D, ổ C chỉ giữ kho git
+HANG.mkdir(parents=True, exist_ok=True)
+CAU_HINH = HERE / "cau-hinh.json"
 sys.path.insert(0, str(HERE / "KHUNG"))
 import sach  # noqa: E402
 sys.path.insert(0, str(HERE / "tools" / "chung"))
@@ -156,7 +160,7 @@ def day_cho_cua_1():
     g = ["git", "-C", str(NET24)]
     subprocess.run(g + ["pull", "-q", "--rebase", "--autostash"])
     sent = []
-    for item in sorted((HERE / "HANG").glob("2*-*")):
+    for item in sorted(HANG.glob("2*-*")):
         if not item.is_dir() or (item / ".da-day").exists() or (item / ".da-nop").exists():
             continue
         try:
@@ -193,14 +197,18 @@ def main():
     a.add_argument("--so-mon", type=int, default=2)
     a.add_argument("--khong-nop", action="store_true")
     x = a.parse_args()
-    have = {p.name.split("-", 1)[1] for p in (HERE / "HANG").glob("*-*") if p.is_dir()}
+    have = {p.name.split("-", 1)[1] for p in HANG.glob("*-*") if p.is_dir()}
+    try:
+        have |= set(json.loads(CAU_HINH.read_text(encoding="utf-8")).get("bo_qua", []))   # dieu-toc.py: chủ đề bị trả 2 lần
+    except Exception:
+        pass
     q = [e for e in json.loads(QUEUE.read_text(encoding="utf-8")) if e["slug"] not in have]
     if len(q) < x.so_mon:
         log(f"hang cho con {len(q)}, nap them: +{nap_hang_cho()}")
         q = [e for e in json.loads(QUEUE.read_text(encoding="utf-8")) if e["slug"] not in have]
     ra = qua = 0
     for e in q[:x.so_mon]:
-        out = HERE / "HANG" / f"{datetime.date.today():%Y%m%d}-{e['slug']}"
+        out = HANG / f"{datetime.date.today():%Y%m%d}-{e['slug']}"
         try:
             st = sach.make(e, out)
         except Exception as err:
@@ -218,7 +226,7 @@ def main():
     nk = HERE / "NHAT-KY.md"
     nk.write_text(nk.read_text(encoding="utf-8").rstrip("\n") + f"\n| {datetime.date.today():%d/%m} | {ra} sách | {qua} | {n} | 0 | {ra - qua} |\n", encoding="utf-8")
     log(f"XONG: ra {ra}, qua cua 0 {qua}, day cho cua 1 {n}")
-    if not x.khong_nop:
+    if not x.khong_nop and not _os.environ.get("N24_DIEU_TOC"):   # điều tốc tự ghi nhịp
         nhip.nhip("sach", ra)   # nhịp tim: 1 dòng/lần chạy vào 07-Nhat-ky/nha-may-nhip.log
 
 

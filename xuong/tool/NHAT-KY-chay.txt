@@ -31,3 +31,7 @@ PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Administrator\\Deskto
 2026-10-21 19:00 day cho cua 1: 20261021-tool-copy-link, 20261021-tool-word-counter
 2026-10-21 19:00 moi hang len ke: {"moi": 0, "cho_moi": 0}
 2026-10-21 19:00 XONG: ra 1, cua 0 1, day 2
+2026-10-21 23:03 page-check: CỬA 0 XANH {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ba_co_man_hinh": true} |
+2026-10-21 23:03 day cho cua 1: 20261021-tool-page-check
+2026-10-21 23:03 moi hang len ke: {"moi": 0, "cho_moi": 0}
+2026-10-21 23:03 XONG: ra 1, cua 0 1, day 1
