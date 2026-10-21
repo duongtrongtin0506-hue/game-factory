@@ -1,0 +1,10 @@
+{
+  "free": true,
+  "xuong": "tool",
+  "price": 0,
+  "license": "MIT \u2013 Snoutsmith Tools",
+  "web": "ext/popup.html",
+  "permissions": [
+    "activeTab"
+  ]
+}

@@ -1,0 +1,49 @@
+aic img HTTP Error 403: Forbidden @ https://www.artic.edu/iiif/2/59bf5216-383d-c2d4-912a-f8cfcbdaa55a/full/1686,/0/default.jpg
+aic img HTTP Error 403: Forbidden @ https://www.artic.edu/iiif/2/3cea045a-92d6-36cf-1508-2c99ea740218/full/1686,/0/default.jpg
+2026-10-21 19:00 unit-converter: 8.1 KB ma, CỬA 0 ĐỎ {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ngoai_tuyen": true, "ba_co_man_hinh": false} | web: 360: Error: <rect> attribute heig
+warning: fetch updated the current branch head.
+fast-forwarding your working tree from
+commit c27f3575b0b42c84b4a2db3ddb000d9265e730be.
+error: Your local changes to the following files would be overwritten by merge:
+	HOP-LENH/3-nha-may.md
+Please commit your changes or stash them before you merge.
+Aborting
+fatal: Cannot fast-forward your working tree.
+After making sure that you saved anything precious from
+$ git diff c27f3575b0b42c84b4a2db3ddb000d9265e730be
+output, run
+$ git reset --hard
+to recover.
+2026-10-21 19:00 day cho cua 1: 20261021-app-tip-split
+2026-10-21 19:00 moi hang len ke: {"moi": 0, "cho_moi": 0}
+2026-10-21 19:00 XONG: ra 1, cua 0 0, day 1
+The following paths are ignored by one of your .gitignore files:
+07-Nhat-ky/nha-may-nhip.log
+hint: Use -f if you really want to add them.
+hint: Disable this message with "git config set advice.addIgnoredFile false"
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	VIEC_DANG_DO.txt
+
+nothing added to commit but untracked files present (use "git add" to track)
+aic img HTTP Error 403: Forbidden @ https://www.artic.edu/iiif/2/59bf5216-383d-c2d4-912a-f8cfcbdaa55a/full/1686,/0/default.jpg
+aic img HTTP Error 403: Forbidden @ https://www.artic.edu/iiif/2/3cea045a-92d6-36cf-1508-2c99ea740218/full/1686,/0/default.jpg
+2026-10-21 19:03 unit-converter: 8.1 KB ma, CỬA 0 XANH {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ngoai_tuyen": true, "ba_co_man_hinh": true} |
+2026-10-21 19:04 day cho cua 1: 20261021-app-unit-converter
+2026-10-21 19:04 moi hang len ke: {"moi": 0, "cho_moi": 0}
+2026-10-21 19:04 XONG: ra 1, cua 0 1, day 1
+The following paths are ignored by one of your .gitignore files:
+07-Nhat-ky/nha-may-nhip.log
+hint: Use -f if you really want to add them.
+hint: Disable this message with "git config set advice.addIgnoredFile false"
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	VIEC_DANG_DO.txt
+
+nothing added to commit but untracked files present (use "git add" to track)

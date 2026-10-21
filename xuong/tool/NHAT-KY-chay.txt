@@ -1,0 +1,33 @@
+2026-10-21 18:54 tab-tidy: CỬA 0 XANH {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ba_co_man_hinh": true} |
+2026-10-21 18:54 day cho cua 1: 20261021-tool-tab-tidy
+2026-10-21 18:54 moi hang len ke: {"moi": 0, "cho_moi": 0}
+2026-10-21 18:54 XONG: ra 1, cua 0 1, day 1
+2026-10-21 18:57 copy-link: CỬA 0 XANH {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ba_co_man_hinh": true} |
+2026-10-21 18:57 LOI copy-link: PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Administrator\\Desktop\\GAME\\web\\xuong\\tool\\NHAT-KY-chay.txt'
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\tool\chay.py", line 218, in main
+    try:
+    
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\tool\chay.py", line 173, in make
+    docs(slug, t, out, credit, c0)
+    ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\tool\chay.py", line 43, in log
+    print(line, flush=True)
+         ^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Administrator\\Desktop\\GAME\\web\\xuong\\tool\\NHAT-KY-chay.txt'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\tool\chay.py", line 234, in <module>
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\tool\chay.py", line 220, in main
+    except Exception as e:
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\tool\chay.py", line 43, in log
+    print(line, flush=True)
+         ^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Administrator\\Desktop\\GAME\\web\\xuong\\tool\\NHAT-KY-chay.txt'
+2026-10-21 18:59 word-counter: CỬA 0 XANH {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ba_co_man_hinh": true} |
+2026-10-21 19:00 day cho cua 1: 20261021-tool-copy-link, 20261021-tool-word-counter
+2026-10-21 19:00 moi hang len ke: {"moi": 0, "cho_moi": 0}
+2026-10-21 19:00 XONG: ra 1, cua 0 1, day 2

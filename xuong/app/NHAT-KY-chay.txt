@@ -10,3 +10,41 @@
 2026-10-21 18:29 day cho cua 1: 20261021-app-compound-interest
 2026-10-21 18:29 moi hang len ke: {"moi": 0, "cho_moi": 0}
 2026-10-21 18:29 XONG: ra 1, cua 0 1, day 1
+2026-10-21 18:51 compound-interest: 8.0 KB ma, CỬA 0 XANH {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ngoai_tuyen": true, "ba_co_man_hinh": true} |
+2026-10-21 18:51 day cho cua 1: 20261021-app-compound-interest
+2026-10-21 18:51 moi hang len ke: {"moi": 0, "cho_moi": 0}
+2026-10-21 18:51 XONG: ra 1, cua 0 1, day 1
+aic img HTTP Error 403: Forbidden @ https://www.artic.edu/iiif/2/3cea045a-92d6-36cf-1508-2c99ea740218/full/1686,/0/default.jpg
+2026-10-21 18:57 tip-split: 8.0 KB ma, CỬA 0 XANH {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ngoai_tuyen": true, "ba_co_man_hinh": true} |
+2026-10-21 18:57 LOI tip-split: PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Administrator\\Desktop\\GAME\\web\\xuong\\app\\NHAT-KY-chay.txt'
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\app\chay.py", line 225, in main
+    try:
+    
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\app\chay.py", line 180, in make
+    docs(slug, app, info, out, credit, c0)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\app\chay.py", line 44, in log
+    print(line, flush=True)
+         ^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Administrator\\Desktop\\GAME\\web\\xuong\\app\\NHAT-KY-chay.txt'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\app\chay.py", line 241, in <module>
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\app\chay.py", line 227, in main
+    except Exception as e:
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\app\chay.py", line 44, in log
+    print(line, flush=True)
+         ^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Administrator\\Desktop\\GAME\\web\\xuong\\app\\NHAT-KY-chay.txt'
+2026-10-21 19:00 unit-converter: 8.1 KB ma, CỬA 0 ĐỎ {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ngoai_tuyen": true, "ba_co_man_hinh": false} | web: 360: Error: <rect> attribute heig
+2026-10-21 19:00 day cho cua 1: 20261021-app-tip-split
+2026-10-21 19:00 moi hang len ke: {"moi": 0, "cho_moi": 0}
+2026-10-21 19:00 XONG: ra 1, cua 0 0, day 1
+2026-10-21 19:03 unit-converter: 8.1 KB ma, CỬA 0 XANH {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ngoai_tuyen": true, "ba_co_man_hinh": true} |
+2026-10-21 19:04 day cho cua 1: 20261021-app-unit-converter
+2026-10-21 19:04 moi hang len ke: {"moi": 0, "cho_moi": 0}
+2026-10-21 19:04 XONG: ra 1, cua 0 1, day 1

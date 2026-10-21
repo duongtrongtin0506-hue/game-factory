@@ -1,0 +1,1 @@
+# Mỗi dòng 1 thư mục chứa video review 8 giây (chủ trang làm bằng Cursor). Trống = chưa biết thư mục.

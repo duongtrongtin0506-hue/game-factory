@@ -20,7 +20,7 @@ ALLOWED_HOSTS = ("html5.api.gamedistribution.com", "api.gamemonetize.com", "sdk.
                  "www.w3.org", "schemas.android.com", "github.com", "creativecommons.org", "opensource.org", "www.gnu.org",
                  "gnu.org", "unlicense.org", "spdx.org", "www.apache.org", "apache.org", "kenney.nl", "opengameart.org",
                  "fonts.googleapis.com", "fonts.gstatic.com", "api.coinbase.com", "www.idpf.org", "purl.org", "localhost", "127.0.0.1",
-                 "snoutsmith.com", "coinnew24.com")   # our own shops and hub
+                 "snoutsmith.com", "coinnew24.com", "example.com", "example.org", "example.net")   # + RFC 2606 example domains used in demo modes   # our own shops and hub
 TRACKERS = re.compile(r"google-analytics\.com|googletagmanager|gtag\(|fbq\(|facebook\.net/.*/fbevents|hotjar|mixpanel|segment\.com/analytics|clarity\.ms|amplitude\.com", re.I)
 BAD_LIC = re.compile(r"\bCC[- ]?BY[- ]?(?:\d\.\d[- ])?(?:SA[- ])?N[CD]\b|NonCommercial|NoDerivatives|personal use only|free for personal use|freeware", re.I)
 GOOD_LIC = re.compile(r"CC0|Public Domain|MIT|Apache|BSD|ISC|GPL|CC[- ]?BY|self-made|tự tạo|own work|Unlicense|OFL", re.I)

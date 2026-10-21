@@ -1,0 +1,17 @@
+2026-10-21 18:59 word-counter: CỬA 0 XANH {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ba_co_man_hinh": true} |
+2026-10-21 19:00 day cho cua 1: 20261021-tool-copy-link, 20261021-tool-word-counter
+2026-10-21 19:00 moi hang len ke: {"moi": 0, "cho_moi": 0}
+2026-10-21 19:00 XONG: ra 1, cua 0 1, day 2
+fatal: Cannot rebase onto multiple branches.
+The following paths are ignored by one of your .gitignore files:
+07-Nhat-ky/nha-may-nhip.log
+hint: Use -f if you really want to add them.
+hint: Disable this message with "git config set advice.addIgnoredFile false"
+On branch main
+Your branch is up to date with 'origin/main'.
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	VIEC_DANG_DO.txt
+
+nothing added to commit but untracked files present (use "git add" to track)

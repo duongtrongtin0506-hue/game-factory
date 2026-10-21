@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-NET24 = Path(os.environ.get("NET24", r"C:\Users\Administrator\Desktop\net24-he-thong"))
+NET24 = Path(os.environ.get("NET24", r"C:\Users\Administrator\Documents\Net24-HeThong"))
 TOOL = HERE / "sach" / "tools" / "chung" / "nghien_cuu.py"
 
 
@@ -28,6 +28,9 @@ def main():
     subprocess.run(g + ["commit", "-qm", f"Agent 3 (may nha): hoc top 6 xuong {datetime.date.today()}"])
     subprocess.run(g + ["pull", "-q", "--rebase", "--autostash"])
     subprocess.run(g + ["push", "-q"])
+    sys.path.insert(0, str(HERE / "sach" / "tools" / "chung"))
+    import nhip
+    nhip.nhip("nghien-cuu", 6, NET24)
 
 
 if __name__ == "__main__":

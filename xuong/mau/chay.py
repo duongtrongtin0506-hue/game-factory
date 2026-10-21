@@ -24,8 +24,9 @@ import anh2  # noqa: E402
 import khung12  # noqa: E402
 import kiem_cong_thuc  # noqa: E402
 import moi  # noqa: E402
+import nhip  # noqa: E402
 
-NET24 = Path(os.environ.get("NET24", r"C:\Users\Administrator\Desktop\net24-he-thong"))
+NET24 = Path(os.environ.get("NET24", r"C:\Users\Administrator\Documents\Net24-HeThong"))
 ART = {"budget-planner": "market", "debt-tracker": "harbor", "savings-goals": "garden", "habit-tracker": "morning", "weekly-planner": "study",
        "meal-planner": "kitchen", "net-worth": "estate", "subscription-tracker": "music"}
 LEADERS = """| # | Leader (Etsy, tìm "budget planner google sheets", 21/10) | Giá |
@@ -102,6 +103,9 @@ def make(slug):
     for p in out.glob("*.kiem.json"):
         p.unlink()
     r = subprocess.run([sys.executable, str(HERE / "tools/chung/cua0.py"), str(out), "--free"], capture_output=True, text=True, encoding="utf-8", env=dict(os.environ, PYTHONIOENCODING="utf-8"))
+    if r.returncode:   # Cua 0 do: chay lai 1 lan (loi tam thoi luc may ban)
+        log('cua0 do, chay lai lan 2')
+        r = subprocess.run([sys.executable, str(HERE / "tools/chung/cua0.py"), str(out), "--free"], capture_output=True, text=True, encoding="utf-8", env=dict(os.environ, PYTHONIOENCODING="utf-8"))
     log(f"{slug}: {check['formulas']} cong thuc, anh {img}, {r.stdout.strip()[:120]}")
     return r.returncode == 0
 
@@ -160,6 +164,8 @@ def main():
     nk = HERE / "NHAT-KY.md"
     nk.write_text(nk.read_text(encoding="utf-8").rstrip("\n") + f"\n| {datetime.date.today():%d/%m} | {ra} mẫu | Cửa 0: {qua} | đẩy chờ Cửa 1: {n} | 0 | {ra - qua} |\n", encoding="utf-8")
     log(f"XONG: ra {ra}, cua 0 {qua}, day {n}")
+    if not x.khong_nop:
+        nhip.nhip("mau", ra)   # nhịp tim: 1 dòng/lần chạy vào 07-Nhat-ky/nha-may-nhip.log
 
 
 if __name__ == "__main__":

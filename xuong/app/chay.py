@@ -27,9 +27,10 @@ sys.path.insert(0, str(HERE / "KHUNG"))
 sys.path.insert(0, str(HERE / "tools" / "chung"))
 sys.path.insert(0, str(HERE.parent / "sach" / "KHUNG"))
 import moi  # noqa: E402
+import nhip  # noqa: E402
 import pwa  # noqa: E402
 
-NET24 = Path(os.environ.get("NET24", r"C:\Users\Administrator\Desktop\net24-he-thong"))
+NET24 = Path(os.environ.get("NET24", r"C:\Users\Administrator\Documents\Net24-HeThong"))
 ORDER = ["compound-interest", "loan-payment", "tip-split", "unit-converter", "pomodoro-timer"]
 ART = {"compound-interest": "harvest", "loan-payment": "house", "tip-split": "dinner", "unit-converter": "map", "pomodoro-timer": "clock"}
 TRY = {"compound-interest": [("p", "25000"), ("m", "500"), ("y", "20")], "loan-payment": [("a", "32000"), ("r", "6.2"), ("y", "4")],
@@ -133,7 +134,7 @@ def images(slug, app, stage, out):
 
 
 def docs(slug, app, info, out, credit, c0):
-    t60 = app["name"] + " – Offline App"
+    t60 = app["name"] + " – Free Web App"
     (out / "meta.json").write_text(json.dumps({"free": True, "xuong": "app", "price": 0, "license": "MIT – Snoutsmith Apps", "web": "app/index.html", "kb_code": info["kb_code"]}, indent=2), encoding="utf-8")
     (out / "LEADER.md").write_text(f"# LEADER – {app['name']}\n\n{LEADERS}\n\n| # | Đặc điểm leader | App mình |\n|---|---|---|\n"
                                    "| 1 | Một màn, kết quả tức thì | ✅ |\n| 2 | manifest + icon | ✅ 192/512 maskable |\n| 3 | Chạy offline (service worker) | ✅ Cửa 0 kiểm khi mất mạng |\n"
@@ -144,11 +145,11 @@ def docs(slug, app, info, out, credit, c0):
                                      "| Fonts | System fonts only | – |\n| Preview images, GIF | Rendered from the running app (`chay.py`) | Own work |\n"
                                      + (f"| Cover painting | {credit.get('credit', '')} | Public Domain / CC0 (museum open-access API flags it public domain) |\n" if credit else ""), encoding="utf-8")
     (out / "STORE.md").write_text("\n".join([
-        f"# {t60}", "", f"Title ({len(t60)} chars): **{t60}**", "", f"{app['desc']} Add it to your home screen and it opens like a native app.", "",
-        "- Results update as you type – no Calculate button", "- Works offline after the first visit", "- Remembers your last numbers on your device",
+        f"# {t60}", "", f"Title ({len(t60)} chars): **{t60}**", "", f"{app['desc']} A simple web tool: open it in any browser; adding it to your home screen is optional.", "",
+        "- Results update as you type – no Calculate button", "- A chart and a full table under the result (year by year / step by step)", "- Works offline after the first visit", "- Remembers your last numbers on your device",
         "- No account, no ads, no trackers", "- Light and dark mode, phone or laptop", "",
         "## What you get", "", f"- `{slug}.zip` – the full app (index.html, app.js, style.css, manifest, service worker, icons, privacy page, MIT license)",
-        "- Ready-made `twa-manifest.json` for publishing to Google Play with Bubblewrap", "",
+        "- For publishers only: `twa-manifest.json`, so a site owner can wrap the same web app for Google Play with Bubblewrap. Everyday users can ignore it – the app is a simple web tool that opens in any browser.", "",
         "## FAQ", "", "**Do I need to install anything?** No. Open it in the browser; installing is optional.", "",
         "**Does it work without internet?** Yes, after it has opened once.", "", "**Is my data uploaded?** No, nothing leaves your device.", "",
         "**Is it financial advice?** No. It shows math only." if slug in ("compound-interest", "loan-payment") else "**Can I share it?** Yes, it is free and MIT-licensed.", "",
@@ -169,6 +170,10 @@ def make(slug):
     credit = images(slug, app, stage, out)
     docs(slug, app, info, out, credit, "")
     r = subprocess.run([sys.executable, str(HERE / "tools/chung/cua0.py"), str(out), "--web", "app/index.html", "--free", "--pwa"],
+                       capture_output=True, text=True, encoding="utf-8", env=dict(os.environ, PYTHONIOENCODING="utf-8"))
+    if r.returncode:   # Cua 0 do: chay lai 1 lan (loi tam thoi luc may ban)
+        log('cua0 do, chay lai lan 2')
+        r = subprocess.run([sys.executable, str(HERE / "tools/chung/cua0.py"), str(out), "--web", "app/index.html", "--free", "--pwa"],
                        capture_output=True, text=True, encoding="utf-8", env=dict(os.environ, PYTHONIOENCODING="utf-8"))
     c0 = r.stdout.strip()[:170]
     shutil.rmtree(out / "cua0-anh", ignore_errors=True)
@@ -235,6 +240,8 @@ def main():
     nk = HERE / "NHAT-KY.md"
     nk.write_text(nk.read_text(encoding="utf-8").rstrip("\n") + f"\n| {datetime.date.today():%d/%m} | {ra} app | Cửa 0: {qua} | đẩy chờ Cửa 1: {n} | 0 | {ra - qua} |\n", encoding="utf-8")
     log(f"XONG: ra {ra}, cua 0 {qua}, day {n}")
+    if not x.khong_nop:
+        nhip.nhip("app", ra)   # nhịp tim: 1 dòng/lần chạy vào 07-Nhat-ky/nha-may-nhip.log
 
 
 if __name__ == "__main__":

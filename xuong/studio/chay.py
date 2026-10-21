@@ -24,8 +24,9 @@ sys.path.insert(0, str(HERE / "KHUNG"))
 sys.path.insert(0, str(HERE / "tools" / "chung"))
 import goi  # noqa: E402
 import moi  # noqa: E402
+import nhip  # noqa: E402
 
-NET24 = Path(os.environ.get("NET24", r"C:\Users\Administrator\Desktop\net24-he-thong"))
+NET24 = Path(os.environ.get("NET24", r"C:\Users\Administrator\Documents\Net24-HeThong"))
 ORDER = ["platformer", "puzzle", "ui", "space", "tiles", "icons"]
 ART = {"platformer": "forest", "puzzle": "still life", "ui": "interior", "space": "night sky", "tiles": "village", "icons": "objects"}
 
@@ -146,6 +147,9 @@ def make(theme):
         shutil.copy2(out / name, stage / name)
     env = dict(os.environ, PYTHONIOENCODING="utf-8")
     r = subprocess.run([sys.executable, str(HERE / "tools/chung/cua0.py"), str(stage), "--web", "preview.html", "--free"], capture_output=True, text=True, encoding="utf-8", env=env)
+    if r.returncode:   # Cua 0 do: chay lai 1 lan (loi tam thoi luc may ban)
+        log('cua0 do, chay lai lan 2')
+        r = subprocess.run([sys.executable, str(HERE / "tools/chung/cua0.py"), str(stage), "--web", "preview.html", "--free"], capture_output=True, text=True, encoding="utf-8", env=env)
     c0 = r.stdout.strip()[:160]
     for name in ("BAN-GIAO.md", "LEADER.md", "LICENSES.md", "STORE.md", "meta.json", "CUA0.json"):
         if (stage / name).exists():
@@ -215,6 +219,8 @@ def main():
     nk = HERE / "NHAT-KY.md"
     nk.write_text(nk.read_text(encoding="utf-8").rstrip("\n") + f"\n| {datetime.date.today():%d/%m} | {ra} gói | Cửa 0: {qua} | đẩy chờ Cửa 1: {n} | 0 | {ra - qua} |\n", encoding="utf-8")
     log(f"XONG: ra {ra}, cua 0 {qua}, day {n}")
+    if not x.khong_nop:
+        nhip.nhip("studio", ra)   # nhịp tim: 1 dòng/lần chạy vào 07-Nhat-ky/nha-may-nhip.log
 
 
 if __name__ == "__main__":

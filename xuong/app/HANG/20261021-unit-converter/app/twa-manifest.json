@@ -1,0 +1,22 @@
+{
+ "packageId": "com.snoutsmith.apps.unitconverter",
+ "host": "apps.snoutsmith.com",
+ "name": "Everyday Unit Converter",
+ "launcherName": "Units",
+ "display": "standalone",
+ "themeColor": "#7A4DE8",
+ "navigationColor": "#7A4DE8",
+ "backgroundColor": "#F7F5FF",
+ "startUrl": "/unit-converter/",
+ "iconUrl": "https://apps.snoutsmith.com/unit-converter/icon-512.png",
+ "maskableIconUrl": "https://apps.snoutsmith.com/unit-converter/icon-512.png",
+ "webManifestUrl": "https://apps.snoutsmith.com/unit-converter/manifest.webmanifest",
+ "appVersionCode": 1,
+ "appVersion": "1.0.0",
+ "signingKey": {
+  "path": "./android.keystore",
+  "alias": "android"
+ },
+ "enableNotifications": false,
+ "fallbackType": "customtabs"
+}

@@ -1,10 +1,11 @@
-# Compound Interest Calculator – Offline App
+# Compound Interest Calculator – Free Web App
 
-Title (42 chars): **Compound Interest Calculator – Offline App**
+Title (43 chars): **Compound Interest Calculator – Free Web App**
 
-See how savings grow with compound interest and monthly deposits – offline, no ads, no sign-up. Add it to your home screen and it opens like a native app.
+See how savings grow with compound interest and monthly deposits – offline, no ads, no sign-up. A simple web tool: open it in any browser; adding it to your home screen is optional.
 
 - Results update as you type – no Calculate button
+- A chart and a full table under the result (year by year / step by step)
 - Works offline after the first visit
 - Remembers your last numbers on your device
 - No account, no ads, no trackers
@@ -13,7 +14,7 @@ See how savings grow with compound interest and monthly deposits – offline, no
 ## What you get
 
 - `compound-interest.zip` – the full app (index.html, app.js, style.css, manifest, service worker, icons, privacy page, MIT license)
-- Ready-made `twa-manifest.json` for publishing to Google Play with Bubblewrap
+- For publishers only: `twa-manifest.json`, so a site owner can wrap the same web app for Google Play with Bubblewrap. Everyday users can ignore it – the app is a simple web tool that opens in any browser.
 
 ## FAQ
 

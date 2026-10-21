@@ -15,7 +15,7 @@
 | 5 | Mobile trước | ✅ 360/768/1280 không tràn |
 | 6 | Nhớ lần nhập | ✅ localStorage |
 | 7 | Không theo dõi | ✅ trang privacy |
-| 8 | Nhẹ, không framework | ✅ 7.5 KB mã |
+| 8 | Nhẹ, không framework | ✅ 8.0 KB mã |
 | 9 | Sáng/tối | ✅ theo máy |
 
 Thêm so với leader: twa-manifest.json sẵn cho Bubblewrap (Google Play), bảng kết quả chi tiết.

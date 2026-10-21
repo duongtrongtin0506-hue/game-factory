@@ -1,4 +1,4 @@
-# Bàn giao: Compound Interest Calculator – Offline App
+# Bàn giao: Compound Interest Calculator – Free Web App
 
 - Xưởng: App → apps.snoutsmith.com/compound-interest/ · giá 0 USD · 21/10/2026
 - Tệp: `compound-interest.zip` (giải nén vào thư mục `/compound-interest/` của shop), bìa + 4 ảnh + GIF

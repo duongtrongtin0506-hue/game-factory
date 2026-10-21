@@ -1,0 +1,19 @@
+{
+ "manifest_version": 3,
+ "name": "Tab Tidy \u2013 Close Duplicate Tabs",
+ "short_name": "Tab Tidy",
+ "version": "1.0.0",
+ "description": "Close duplicate tabs in one click and sort the rest by website.",
+ "action": {
+  "default_popup": "popup.html",
+  "default_title": "Tab Tidy"
+ },
+ "permissions": [
+  "tabs"
+ ],
+ "icons": {
+  "16": "icon-16.png",
+  "48": "icon-48.png",
+  "128": "icon-128.png"
+ }
+}

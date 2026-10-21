@@ -1,0 +1,19 @@
+{
+ "manifest_version": 3,
+ "name": "Copy Link As \u2013 Markdown, HTML, Plain",
+ "short_name": "Copy Link As",
+ "version": "1.0.0",
+ "description": "Copy the current page as a Markdown, HTML or plain-text link with one click.",
+ "action": {
+  "default_popup": "popup.html",
+  "default_title": "Copy Link As"
+ },
+ "permissions": [
+  "activeTab"
+ ],
+ "icons": {
+  "16": "icon-16.png",
+  "48": "icon-48.png",
+  "128": "icon-128.png"
+ }
+}

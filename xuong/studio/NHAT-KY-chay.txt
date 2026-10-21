@@ -6,3 +6,37 @@
 2026-10-21 14:20 day cho cua 1: 20261021-studio-platformer
 2026-10-21 14:20 moi hang len ke: {"moi": 0, "cho_moi": 0}
 2026-10-21 14:20 XONG: ra 1, cua 0 1, day 1
+aic img HTTP Error 403: Forbidden @ https://www.artic.edu/iiif/2/3cea045a-92d6-36cf-1508-2c99ea740218/full/1686,/0/default.jpg
+2026-10-21 18:58 puzzle: 270 hinh, zip 1397 KB, CỬA 0 ĐỎ {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ba_co_man_hinh": false} | web: 360: Failed to load resource: net::ERR_CONNE
+2026-10-21 18:58 LOI puzzle: PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Administrator\\Desktop\\GAME\\web\\xuong\\studio\\NHAT-KY-chay.txt'
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\studio\chay.py", line 205, in main
+    try:
+    
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\studio\chay.py", line 160, in make
+    docs(theme, info, out, credit, c0)
+    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\studio\chay.py", line 36, in log
+    print(line, flush=True)
+         ^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Administrator\\Desktop\\GAME\\web\\xuong\\studio\\NHAT-KY-chay.txt'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\studio\chay.py", line 221, in <module>
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\studio\chay.py", line 207, in main
+    except Exception as e:
+        ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Administrator\Desktop\GAME\web\xuong\studio\chay.py", line 36, in log
+    print(line, flush=True)
+         ^^^^^^^^^^^^^^^^^^
+PermissionError: [Errno 13] Permission denied: 'C:\\Users\\Administrator\\Desktop\\GAME\\web\\xuong\\studio\\NHAT-KY-chay.txt'
+2026-10-21 19:00 ui: 267 hinh, zip 570 KB, CỬA 0 ĐỎ {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ba_co_man_hinh": false} | web: 1280: Failed to load resource: net::ERR_CONN
+2026-10-21 19:00 day cho cua 1: 0
+2026-10-21 19:00 moi hang len ke: {"moi": 0, "cho_moi": 0}
+2026-10-21 19:00 XONG: ra 1, cua 0 0, day 0
+2026-10-21 19:03 puzzle: 270 hinh, zip 1397 KB, CỬA 0 XANH {"ho_so": true, "giay_phep": true, "ten_san_pham": true, "rieng_tu": true, "ba_co_man_hinh": true} |
+2026-10-21 19:03 day cho cua 1: 20261021-studio-puzzle
+2026-10-21 19:03 moi hang len ke: {"moi": 0, "cho_moi": 0}
+2026-10-21 19:03 XONG: ra 1, cua 0 1, day 1

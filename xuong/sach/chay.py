@@ -27,9 +27,10 @@ sys.path.insert(0, str(HERE / "KHUNG"))
 import sach  # noqa: E402
 sys.path.insert(0, str(HERE / "tools" / "chung"))
 import moi  # noqa: E402
+import nhip  # noqa: E402
 import bia_sach  # noqa: E402
 
-NET24 = Path(os.environ.get("NET24", r"C:\Users\Administrator\Desktop\net24-he-thong"))
+NET24 = Path(os.environ.get("NET24", r"C:\Users\Administrator\Documents\Net24-HeThong"))
 TOOLS = Path(r"C:\Users\Administrator\Desktop\xuong\_cong-cu")
 QUEUE = HERE / "KHUNG" / "sach-cong-cong.json"
 TOPICS = ["economics", "self-help", "business", "success", "conduct of life", "thrift", "wealth"]
@@ -217,6 +218,8 @@ def main():
     nk = HERE / "NHAT-KY.md"
     nk.write_text(nk.read_text(encoding="utf-8").rstrip("\n") + f"\n| {datetime.date.today():%d/%m} | {ra} sách | {qua} | {n} | 0 | {ra - qua} |\n", encoding="utf-8")
     log(f"XONG: ra {ra}, qua cua 0 {qua}, day cho cua 1 {n}")
+    if not x.khong_nop:
+        nhip.nhip("sach", ra)   # nhịp tim: 1 dòng/lần chạy vào 07-Nhat-ky/nha-may-nhip.log
 
 
 if __name__ == "__main__":
