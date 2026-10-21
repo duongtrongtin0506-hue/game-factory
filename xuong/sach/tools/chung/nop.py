@@ -2,7 +2,7 @@
 
 A product is a folder HANG/<YYYYMMDD>-<ten>/. It is handed over only when CUA0.json and CUA1.json both say pass
 and it has not been handed over before (marker .da-nop). Copies it to BAN-GIAO/<YYYYMMDD>-<xuong>-<ten>/ in the
-net24-he-thong checkout and appends a line to TRANG-THAI/3-game.md. Big files (> 50 MB) are skipped with a note.
+net24-he-thong checkout and appends a line to TRANG-THAI/3-nha-may.md. Big files (> 50 MB) are skipped with a note.
 Prints how many were handed over; the workflow then commits net24-he-thong and sends one Discord line.
 """
 import argparse
@@ -53,7 +53,7 @@ def main():
         (item / ".da-nop").write_text(datetime.date.today().isoformat(), encoding="utf-8")
         done.append(dest.name)
     if done:
-        st = net / "TRANG-THAI" / "3-game.md"
+        st = net / "TRANG-THAI" / "3-nha-may.md"
         if st.exists():
             line = f"- {datetime.date.today():%d/%m} [{x.xuong}] nộp {len(done)}: " + ", ".join(done)
             st.write_text(st.read_text(encoding="utf-8").rstrip("\n") + "\n" + line + "\n", encoding="utf-8")

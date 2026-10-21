@@ -1,0 +1,24 @@
+2026-10-21 13:31 game: ? e']}]({r['url']}) | {r.get('price', '')} | {r.get('metric', '')} | {r.get('src', '')} | {r.get('note', '')} |")
+                                                           ^
+SyntaxError: invalid syntax
+2026-10-21 13:31 sach: ? e']}]({r['url']}) | {r.get('price', '')} | {r.get('metric', '')} | {r.get('src', '')} | {r.get('note', '')} |")
+                                                           ^
+SyntaxError: invalid syntax
+2026-10-21 13:31 mau: ? e']}]({r['url']}) | {r.get('price', '')} | {r.get('metric', '')} | {r.get('src', '')} | {r.get('note', '')} |")
+                                                           ^
+SyntaxError: invalid syntax
+2026-10-21 13:31 studio: ? e']}]({r['url']}) | {r.get('price', '')} | {r.get('metric', '')} | {r.get('src', '')} | {r.get('note', '')} |")
+                                                           ^
+SyntaxError: invalid syntax
+2026-10-21 13:31 app: ? e']}]({r['url']}) | {r.get('price', '')} | {r.get('metric', '')} | {r.get('src', '')} | {r.get('note', '')} |")
+                                                           ^
+SyntaxError: invalid syntax
+2026-10-21 13:31 tool: ? e']}]({r['url']}) | {r.get('price', '')} | {r.get('metric', '')} | {r.get('src', '')} | {r.get('note', '')} |")
+                                                           ^
+SyntaxError: invalid syntax
+2026-10-21 13:32 game: [nghien-cuu] game: top 20, complaints 0, proposals 0, errors [] 
+2026-10-21 13:32 sach: [nghien-cuu] sach: top 20, complaints 0, proposals 0, errors [] 
+2026-10-21 13:32 mau: [nghien-cuu] mau: top 20, complaints 0, proposals 0, errors [] 
+2026-10-21 13:32 studio: [nghien-cuu] studio: top 20, complaints 0, proposals 0, errors [] 
+2026-10-21 13:32 app: [nghien-cuu] app: top 20, complaints 0, proposals 0, errors [] 
+2026-10-21 13:32 tool: [nghien-cuu] tool: top 20, complaints 23, proposals 0, errors [] 

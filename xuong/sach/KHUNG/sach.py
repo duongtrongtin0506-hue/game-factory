@@ -314,6 +314,11 @@ def make(entry, out):
         "Spelling and wording follow the original. Nothing in this book is financial, legal or medical advice; it is a historical text, read it as such.",
         "Edition design, cover and front matter by Snoutsmith Books.",
     ]
+    total = sum(len(BeautifulSoup(b, "lxml").get_text(" ").split()) for _, b in chs)
+    meta["about"].append(f"Reader's guide: {len(chs)} chapters, about {total:,} words – roughly {max(1, round(total / 250 / 60, 1))} hours at 250 words a minute.")
+    for t, b in chs:
+        w = len(BeautifulSoup(b, "lxml").get_text(" ").split())
+        meta["about"].append(f"{t} – {w:,} words, about {max(1, round(w / 250))} min.")
     jpg = cover(meta, out / "cover-1600x2560.png")
     n_ch = build_epub(meta, chs, jpg, out / f"{entry['slug']}.epub")
     pages = pdf(meta, chs, out / f"{entry['slug']}-6x9.pdf")
@@ -322,14 +327,29 @@ def make(entry, out):
     return stats
 
 
+def short_title(t, n):
+    """Cut at a word boundary (never mid-word); keep the end of 'An Inquiry into ... of the Wealth of Nations' style titles."""
+    if len(t) <= n:
+        return t
+    for sep in (":", ";", " – ", " - ", ", or ", "; or"):
+        if sep in t and len(t.split(sep)[0]) <= n:
+            return t.split(sep)[0].strip()
+    words, out = t.split(), ""
+    for w in words:
+        if len(out) + len(w) + 1 > n:
+            break
+        out = (out + " " + w).strip()
+    return out
+
+
 def write_docs(e, out, st):
     title = f"{e['title']} – Clean Edition"
     if len(title) > 60:
-        title = e["title"][:60]
+        title = short_title(e["title"], 60)
     (out / "meta.json").write_text(json.dumps({"free": True, "epub": f"{e['slug']}.epub", "xuong": "sach", "price": 0, "license": f"Public Domain – {e['title']} ({e['year']})", "stats": st}, indent=2), encoding="utf-8")
     (out / "LICENSES.md").write_text(
         f"# LICENSES\n\n| Asset | Source | License |\n|---|---|---|\n"
-        f"| Text of *{e['title']}* by {e['author']} ({e['year']}) | Transcription from a public-domain text archive (source credited in CREDITS.md) | Public Domain (US: published before 1930; author died over 70 years ago) |\n"
+        f"| Text of *{e['title']}* by {e['author']} ({e['year']}) | Project Gutenberg eBook #{e['pg']} (https://www.gutenberg.org/ebooks/{e['pg']}), marked 'Public domain in the USA' | Public Domain. Per the Project Gutenberg License (sections 1.C and 1.E), once every reference to Project Gutenberg and its license is removed the public-domain text may be redistributed freely; this edition removes them and credits the source here only |\n"
         f"| Cover, title page, \"About this edition\", typesetting | Made by Snoutsmith Books (xuong-sach pipeline) | Own work |\n"
         f"| EB Garamond font (embedded in PDF/EPUB styling) | github.com/google/fonts | SIL Open Font License 1.1 (OFL) |\n"
         f"| Inter font (cover labels) | github.com/google/fonts | SIL Open Font License 1.1 (OFL) |\n\n"

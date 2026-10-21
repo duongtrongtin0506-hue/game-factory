@@ -1,19 +1,19 @@
-# An Inquiry into the Nature and Causes of the Wealth of Natio
+# An Inquiry into the Nature and Causes of the Wealth of
 
-Title (60 chars): **An Inquiry into the Nature and Causes of the Wealth of Natio**
+Title (54 chars): **An Inquiry into the Nature and Causes of the Wealth of**
 
 An Inquiry into the Nature and Causes of the Wealth of Nations by Adam Smith, a public-domain classic on economics. This clean edition reads well on any phone, Kindle or in print.
 
 - The complete original text of An Inquiry into the Nature and Causes of the Wealth of Nations ()
 - Newly typeset: clear chapters, working table of contents, no scanning clutter
 - EPUB for e-readers and phones, plus a print-ready 6×9 in PDF
-- 39 chapters · about 381,063 words · 1003 printed pages
+- 39 chapters · about 381,063 words · 1005 printed pages
 - Free: public-domain text, no DRM
 
 ## What you get
 
 - `an-inquiry-into-the-nature-and-causes-of-the-wea.epub` (EPUB 3)
-- `an-inquiry-into-the-nature-and-causes-of-the-wea-6x9.pdf` (1003 pages)
+- `an-inquiry-into-the-nature-and-causes-of-the-wea-6x9.pdf` (1005 pages)
 
 ## FAQ
 

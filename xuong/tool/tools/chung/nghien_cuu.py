@@ -220,7 +220,8 @@ def run(nganh, out_dir, net24):
              "Tự động bởi `tools/chung/nghien_cuu.py` (thứ Hai hằng tuần). Số liệu lấy từ trang công khai/API chính thức, không đăng nhập.", "",
              "## 1. Top 20 đang bán chạy", "", "| # | Tên | Giá | Số đo công khai | Nguồn | Ghi chú |", "|---|---|---|---|---|---|"]
     for i, r in enumerate(rows[:20], 1):
-        r = {k: str(v).replace("|", "/") for k, v in r.items()}`n        lines.append(f"| {i} | [{r['name']}]({r['url']}) | {r.get('price', '')} | {r.get('metric', '')} | {r.get('src', '')} | {r.get('note', '')} |")
+        r = {k: str(v).replace("|", "/") for k, v in r.items()}
+        lines.append(f"| {i} | [{r['name']}]({r['url']}) | {r.get('price', '')} | {r.get('metric', '')} | {r.get('src', '')} | {r.get('note', '')} |")
     if not rows:
         lines.append("| – | chưa lấy được (xem lỗi bên dưới) | | | | |")
     lines += ["", "## 2. Đang lên (30 ngày)", ""]

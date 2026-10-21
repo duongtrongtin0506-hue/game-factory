@@ -8,3 +8,9 @@
 2026-10-21 09:08 cua1 CỬA 1 CHƯA QUA  chờ khóa AI (N24_AI_KEY / GEMINI_API_KEY) – không nộp khi chưa chấm
 2026-10-21 09:08 an-inquiry-into-the-nature-and-causes-of-the-wea: 39 chuong, 381063 chu, PDF 1003 tr, bia tranh True, qua cua False
 2026-10-21 09:08 XONG: ra 1, qua cua 0, nop 0
+2026-10-21 13:31 day cho cua 1: 20261021-sach-an-inquiry-into-the-nature-and-causes-of-the-wea
+2026-10-21 13:31 XONG: ra 0, qua cua 0 0, day cho cua 1 1
+2026-10-21 13:34 cua0 CỬA 0 XANH {"ho_so": true, "giay_phep": true, "rieng_tu": true, "epub": true} | epubcheck chạy thật
+2026-10-21 13:34 an-inquiry-into-the-nature-and-causes-of-the-wea: 39 chuong, 381063 chu, PDF 1005 tr, bia tranh True, cua 0 True
+2026-10-21 13:34 day cho cua 1: 20261021-sach-an-inquiry-into-the-nature-and-causes-of-the-wea
+2026-10-21 13:34 XONG: ra 1, qua cua 0 1, day cho cua 1 1

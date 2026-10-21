@@ -23,5 +23,5 @@ jobs:
           git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add HANG; git diff --cached --quiet || git commit -qm "da nop $(date -u +%F)"; git push -q
           cd net24; git config user.name "agent3-bot"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add BAN-GIAO TRANG-THAI/3-game.md; git diff --cached --quiet || git commit -qm "Agent 3 [studio]: nop hang"; git pull -q --rebase && git push -q
+          git add BAN-GIAO TRANG-THAI/3-nha-may.md; git diff --cached --quiet || git commit -qm "Agent 3 [studio]: nop hang"; git pull -q --rebase && git push -q
       - run: python tools/chung/bao.py "[studio] nộp ${{ steps.nop.outputs.out }}"

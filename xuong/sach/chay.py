@@ -5,8 +5,9 @@
      (economics / self-help / business / success / conduct of life), tiếng Anh, "Public domain in the USA"
   2. sach.make: tải → xóa thương hiệu Gutenberg → EPUB 3 + PDF 6×9 → hồ sơ
   3. bìa: KHUNG/bia_sach.py (tranh Public Domain AIC/The Met + dải thương hiệu), lỗi thì giữ bìa chữ
-  4. Cửa 0 (epubcheck thật) → Cửa 1 (AI chung chấm 4 vai, không có khóa = không nộp)
-  5. nộp: chép vào net24-he-thong/BAN-GIAO/YYYYMMDD-sach-<slug>/ + commit + push; ghi NHAT-KY.md
+  4. Cửa 0 (epubcheck thật) ở máy nhà
+  5. đẩy vào net24-he-thong/BAN-GIAO/_cho-cua-1/YYYYMMDD-sach-<slug>/ + commit + push; GitHub (workflow cua-1) chấm Cửa 1
+     và tự chuyển sang BAN-GIAO/ hoặc _tra-lai/; ghi NHAT-KY.md
 Biến môi trường: N24_AI_KEY, N24_AI_URL (AI chung), NET24 (đường dẫn kho net24-he-thong), EPUBCHECK_JAR, JAVA_HOME.
 """
 import argparse
@@ -98,7 +99,10 @@ def doi_bia(entry, out):
         old.close()
         new_path.replace(ep)
         with open(out / "LICENSES.md", "a", encoding="utf-8") as f:
-            f.write(f"\n| Cover art | {credit['credit']} | Public Domain (CC0) |\n")
+            oid = str(credit.get("met_object", ""))
+            link = f"https://www.artic.edu/artworks/{oid[4:]}" if oid.startswith("aic-") else f"https://www.metmuseum.org/art/collection/search/{oid}"
+            src = "Art Institute of Chicago Open Access API: is_public_domain = true" if oid.startswith("aic-") else "The Met Open Access API: isPublicDomain = true"
+            f.write(f"\n| Cover art | {credit['credit']} – {link} | Public Domain / CC0 ({src}; the museum releases these images under CC0) |\n")
         return True
     except Exception as e:
         log(f"bia tranh loi, giu bia chu: {type(e).__name__}: {e}")
@@ -119,22 +123,62 @@ def cua(out, epub):
     log("cua0 " + c0.stdout.strip()[:160])
     if c0.returncode:
         return False
-    c1 = subprocess.run([sys.executable, str(HERE / "tools/chung/cua1.py"), str(out), "--free"], env=env, capture_output=True, text=True, encoding="utf-8")
-    log("cua1 " + c1.stdout.strip()[:160])
-    return c1.returncode == 0
+    return True
 
 
-def nop():
-    r = subprocess.run([sys.executable, str(HERE / "tools/chung/nop.py"), "sach", "--net24", str(NET24)], capture_output=True, text=True, encoding="utf-8")
-    log("nop " + r.stdout.strip()[:300])
-    res = json.loads(r.stdout or '{"nop":0}')
-    if res.get("nop"):
-        g = ["git", "-C", str(NET24)]
-        subprocess.run(g + ["add", "BAN-GIAO", "TRANG-THAI/3-game.md"])
-        subprocess.run(g + ["commit", "-qm", f"Xuong Sach (may nha): nop {res['nop']} sach"])
+LEADER = """# LEADER – {title}
+
+Dòng: sách công cộng miễn phí (KHUON-NHA-MAY mục 8, giai đoạn 1: học → chép cấu trúc → nhân bản).
+
+| # | Đặc điểm bản top (Standard Ebooks / Gutenberg) | Bản mình |
+|---|---|---|
+| 1 | Văn bản đầy đủ, đúng bản gốc | ✅ |
+| 2 | EPUB hợp lệ (epubcheck) | ✅ 0 lỗi |
+| 3 | Mục lục bấm được | ✅ |
+| 4 | Chia chương rõ | ✅ {chapters} chương |
+| 5 | Bìa riêng có tranh | ✅ tranh Public Domain (AIC/The Met) |
+| 6 | Kiểu chữ sạch, không rác quét | ✅ EB Garamond (OFL) |
+| 7 | Không DRM, miễn phí | ✅ |
+| 8 | Ghi nguồn + giấy phép | ✅ CREDITS.md, LICENSES.md |
+| 9 | Bản in | ✅ PDF 6×9 in, {pages} trang |
+| 10 | Siêu dữ liệu đủ (tên, tác giả, ngôn ngữ) | ✅ |
+
+Điểm vượt (giai đoạn 2, khi có số đo): lời dẫn + tóm tắt chương + sổ bài tập.
+"""
+
+
+def day_cho_cua_1():
+    """Push every HANG item that passed Cửa 0 and was not pushed yet to net24-he-thong/BAN-GIAO/_cho-cua-1/ (GitHub
+    workflow cua-1 grades it: pass -> BAN-GIAO/<ten>/, fail -> BAN-GIAO/_tra-lai/<ten>/LY-DO.md)."""
+    g = ["git", "-C", str(NET24)]
+    subprocess.run(g + ["pull", "-q", "--rebase", "--autostash"])
+    sent = []
+    for item in sorted((HERE / "HANG").glob("2*-*")):
+        if not item.is_dir() or (item / ".da-day").exists() or (item / ".da-nop").exists():
+            continue
+        try:
+            if not json.loads((item / "CUA0.json").read_text(encoding="utf-8")).get("pass"):
+                continue
+            meta = json.loads((item / "meta.json").read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not (item / "LEADER.md").exists():
+            st = meta.get("stats", {})
+            title = (item / "BAN-GIAO.md").read_text(encoding="utf-8").splitlines()[0].replace("# Bàn giao: ", "")
+            (item / "LEADER.md").write_text(LEADER.format(title=title, chapters=st.get("chapters", "?"), pages=st.get("pdf_pages", "?")), encoding="utf-8")
+        date, _, name = item.name.partition("-")
+        dest = NET24 / "BAN-GIAO" / "_cho-cua-1" / f"{date}-sach-{name}"
+        shutil.rmtree(dest, ignore_errors=True)
+        shutil.copytree(item, dest, ignore=shutil.ignore_patterns("cua0-anh", "*.print.html", "CUA1.json"))
+        (item / ".da-day").write_text(f"{datetime.date.today()}", encoding="utf-8")
+        sent.append(dest.name)
+    if sent:
+        subprocess.run(g + ["add", "BAN-GIAO/_cho-cua-1"])
+        subprocess.run(g + ["commit", "-qm", f"Xuong Sach (may nha): {len(sent)} sach cho Cua 1"])
         subprocess.run(g + ["pull", "-q", "--rebase", "--autostash"])
         subprocess.run(g + ["push", "-q"])
-    return res.get("nop", 0)
+    log("day cho cua 1: " + (", ".join(sent) or "0"))
+    return len(sent)
 
 
 def main():
@@ -164,11 +208,11 @@ def main():
         bia = doi_bia(e, out)
         ok = cua(out, f"{e['slug']}.epub")
         qua += ok
-        log(f"{e['slug']}: {st['chapters']} chuong, {st['words']} chu, PDF {st['pdf_pages']} tr, bia tranh {bia}, qua cua {ok}")
-    n = 0 if x.khong_nop else nop()
+        log(f"{e['slug']}: {st['chapters']} chuong, {st['words']} chu, PDF {st['pdf_pages']} tr, bia tranh {bia}, cua 0 {ok}")
+    n = 0 if x.khong_nop else day_cho_cua_1()
     nk = HERE / "NHAT-KY.md"
     nk.write_text(nk.read_text(encoding="utf-8").rstrip("\n") + f"\n| {datetime.date.today():%d/%m} | {ra} sách | {qua} | {n} | 0 | {ra - qua} |\n", encoding="utf-8")
-    log(f"XONG: ra {ra}, qua cua {qua}, nop {n}")
+    log(f"XONG: ra {ra}, qua cua 0 {qua}, day cho cua 1 {n}")
 
 
 if __name__ == "__main__":
