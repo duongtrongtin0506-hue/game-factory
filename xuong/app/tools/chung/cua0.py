@@ -35,6 +35,14 @@ def check(folder, web=None, epub=None, free=False):
         res["notes"].append("thiếu " + ", ".join(miss))
     lic = (f / "LICENSES.md").read_text(encoding="utf-8", errors="replace") if (f / "LICENSES.md").exists() else ""
     res["checks"]["giay_phep"] = bool(GOOD_LIC.search(lic)) and not BAD_LIC.search(lic)
+    store = f / "STORE.md"
+    if store.exists():
+        title = store.read_text(encoding="utf-8", errors="replace").splitlines()[0].lstrip("# ").strip()
+        last = re.sub(r"[^a-z]", "", title.split()[-1].lower()) if title.split() else ""
+        ok_t = 0 < len(title) <= 60 and last not in ("of", "and", "the", "a", "an", "or", "to", "in", "for", "with")
+        res["checks"]["ten_san_pham"] = ok_t
+        if not ok_t:
+            res["notes"].append(f"tên cụt/dài: '{title}'")
     if BAD_LIC.search(lic):
         res["notes"].append("giấy phép cấm: " + BAD_LIC.search(lic).group(0))
     hosts, trackers = set(), []

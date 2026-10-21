@@ -327,25 +327,50 @@ def make(entry, out):
     return stats
 
 
-def short_title(t, n):
-    """Cut at a word boundary (never mid-word); keep the end of 'An Inquiry into ... of the Wealth of Nations' style titles."""
+STOP_END = {"of", "and", "the", "a", "an", "or", "to", "in", "on", "for", "with", "by"}
+
+
+def common_name(t, n=40):
+    """Name readers use: 'An Inquiry into the Nature and Causes of the Wealth of Nations' -> 'The Wealth of Nations'.
+    Order: the part before ':'/';'/' – '; the phrase after the last ' the '; then whole words, never ending on of/and/the/a."""
+    t = " ".join(t.split())
     if len(t) <= n:
         return t
     for sep in (":", ";", " – ", " - ", ", or ", "; or"):
-        if sep in t and len(t.split(sep)[0]) <= n:
-            return t.split(sep)[0].strip()
-    words, out = t.split(), ""
-    for w in words:
-        if len(out) + len(w) + 1 > n:
+        head = t.split(sep)[0].strip()
+        if sep in t and 2 <= len(head.split()) and len(head) <= n:
+            return head
+    low = t.lower()
+    i = low.rfind(" the ")
+    if i > 0:
+        tail = "The " + t[i + 5:].strip()
+        if len(tail.split()) >= 3 and len(tail) <= n and " of " in tail.lower():   # "The Wealth of Nations"-type common names
+            return tail
+    words = []
+    for w in t.split():
+        if len(" ".join(words + [w])) > n:
             break
-        out = (out + " " + w).strip()
-    return out
+        words.append(w.rstrip(","))
+        if w.endswith(","):
+            break   # a clause ends here: "Principles of Political Economy, Abridged ..." -> "Principles of Political Economy"
+    while words and words[-1].lower().strip(",.;:") in STOP_END:
+        words.pop()
+    return " ".join(words) or t[:n]
+
+
+def short_title(t, n):
+    return common_name(t, n)
+
+
+def tidy(name):
+    name = name.strip().rstrip(",;:.- ").strip()
+    w = name.split()
+    return " ".join(x if (i and x.lower() in STOP_END) else x[:1].upper() + x[1:] for i, x in enumerate(w))
 
 
 def write_docs(e, out, st):
-    title = f"{e['title']} – Clean Edition"
-    if len(title) > 60:
-        title = short_title(e["title"], 60)
+    name = e.get("short") or tidy(common_name(e["title"], 40))
+    title = f"{name} – Clean Edition"
     (out / "meta.json").write_text(json.dumps({"free": True, "epub": f"{e['slug']}.epub", "xuong": "sach", "price": 0, "license": f"Public Domain – {e['title']} ({e['year']})", "stats": st}, indent=2), encoding="utf-8")
     (out / "LICENSES.md").write_text(
         f"# LICENSES\n\n| Asset | Source | License |\n|---|---|---|\n"

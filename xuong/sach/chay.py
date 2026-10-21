@@ -25,6 +25,8 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "KHUNG"))
 import sach  # noqa: E402
+sys.path.insert(0, str(HERE / "tools" / "chung"))
+import moi  # noqa: E402
 import bia_sach  # noqa: E402
 
 NET24 = Path(os.environ.get("NET24", r"C:\Users\Administrator\Desktop\net24-he-thong"))
@@ -210,6 +212,8 @@ def main():
         qua += ok
         log(f"{e['slug']}: {st['chapters']} chuong, {st['words']} chu, PDF {st['pdf_pages']} tr, bia tranh {bia}, cua 0 {ok}")
     n = 0 if x.khong_nop else day_cho_cua_1()
+    if not x.khong_nop:
+        log("moi hang len ke: " + json.dumps(moi.moi_len_ke("sach", NET24)))   # 2h: hàng đã lên kệ -> tổng đài mồi
     nk = HERE / "NHAT-KY.md"
     nk.write_text(nk.read_text(encoding="utf-8").rstrip("\n") + f"\n| {datetime.date.today():%d/%m} | {ra} sách | {qua} | {n} | 0 | {ra - qua} |\n", encoding="utf-8")
     log(f"XONG: ra {ra}, qua cua 0 {qua}, day cho cua 1 {n}")
