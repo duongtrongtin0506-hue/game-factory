@@ -1,0 +1,25 @@
+# CỬA 0 + CỬA 1 ở mỗi lần đẩy hàng: đỏ là dừng, không nộp.
+name: kiem
+on:
+  push: {branches: [main], paths: ["HANG/**", "KHUNG/**", "KIEM/**", "tools/**"]}
+  workflow_dispatch:
+permissions: {contents: write}
+concurrency: {group: kiem, cancel-in-progress: false}
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      XUONG: sach
+      N24_AI_KEY: ${{ secrets.N24_AI_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with: {python-version: "3.13"}
+      - run: pip install -q playwright==1.48.0 && python -m playwright install --with-deps chromium
+      - run: pip install -q -r KHUNG/requirements.txt 2>/dev/null || true
+      - run: python KIEM/kiem_tat_ca.py
+      - run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add HANG; git diff --cached --quiet || git commit -qm "kiem $(date -u +%F)"; git pull -q --rebase; git push -q

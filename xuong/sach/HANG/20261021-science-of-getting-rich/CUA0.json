@@ -1,0 +1,13 @@
+{
+  "folder": "HANG\\20261021-science-of-getting-rich",
+  "checks": {
+    "ho_so": true,
+    "giay_phep": true,
+    "rieng_tu": true,
+    "epub": true
+  },
+  "notes": [
+    "epubcheck chạy thật"
+  ],
+  "pass": true
+}

@@ -1,0 +1,28 @@
+# Mỗi ngày 07:00 giờ VN: làm 1 món từ hàng việc của xưởng (KHUNG/san_xuat.py) -> HANG/, rồi kiem.yml chạy.
+name: san-xuat
+on:
+  schedule: [{cron: "0 0 * * *"}]
+  workflow_dispatch:
+permissions: {contents: write}
+concurrency: {group: xuong, cancel-in-progress: false}
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      XUONG: app
+      N24_AI_KEY: ${{ secrets.N24_AI_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with: {python-version: "3.13"}
+      - run: pip install -q -r KHUNG/requirements.txt 2>/dev/null || true
+      - run: python KHUNG/san_xuat.py || (sleep 30; python KHUNG/san_xuat.py)
+      - name: Ghi hàng mới
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add HANG NHAT-KY NHAT-KY.md; git diff --cached --quiet || git commit -qm "san xuat $(date -u +%F)"; git push -q
+      - if: failure()
+        run: python tools/chung/bao.py "🔴 [app] sản xuất hỏng 2 lần (đã chạy lại 1 lần) – xem Actions"

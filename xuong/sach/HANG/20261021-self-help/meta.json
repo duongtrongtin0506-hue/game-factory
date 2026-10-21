@@ -1,0 +1,14 @@
+{
+  "free": true,
+  "epub": "self-help.epub",
+  "xuong": "sach",
+  "price": 0,
+  "license": "Public Domain \u2013 Self-Help (1859)",
+  "stats": {
+    "chapters": 17,
+    "words": 139838,
+    "pdf_pages": 379,
+    "flesch": 44.1,
+    "gutenberg_mentions_left": 0
+  }
+}

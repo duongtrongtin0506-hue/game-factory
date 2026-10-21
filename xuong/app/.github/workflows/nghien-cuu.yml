@@ -1,0 +1,35 @@
+# Thứ Hai 08:00 giờ VN: nghiên cứu thị trường (top 20, đang lên, lời chê, bậc giá, >= 3 phiếu) -> HOC-TOP + y-tuong.
+name: nghien-cuu
+on:
+  schedule: [{cron: "0 1 * * 1"}]
+  workflow_dispatch:
+permissions: {contents: write}
+concurrency: {group: xuong, cancel-in-progress: false}
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      XUONG: app
+      N24_AI_KEY: ${{ secrets.N24_AI_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+      HAS_NET24: ${{ secrets.NET24_PUSH_TOKEN != '' && 'yes' || 'no' }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
+        with: {python-version: "3.13"}
+      - name: Lấy kho net24-he-thong (cần secret NET24_PUSH_TOKEN)
+        if: ${{ env.HAS_NET24 == 'yes' }}
+        uses: actions/checkout@v7.0.1
+        with: {repository: duongtrongtin0506-hue/net24-he-thong, token: "${{ secrets.NET24_PUSH_TOKEN }}", path: net24}
+      - run: python tools/chung/nghien_cuu.py app $( [ -d net24 ] && echo --net24 net24 )
+      - name: Ghi kết quả
+        run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add NGHIEN-CUU NHAT-KY; git diff --cached --quiet || git commit -qm "nghien cuu $(date -u +%F)"; git push -q || true
+          if [ -d net24 ]; then cd net24; git config user.name "agent3-bot"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add 13-Ban-hang-so/HOC-TOP BAN-GIAO/y-tuong; git diff --cached --quiet || git commit -qm "Agent 3 [app]: hoc top $(date -u +%F)"
+            git pull -q --rebase && git push -q; fi
+      - if: always()
+        run: python tools/chung/bao.py "[app] nghiên cứu ${{ job.status == 'success' && '✅' || '🔴' }} $(tail -n 3 NGHIEN-CUU/HOC-TOP-app.md | tail -n 1)"

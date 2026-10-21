@@ -1,0 +1,26 @@
+# Mỗi ngày 06:30 giờ VN tới 27/10/2026 (mục 8 KHUON-NHA-MAY): tìm -> kiểm giấy phép -> đóng gói 1 món miễn phí hợp pháp.
+name: keo-mien-phi
+on:
+  schedule: [{cron: "30 23 * * *"}]
+  workflow_dispatch:
+permissions: {contents: write}
+concurrency: {group: xuong, cancel-in-progress: false}
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      XUONG: sach
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Hết hạn đợt kéo hàng thì nghỉ
+        run: '[ "$(date -u +%Y%m%d)" -le 20261031 ] || { echo "het dot"; exit 0; }'
+      - uses: actions/setup-python@v7.0.0
+        with: {python-version: "3.13"}
+      - run: pip install -q -r KHUNG/requirements.txt 2>/dev/null || true
+      - run: python KHUNG/keo_mien_phi.py
+      - run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add HANG NHAT-KY NHAT-KY.md; git diff --cached --quiet || git commit -qm "keo mien phi $(date -u +%F)"; git push -q

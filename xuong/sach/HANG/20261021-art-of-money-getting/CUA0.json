@@ -1,0 +1,13 @@
+{
+  "folder": "HANG\\20261021-art-of-money-getting",
+  "checks": {
+    "ho_so": true,
+    "giay_phep": true,
+    "rieng_tu": true,
+    "epub": true
+  },
+  "notes": [
+    "epubcheck chạy thật"
+  ],
+  "pass": true
+}

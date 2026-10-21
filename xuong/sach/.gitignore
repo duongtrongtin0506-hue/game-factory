@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.env
+_tam/
+node_modules/
+cua0-anh/

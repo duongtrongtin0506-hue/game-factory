@@ -1,0 +1,610 @@
+[
+ {
+  "pg": 59844,
+  "slug": "science-of-getting-rich",
+  "title": "The Science of Getting Rich",
+  "author": "Wallace D. Wattles",
+  "year": 1910,
+  "pitch": "Wattles' short 1910 classic on thinking and working in a 'certain way' – the book behind a century of money-mindset writing.",
+  "tagline": "The 1910 classic on mindset, work and money",
+  "tags": [
+   "personal finance classic",
+   "money mindset",
+   "Wallace Wattles",
+   "public domain",
+   "free ebook"
+  ]
+ },
+ {
+  "pg": 8581,
+  "slug": "art-of-money-getting",
+  "title": "The Art of Money Getting",
+  "author": "P. T. Barnum",
+  "year": 1880,
+  "pitch": "Barnum's twenty golden rules for earning, saving and keeping money, told with a showman's wit.",
+  "tagline": "Twenty golden rules for making money",
+  "tags": [
+   "money rules",
+   "P. T. Barnum",
+   "saving",
+   "public domain",
+   "free ebook"
+  ]
+ },
+ {
+  "pg": 43855,
+  "slug": "way-to-wealth",
+  "title": "The Way to Wealth",
+  "author": "Benjamin Franklin",
+  "year": 1758,
+  "pitch": "Franklin's famous speech of Poor Richard's sayings on thrift, hard work and debt.",
+  "tagline": "Poor Richard's advice on thrift and work",
+  "tags": [
+   "Benjamin Franklin",
+   "thrift",
+   "frugality",
+   "public domain",
+   "free ebook"
+  ]
+ },
+ {
+  "pg": 368,
+  "slug": "acres-of-diamonds",
+  "title": "Acres of Diamonds",
+  "author": "Russell H. Conwell",
+  "year": 1890,
+  "pitch": "The lecture Conwell gave over 6,000 times: the opportunity you are looking for is often where you already stand.",
+  "tagline": "Opportunity is closer than you think",
+  "tags": [
+   "opportunity",
+   "Russell Conwell",
+   "motivation",
+   "public domain",
+   "free ebook"
+  ]
+ },
+ {
+  "pg": 4507,
+  "slug": "as-a-man-thinketh",
+  "title": "As a Man Thinketh",
+  "author": "James Allen",
+  "year": 1903,
+  "pitch": "James Allen's brief essay on how thought shapes character, circumstance and achievement.",
+  "tagline": "How thought shapes character and results",
+  "tags": [
+   "James Allen",
+   "mindset",
+   "self-improvement",
+   "public domain",
+   "free ebook"
+  ]
+ },
+ {
+  "pg": 935,
+  "slug": "self-help",
+  "title": "Self-Help",
+  "author": "Samuel Smiles",
+  "year": 1859,
+  "pitch": "The Victorian best seller on perseverance, with hundreds of true stories of people who built their own success.",
+  "tagline": "Perseverance, told through real lives",
+  "tags": [
+   "Samuel Smiles",
+   "perseverance",
+   "self-help classic",
+   "public domain",
+   "free ebook"
+  ]
+ },
+ {
+  "pg": 14418,
+  "slug": "thrift",
+  "title": "Thrift",
+  "author": "Samuel Smiles",
+  "year": 1875,
+  "pitch": "Smiles on saving, spending wisely and staying out of debt – plain advice that still applies.",
+  "tagline": "Saving, spending wisely, staying out of debt",
+  "tags": [
+   "Samuel Smiles",
+   "saving money",
+   "frugality",
+   "public domain",
+   "free ebook"
+  ]
+ },
+ {
+  "pg": 20203,
+  "slug": "autobiography-benjamin-franklin",
+  "title": "Autobiography of Benjamin Franklin",
+  "author": "Benjamin Franklin",
+  "year": 1791,
+  "pitch": "Franklin's own account of building a printing business, his thirteen virtues and a life of practical self-improvement.",
+  "tagline": "A printer's life, business and thirteen virtues",
+  "tags": [
+   "Benjamin Franklin",
+   "autobiography",
+   "business",
+   "public domain",
+   "free ebook"
+  ]
+ },
+ {
+  "pg": 3300,
+  "slug": "an-inquiry-into-the-nature-and-causes-of-the-wea",
+  "title": "An Inquiry into the Nature and Causes of the Wealth of Nations",
+  "author": "Adam Smith",
+  "year": "",
+  "pitch": "An Inquiry into the Nature and Causes of the Wealth of Nations by Adam Smith, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Adam Smith",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 61,
+  "slug": "the-communist-manifesto",
+  "title": "The Communist Manifesto",
+  "author": "Karl Marx and Friedrich Engels",
+  "year": "",
+  "pitch": "The Communist Manifesto by Karl Marx and Friedrich Engels, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Karl Marx and Friedrich Engels",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 60979,
+  "slug": "reminiscences-of-a-stock-operator",
+  "title": "Reminiscences of a Stock Operator",
+  "author": "Edwin Lefevre",
+  "year": "",
+  "pitch": "Reminiscences of a Stock Operator by Edwin Lefevre, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Edwin Lefevre",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 121,
+  "slug": "northanger-abbey",
+  "title": "Northanger Abbey",
+  "author": "Jane Austen",
+  "year": "",
+  "pitch": "Northanger Abbey by Jane Austen, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Jane Austen",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 46333,
+  "slug": "the-social-contract-amp-discourses",
+  "title": "The social contract &amp; discourses",
+  "author": "Jean-Jacques Rousseau",
+  "year": "",
+  "pitch": "The social contract &amp; discourses by Jean-Jacques Rousseau, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Jean-Jacques Rousseau",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 27842,
+  "slug": "the-economic-aspect-of-geology",
+  "title": "The Economic Aspect of Geology",
+  "author": "C. K. Leith",
+  "year": "",
+  "pitch": "The Economic Aspect of Geology by C. K. Leith, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "C. K. Leith",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 24518,
+  "slug": "memoirs-of-extraordinary-popular-delusions-and-t",
+  "title": "Memoirs of Extraordinary Popular Delusions and the Madness of Crowds",
+  "author": "Charles Mackay",
+  "year": "",
+  "pitch": "Memoirs of Extraordinary Popular Delusions and the Madness of Crowds by Charles Mackay, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Charles Mackay",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 42884,
+  "slug": "the-philippine-islands-1493-1898-volume-33-1519-",
+  "title": "The Philippine Islands, 1493-1898, Volume 33, 1519-1522",
+  "author": "Antonio Pigafetta",
+  "year": "",
+  "pitch": "The Philippine Islands, 1493-1898, Volume 33, 1519-1522 by Antonio Pigafetta, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Antonio Pigafetta",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 833,
+  "slug": "the-theory-of-the-leisure-class",
+  "title": "The Theory of the Leisure Class",
+  "author": "Thorstein Veblen",
+  "year": "",
+  "pitch": "The Theory of the Leisure Class by Thorstein Veblen, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Thorstein Veblen",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 21829,
+  "slug": "a-treatise-on-domestic-economy-for-the-use-of-yo",
+  "title": "A Treatise on Domestic Economy; For the Use of Young Ladies at Home and at School",
+  "author": "Catharine Esther Beecher",
+  "year": "",
+  "pitch": "A Treatise on Domestic Economy; For the Use of Young Ladies at Home and at School by Catharine Esther Beecher, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Catharine Esther Beecher",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 3189,
+  "slug": "sketches-new-and-old",
+  "title": "Sketches New and Old",
+  "author": "Mark Twain",
+  "year": "",
+  "pitch": "Sketches New and Old by Mark Twain, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Mark Twain",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 26716,
+  "slug": "the-crown-of-wild-olive",
+  "title": "The Crown of Wild Olive",
+  "author": "John Ruskin",
+  "year": "",
+  "pitch": "The Crown of Wild Olive by John Ruskin, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "John Ruskin",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 10136,
+  "slug": "the-book-of-household-management",
+  "title": "The Book of Household Management",
+  "author": "Mrs. Beeton",
+  "year": "",
+  "pitch": "The Book of Household Management by Mrs. Beeton, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Mrs. Beeton",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 13701,
+  "slug": "the-philippine-islands-1493-1898-volume-07-of-55",
+  "title": "The Philippine Islands, 1493-1898 — Volume 07 of 55",
+  "author": "Unknown",
+  "year": "",
+  "pitch": "The Philippine Islands, 1493-1898 — Volume 07 of 55 by Unknown, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Unknown",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 20682,
+  "slug": "northanger-abbey",
+  "title": "Northanger Abbey",
+  "author": "Jane Austen",
+  "year": "",
+  "pitch": "Northanger Abbey by Jane Austen, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Jane Austen",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 26330,
+  "slug": "frenzied-finance-vol-1-the-crime-of-amalgamated",
+  "title": "Frenzied Finance, Vol. 1: The Crime of Amalgamated",
+  "author": "Thomas William Lawson",
+  "year": "",
+  "pitch": "Frenzied Finance, Vol. 1: The Crime of Amalgamated by Thomas William Lawson, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Thomas William Lawson",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 70377,
+  "slug": "fifty-years-in-wall-street",
+  "title": "Fifty years in Wall Street",
+  "author": "Henry Clews",
+  "year": "",
+  "pitch": "Fifty years in Wall Street by Henry Clews, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Henry Clews",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 25009,
+  "slug": "the-world-s-greatest-books-volume-14-philosophy-",
+  "title": "The World's Greatest Books — Volume 14 — Philosophy and Economics",
+  "author": "Unknown",
+  "year": "",
+  "pitch": "The World's Greatest Books — Volume 14 — Philosophy and Economics by Unknown, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Unknown",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 33310,
+  "slug": "on-the-principles-of-political-economy-and-taxat",
+  "title": "On The Principles of Political Economy, and Taxation",
+  "author": "David Ricardo",
+  "year": "",
+  "pitch": "On The Principles of Political Economy, and Taxation by David Ricardo, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "David Ricardo",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 27698,
+  "slug": "principles-of-political-economy-vol-1",
+  "title": "Principles of Political Economy, Vol. 1",
+  "author": "Wilhelm Roscher",
+  "year": "",
+  "pitch": "Principles of Political Economy, Vol. 1 by Wilhelm Roscher, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Wilhelm Roscher",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 45917,
+  "slug": "origin-of-cultivated-plants",
+  "title": "Origin of Cultivated Plants",
+  "author": "Alphonse de Candolle",
+  "year": "",
+  "pitch": "Origin of Cultivated Plants by Alphonse de Candolle, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "Alphonse de Candolle",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 30107,
+  "slug": "principles-of-political-economy",
+  "title": "Principles of Political Economy",
+  "author": "John Stuart Mill",
+  "year": "",
+  "pitch": "Principles of Political Economy by John Stuart Mill, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "John Stuart Mill",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 15776,
+  "slug": "the-economic-consequences-of-the-peace",
+  "title": "The Economic Consequences of the Peace",
+  "author": "John Maynard Keynes",
+  "year": "",
+  "pitch": "The Economic Consequences of the Peace by John Maynard Keynes, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "John Maynard Keynes",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 4239,
+  "slug": "an-essay-on-the-principle-of-population",
+  "title": "An Essay on the Principle of Population",
+  "author": "T. R. Malthus",
+  "year": "",
+  "pitch": "An Essay on the Principle of Population by T. R. Malthus, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "T. R. Malthus",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 17090,
+  "slug": "random-reminiscences-of-men-and-events",
+  "title": "Random Reminiscences of Men and Events",
+  "author": "John D. Rockefeller",
+  "year": "",
+  "pitch": "Random Reminiscences of Men and Events by John D. Rockefeller, a public-domain classic on economics.",
+  "tagline": "A classic on economics",
+  "tags": [
+   "economics",
+   "John D. Rockefeller",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 725,
+  "slug": "men-of-invention-and-industry",
+  "title": "Men of Invention and Industry",
+  "author": "Samuel Smiles",
+  "year": "",
+  "pitch": "Men of Invention and Industry by Samuel Smiles, a public-domain classic on self-help.",
+  "tagline": "A classic on self-help",
+  "tags": [
+   "self-help",
+   "Samuel Smiles",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 6340,
+  "slug": "literary-lapses",
+  "title": "Literary Lapses",
+  "author": "Stephen Leacock",
+  "year": "",
+  "pitch": "Literary Lapses by Stephen Leacock, a public-domain classic on self-help.",
+  "tagline": "A classic on self-help",
+  "tags": [
+   "self-help",
+   "Stephen Leacock",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 36898,
+  "slug": "increasing-personal-efficiency",
+  "title": "Increasing Personal Efficiency",
+  "author": "Russell H. Conwell",
+  "year": "",
+  "pitch": "Increasing Personal Efficiency by Russell H. Conwell, a public-domain classic on self-help.",
+  "tagline": "A classic on self-help",
+  "tags": [
+   "self-help",
+   "Russell H. Conwell",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 67166,
+  "slug": "self-help-mechanical-drawing-an-educational-trea",
+  "title": "Self-Help Mechanical Drawing: An Educational Treatise",
+  "author": "N. Hawkins",
+  "year": "",
+  "pitch": "Self-Help Mechanical Drawing: An Educational Treatise by N. Hawkins, a public-domain classic on self-help.",
+  "tagline": "A classic on self-help",
+  "tags": [
+   "self-help",
+   "N. Hawkins",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ },
+ {
+  "pg": 9508,
+  "slug": "stories-worth-rereading",
+  "title": "Stories Worth Rereading",
+  "author": "Various",
+  "year": "",
+  "pitch": "Stories Worth Rereading by Various, a public-domain classic on self-help.",
+  "tagline": "A classic on self-help",
+  "tags": [
+   "self-help",
+   "Various",
+   "public domain",
+   "free ebook",
+   "classic"
+  ]
+ }
+]

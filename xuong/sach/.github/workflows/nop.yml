@@ -1,0 +1,27 @@
+# Sau khi kiem xanh: hàng đã qua Cửa 0 + Cửa 1 -> BAN-GIAO/ của net24-he-thong (cần secret NET24_PUSH_TOKEN).
+name: nop
+on:
+  workflow_run: {workflows: [kiem], types: [completed], branches: [main]}
+  workflow_dispatch:
+permissions: {contents: write}
+jobs:
+  run:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@v7.0.1
+        with: {repository: duongtrongtin0506-hue/net24-he-thong, token: "${{ secrets.NET24_PUSH_TOKEN }}", path: net24}
+      - uses: actions/setup-python@v7.0.0
+        with: {python-version: "3.13"}
+      - id: nop
+        run: echo "out=$(python tools/chung/nop.py sach --net24 net24)" >> "$GITHUB_OUTPUT"
+      - run: |
+          git config user.name "github-actions[bot]"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add HANG; git diff --cached --quiet || git commit -qm "da nop $(date -u +%F)"; git push -q
+          cd net24; git config user.name "agent3-bot"; git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add BAN-GIAO TRANG-THAI/3-game.md; git diff --cached --quiet || git commit -qm "Agent 3 [sach]: nop hang"; git pull -q --rebase && git push -q
+      - run: python tools/chung/bao.py "[sach] nộp ${{ steps.nop.outputs.out }}"

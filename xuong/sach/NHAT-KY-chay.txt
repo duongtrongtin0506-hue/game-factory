@@ -1,0 +1,10 @@
+2026-10-21 09:07 hang cho con 0, nap them: +30
+2026-10-21 09:07 bia tranh loi, giu bia chu: UnicodeDecodeError: 'utf-8' codec can't decode byte 0x96 in position 50: invalid start byte
+2026-10-21 09:07 cua0 CỬA 0 XANH {"ho_so": true, "giay_phep": true, "rieng_tu": true, "epub": true} | epubcheck chạy thật
+2026-10-21 09:07 cua1 CỬA 1 CHƯA QUA  chờ khóa AI (N24_AI_KEY / GEMINI_API_KEY) – không nộp khi chưa chấm
+2026-10-21 09:07 an-inquiry-into-the-nature-and-causes-of-the-wea: 39 chuong, 381063 chu, PDF 1003 tr, bia tranh False, qua cua False
+2026-10-21 09:07 XONG: ra 1, qua cua 0, nop 0
+2026-10-21 09:08 cua0 CỬA 0 XANH {"ho_so": true, "giay_phep": true, "rieng_tu": true, "epub": true} | epubcheck chạy thật
+2026-10-21 09:08 cua1 CỬA 1 CHƯA QUA  chờ khóa AI (N24_AI_KEY / GEMINI_API_KEY) – không nộp khi chưa chấm
+2026-10-21 09:08 an-inquiry-into-the-nature-and-causes-of-the-wea: 39 chuong, 381063 chu, PDF 1003 tr, bia tranh True, qua cua False
+2026-10-21 09:08 XONG: ra 1, qua cua 0, nop 0
