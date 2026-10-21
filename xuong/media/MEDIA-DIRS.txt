@@ -1,1 +1,2 @@
-# Mỗi dòng 1 thư mục chứa video review 8 giây (chủ trang làm bằng Cursor). Trống = chưa biết thư mục.
+# Mỗi dòng 1 thư mục chứa video review (khôi phục 22/10 từ Thùng rác: topgia.rar 7,2 GB → 2.395 video)
+D:\Net24\kho-video	opgia
