@@ -1,6 +1,6 @@
 """Hand the Drop & Merge games to Agent 2: python khung/giao.py <net24-he-thong folder>
 
-Copies into BAN-GIAO/20261025-game-khung-puzzle/:
+Copies into BAN-GIAO/20261020-game-khung-puzzle/:
   khung/            frame source (engine, game, themes, template, generator, build, test, i18n, ads.js)
   game-0N-<id>/     index.html (no ads, for itch.io / self-hosting), one zip per portal, store media, STORE.md
   bang-chung/       REPORT.md + every game's report.json, screenshots, 5 s GIF, autoplay trailer (mp4)
@@ -52,7 +52,7 @@ def store_md(v, s, rep):
 
 def main():
     net = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT.parent.parent / "net24-he-thong"
-    dest = net / "BAN-GIAO" / "20261025-game-khung-puzzle"
+    dest = net / "BAN-GIAO" / "20261020-game-khung-puzzle"
     variants = json.loads((K / "variants.json").read_text(encoding="utf-8"))
     store = json.loads((K / "store.json").read_text(encoding="utf-8"))
     src = dest / "khung"
