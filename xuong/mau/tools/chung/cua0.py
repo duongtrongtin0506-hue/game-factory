@@ -19,13 +19,14 @@ from pathlib import Path
 ALLOWED_HOSTS = ("html5.api.gamedistribution.com", "api.gamemonetize.com", "sdk.crazygames.com", "bridge.playgama.com",
                  "www.w3.org", "schemas.android.com", "github.com", "creativecommons.org", "opensource.org", "www.gnu.org",
                  "gnu.org", "unlicense.org", "spdx.org", "www.apache.org", "apache.org", "kenney.nl", "opengameart.org",
-                 "fonts.googleapis.com", "fonts.gstatic.com", "api.coinbase.com", "www.idpf.org", "purl.org", "localhost", "127.0.0.1")
+                 "fonts.googleapis.com", "fonts.gstatic.com", "api.coinbase.com", "www.idpf.org", "purl.org", "localhost", "127.0.0.1",
+                 "snoutsmith.com", "coinnew24.com")   # our own shops and hub
 TRACKERS = re.compile(r"google-analytics\.com|googletagmanager|gtag\(|fbq\(|facebook\.net/.*/fbevents|hotjar|mixpanel|segment\.com/analytics|clarity\.ms|amplitude\.com", re.I)
 BAD_LIC = re.compile(r"\bCC[- ]?BY[- ]?(?:\d\.\d[- ])?(?:SA[- ])?N[CD]\b|NonCommercial|NoDerivatives|personal use only|free for personal use|freeware", re.I)
 GOOD_LIC = re.compile(r"CC0|Public Domain|MIT|Apache|BSD|ISC|GPL|CC[- ]?BY|self-made|tự tạo|own work|Unlicense|OFL", re.I)
 
 
-def check(folder, web=None, epub=None, free=False):
+def check(folder, web=None, epub=None, free=False, pwa=False):
     f = Path(folder)
     res = {"folder": str(f), "checks": {}, "notes": []}
     need = ["BAN-GIAO.md", "LICENSES.md"] + ([] if free else ["LEADER.md"])
@@ -61,7 +62,7 @@ def check(folder, web=None, epub=None, free=False):
     if trackers:
         res["notes"].append("mã theo dõi trong: " + ", ".join(trackers[:5]))
     if web:
-        res["checks"]["ba_co_man_hinh"] = web_check(f, f / web, res)
+        res["checks"]["ba_co_man_hinh"] = web_check(f, f / web, res, pwa)
     if epub:
         res["checks"]["epub"] = epub_check(f / epub, res)
     res["pass"] = all(res["checks"].values())
@@ -69,8 +70,24 @@ def check(folder, web=None, epub=None, free=False):
     return res
 
 
-def web_check(f, page, res):
+def _serve(folder):
+    """Serve the folder on a free local port (service workers need http, not file://)."""
+    import functools
+    import http.server
+    import threading
+
+    class Quiet(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+    srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), functools.partial(Quiet, directory=str(folder)))
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    return srv
+
+
+def web_check(f, page, res, pwa=False):
     from playwright.sync_api import sync_playwright
+    srv = _serve(page.parent)
+    url = f"http://127.0.0.1:{srv.server_address[1]}/{page.name}"
     errors, shots = [], f / "cua0-anh"
     shots.mkdir(exist_ok=True)
     with sync_playwright() as pw:
@@ -79,14 +96,35 @@ def web_check(f, page, res):
             p = b.new_page(viewport={"width": w, "height": h})
             p.on("console", lambda m: errors.append(f"{w}: {m.text}") if m.type == "error" else None)
             p.on("pageerror", lambda e: errors.append(f"{w}: {e}"))
-            p.goto(page.resolve().as_uri())
+            p.goto(url)
             p.wait_for_timeout(800)
             over = p.evaluate("document.documentElement.scrollWidth > window.innerWidth + 1")
             if over:
                 errors.append(f"{w}: tràn ngang")
             p.screenshot(path=str(shots / f"{w}x{h}.png"))
             p.close()
+        if pwa:   # offline: install the service worker, cut the network, reload – the app must still open
+            ctx = b.new_context()
+            p = ctx.new_page()
+            p.goto(url)
+            try:
+                p.wait_for_function("navigator.serviceWorker && navigator.serviceWorker.controller !== null || (location.reload(), false)", timeout=8000)
+            except Exception:
+                p.reload()
+                p.wait_for_timeout(1500)
+            ctx.set_offline(True)
+            try:
+                p.reload()
+                p.wait_for_timeout(800)
+                ok = len(p.inner_text("body")) > 40
+            except Exception:
+                ok = False
+            res["checks"]["ngoai_tuyen"] = ok
+            if not ok:
+                errors.append("offline: không mở được khi mất mạng")
+            ctx.close()
         b.close()
+    srv.shutdown()
     if errors:
         res["notes"].append("web: " + "; ".join(errors[:5]))
     return not errors
@@ -126,7 +164,8 @@ if __name__ == "__main__":
     a.add_argument("--web")
     a.add_argument("--epub")
     a.add_argument("--free", action="store_true", help="free pulled-in item: LEADER.md not required")
+    a.add_argument("--pwa", action="store_true", help="also check the page opens offline (service worker)")
     x = a.parse_args()
-    r = check(x.folder, x.web, x.epub, x.free)
+    r = check(x.folder, x.web, x.epub, x.free, x.pwa)
     print(("CỬA 0 XANH " if r["pass"] else "CỬA 0 ĐỎ ") + json.dumps(r["checks"]), "|", "; ".join(r["notes"]))
     sys.exit(0 if r["pass"] else 1)

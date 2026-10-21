@@ -1,3 +1,4 @@
+Mỗi phiên, kể cả khi chủ trang chỉ gõ 'làm tiếp': git pull kho net24-he-thong, đọc HOP-LENH/3-nha-may.md, làm mục [ ] đầu tiên theo trần mỗi phiên.
 # ③ Nhà máy – điều phối · game-factory (Agent 3, máy 2, 6 xưởng)
 Tôi là nhà máy: chỉ điều phối, chia việc, xem số; MÁY làm hàng bằng script, Claude không làm hàng.
 Mỗi xưởng có khung riêng ở `xuong/<nganh>/` (game, sach, mau, studio, app, tool) – mở khung xưởng nào chỉ đọc `xuong/<nganh>/CLAUDE.md`.

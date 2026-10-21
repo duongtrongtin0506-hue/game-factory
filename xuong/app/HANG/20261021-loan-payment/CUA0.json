@@ -1,0 +1,13 @@
+{
+  "folder": "C:\\Users\\Administrator\\Desktop\\GAME\\web\\xuong\\app\\HANG\\20261021-loan-payment",
+  "checks": {
+    "ho_so": true,
+    "giay_phep": true,
+    "ten_san_pham": true,
+    "rieng_tu": true,
+    "ngoai_tuyen": true,
+    "ba_co_man_hinh": true
+  },
+  "notes": [],
+  "pass": true
+}

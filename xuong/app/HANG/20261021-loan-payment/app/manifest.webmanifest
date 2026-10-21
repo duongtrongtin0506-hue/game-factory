@@ -1,0 +1,24 @@
+{
+ "name": "Loan Payment Calculator",
+ "short_name": "Loan",
+ "description": "Monthly payment, total interest and a full amortization table for any loan \u2013 works offline.",
+ "start_url": "./index.html",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#F7F5FF",
+ "theme_color": "#7A4DE8",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "any maskable"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "any maskable"
+  }
+ ]
+}
