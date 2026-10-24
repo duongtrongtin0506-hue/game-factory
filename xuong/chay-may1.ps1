@@ -1,4 +1,5 @@
-﻿# Xuong chay tren MAY 1 (máy nhà dự phòng khi máy 2 ngủ) – Task Scheduler "Net24\Xuong<Ten>" gọi:
+﻿# CHI DUNG KHI MAY BAN (may nha) HONG. Viec nang chay tren MAY BAN; may Surface khong chay xuong (chu trang 24/10).
+# Xuong chay tren MAY 1 – Task Scheduler "Net24\Xuong<Ten>" gọi:
 #   powershell -NoProfile -ExecutionPolicy Bypass -File chay-may1.ps1 <xuong> [so-mon]
 # Dùng bản clone RIÊNG Documents\Net24-xuong (không đụng kho các phiên Claude đang sửa), bản dựng nặng ở %USERPROFILE%\Net24-lam.
 param([string]$Xuong = "mau", [string]$SoMon = "1")

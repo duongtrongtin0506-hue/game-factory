@@ -191,6 +191,8 @@ def main():
             nhip(xuong, 0, "bo-luot " + why.replace(" ", "_"))
             return
         git("pull", "-q", "--rebase", "--autostash")
+        # tự kéo mã xưởng mới (game-factory) để máy bàn nhận sửa khuôn/hàng chờ mà không cần phiên Claude
+        subprocess.run(["git", "-C", str(X.parent), "pull", "-q", "--rebase", "--autostash"], capture_output=True)
         note = tu_sua(xuong)
         env = dict(os.environ, PYTHONIOENCODING="utf-8", N24_DIEU_TOC="1")
         out = ""
