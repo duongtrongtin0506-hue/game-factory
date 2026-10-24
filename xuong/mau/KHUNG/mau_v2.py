@@ -14,7 +14,7 @@ from openpyxl.utils import get_column_letter as L
 from openpyxl.worksheet.datavalidation import DataValidation
 
 INK, SOFT, LINE = "1D1D1F", "6E6E73", "E5E5EA"
-F_TITLE, F_SUB, F_HEAD, F_BODY = Font(name="Arial", size=20, bold=True, color=INK), Font(name="Arial", size=11, color=SOFT), Font(name="Arial", size=10, bold=True, color=SOFT), Font(name="Arial", size=11, color=INK)
+F_TITLE, F_SUB, F_HEAD, F_BODY = Font(name="Arial", size=20, bold=True, color=INK), Font(name="Arial", size=12, color=SOFT), Font(name="Arial", size=11, bold=True, color=SOFT), Font(name="Arial", size=12, color=INK)  # 12pt = 16px
 INPUT = PatternFill("solid", fgColor="EEF4FF")  # ô khách gõ
 KPI = PatternFill("solid", fgColor="F5F5F7")
 BOT = Border(bottom=Side(style="thin", color=LINE))
@@ -70,7 +70,7 @@ def guide(wb, title, what, steps, accent, notes=()):
 
 # ---------------------------------------------------------------- 1. Debt payoff (snowball / avalanche)
 def debt(path):
-    A = "B42318"; wb = Workbook(); N, M = 8, 120
+    A = "B42318"; wb = Workbook(); N, M = 8, 84
     guide(wb, "Debt Payoff Planner 2026 – Snowball & Avalanche",
           "Enter your debts once (balance, APR, minimum payment) and one extra amount per month. The planner simulates every month: interest, payment and remaining balance for each debt, rolls freed-up minimums onto the next target, and tells you your debt-free month and total interest – for the Snowball (smallest balance first) or Avalanche (highest APR first) method.",
           ["1. Debts tab: type each debt's name, current balance, APR % and minimum monthly payment (up to 8 debts).",
@@ -103,13 +103,13 @@ def debt(path):
     head = ["Month", "Target #"]
     for i in range(N):
         head += [f"D{i + 1} start", f"D{i + 1} interest", f"D{i + 1} paid"]
-    head += [f"key{i + 1}" for i in range(N)] + ["Total start", "Total paid", "Interest", "Total end"]
+    head += [f"key{i + 1}" for i in range(N)] + ["Total start", "Total paid", "Interest", "Total end", "Extra pool"]
     header(pl, 4, head)
     c0 = 3
     for i in range(N):
         cols[i] = (L(c0 + 3 * i), L(c0 + 3 * i + 1), L(c0 + 3 * i + 2))
     kc = [L(c0 + 3 * N + i) for i in range(N)]
-    TS, TP, TI, TE = [L(c0 + 4 * N + k) for k in range(4)]
+    TS, TP, TI, TE, PO = [L(c0 + 4 * N + k) for k in range(5)]
     for m in range(M):
         r = 5 + m
         put(pl, f"A{r}", f"=EDATE(Debts!$B$6,{m})", "mmm yyyy")
@@ -121,7 +121,8 @@ def debt(path):
             put(pl, f"{kc[i]}{r}", f'=IF({S}{r}>0.004,Debts!E{dr},99)')
         put(pl, f"B{r}", f"=MIN({kc[0]}{r}:{kc[-1]}{r})")
         # pool = extra + minimums of debts already at 0 this month
-        pool = "Debts!$B$4+" + "+".join(f"IF({cols[i][0]}{r}<=0.004,Debts!$D${9 + i},0)" for i in range(N))
+        put(pl, f"{PO}{r}", "=Debts!$B$4+" + "+".join(f"IF({cols[i][0]}{r}<=0.004,N(Debts!$D${9 + i}),0)" for i in range(N)), USD)
+        pool = f"${PO}{r}"
         for i in range(N):
             S, I, P = cols[i]; dr = 9 + i
             base = f"MIN(Debts!D{dr},{S}{r}+{I}{r})"
@@ -134,7 +135,7 @@ def debt(path):
     last = 4 + M
     for i in range(N):
         S, I, P = cols[i]; r = 9 + i
-        ws[f"F{r}"] = f'=IF(B{r}>0,IFERROR(INDEX(Plan!$A$5:$A${last},MATCH(0,Plan!{S}$6:{S}${last + 1},0)),"> 10 yrs"),"")'
+        ws[f"F{r}"] = f'=IF(B{r}>0,IFERROR(INDEX(Plan!$A$5:$A${last},MATCH(0,Plan!{S}$6:{S}${last + 1},0)),"> 7 yrs"),"")'
         ws[f"F{r}"].number_format = "mmm yyyy"
         ws[f"G{r}"] = f'=IF(B{r}>0,SUM(Plan!{I}$5:{I}${last}),"")'; ws[f"G{r}"].number_format = USD
     # ---- Payments log
@@ -148,8 +149,8 @@ def debt(path):
         dvd.add(f"B{r}")
     # ---- Dashboard
     db = sheet(wb, "Dashboard", "Debt-free plan", "Change the method or extra payment on Debts and watch these update", A, [22, 18, 18, 18, 18])
-    kpi(db, 4, 1, "DEBT-FREE MONTH", f'=IFERROR(INDEX(Plan!A5:A{last},MATCH(0,Plan!{TE}5:{TE}{last},0)),"> 10 years")', "mmm yyyy", A)
-    kpi(db, 4, 2, "MONTHS TO GO", f'=IFERROR(MATCH(0,Plan!{TE}5:{TE}{last},0),">120")', "0", A)
+    kpi(db, 4, 1, "DEBT-FREE MONTH", f'=IFERROR(INDEX(Plan!A5:A{last},MATCH(0,Plan!{TE}5:{TE}{last},0)),"> 7 years")', "mmm yyyy", A)
+    kpi(db, 4, 2, "MONTHS TO GO", f'=IFERROR(MATCH(0,Plan!{TE}5:{TE}{last},0),">84")', "0", A)
     kpi(db, 4, 3, "TOTAL INTEREST", f"=SUM(Plan!{TI}5:{TI}{last})", USD, A)
     kpi(db, 4, 4, "TOTAL DEBT NOW", "=SUM(Debts!B9:B16)", USD, A)
     kpi(db, 4, 5, "METHOD", "=Debts!B5", None, A)
@@ -263,6 +264,15 @@ def meal(path):
         ws.freeze_panes = "B5"
     # ingredient master
     ings = sorted({i for x in RECIPES for i in x[4].split("|") if i}, key=lambda i: (list(AISLE).index(aisle(i)) if aisle(i) in AISLE else 9, i))
+    for w in range(1, 5):  # hidden helper: the 5 ingredients of each of the 28 chosen meals
+        hp = wb.create_sheet(f"_w{w}"); hp.sheet_state = "hidden"
+        for d in range(7):
+            for si in range(4):
+                r, mc = 1 + d * 4 + si, L(2 + 2 * si)
+                hp[f"A{r}"] = f"='Week {w}'!{mc}{5 + d}"
+                hp[f"B{r}"] = f'=IF(A{r}="","",IFERROR(MATCH(A{r},Recipes!$A$5:$A${LAST},0),""))'
+                for k, c in enumerate("CDEFG"):
+                    hp[f"{c}{r}"] = f'=IF(B{r}="","",INDEX(Recipes!{"EFGHI"[k]}$5:{"EFGHI"[k]}${LAST},B{r})&"")'
     ig = sheet(wb, "Ingredients", "Ingredient index", "Calculated – how many planned meals use each ingredient, per week", A, [22, 14, 10, 10, 10, 10, 8])
     header(ig, 4, ["Ingredient", "Aisle", "Week 1", "Week 2", "Week 3", "Week 4", "Row #"])
     NI = len(ings) + 30
@@ -271,16 +281,16 @@ def meal(path):
         put(ig, f"A{r}", ings[k] if k < len(ings) else None, fill=None if k < len(ings) else INPUT)
         put(ig, f"B{r}", aisle(ings[k]) if k < len(ings) else None, fill=None if k < len(ings) else INPUT)
         for w in range(1, 5):
-            # meals in week w whose recipe lists this ingredient in any of the 5 columns
-            f = "+".join(f"SUMPRODUCT(COUNTIF('Week {w}'!$B$5:$I$11,Recipes!$A$5:$A${LAST})*(Recipes!{c}$5:{c}${LAST}=$A{r}))" for c in "EFGHI")
-            put(ig, f"{L(2 + w)}{r}", f'=IF($A{r}="",0,{f})', "0")
-        put(ig, f"G{r}", f'=IF(INDEX(C{r}:F{r},\'Grocery List\'!$B$4)>0,MAX($G$4:G{r - 1})+1,"")' if k else f'=IF(INDEX(C{r}:F{r},\'Grocery List\'!$B$4)>0,1,"")')
+            put(ig, f"{L(2 + w)}{r}", f'=IF($A{r}="",0,COUNTIF(_w{w}!$C$1:$G$28,$A{r}))', "0")
+        gw = "'Grocery List'!$B$4"
+        put(ig, f"G{r}", f'=IF(INDEX(C{r}:F{r},{gw})>0,MAX($G$4:G{r - 1})+1,"")' if k else f'=IF(INDEX(C{r}:F{r},{gw})>0,1,"")')
     ig["G4"].value = "Row #"
     gl = sheet(wb, "Grocery List", "Grocery list", "Choose the week – the list builds itself, grouped by aisle", A, [28, 16, 14, 10])
     put(gl, "A4", "Week", font=F_HEAD); put(gl, "B4", 1, "0", INPUT)
     dvw = DataValidation(type="list", formula1='"1,2,3,4"'); gl.add_data_validation(dvw); dvw.add("B4")
     put(gl, "C4", '="Items: "&MAX(Ingredients!G5:G%d)' % (4 + NI), font=F_HEAD)
-    put(gl, "A5", '="Est. cost of week "&B4&": "&TEXT(INDEX(CHOOSE(B4,\'Week 1\'!C13,\'Week 2\'!C13,\'Week 3\'!C13,\'Week 4\'!C13),1),"$#,##0.00")', font=F_SUB)
+    put(gl, "A5", "Est. cost of this week", font=F_HEAD)
+    put(gl, "B5", "=CHOOSE(B4,'Week 1'!C13,'Week 2'!C13,'Week 3'!C13,'Week 4'!C13)", USD)
     header(gl, 7, ["Item", "Aisle", "Used in (meals)", "Got it"])
     for k in range(NI):
         r = 8 + k
@@ -318,6 +328,8 @@ def savings(path):
     for mth in range(1, 11):
         for goal in [x[0] for x in sample]:
             if rnd.random() < .6: dep.append((dt.date(2026, mth, rnd.randint(1, 27)), goal, rnd.choice([25, 50, 75, 100, 150, 200])))
+    for mth in (8, 9, 10):  # recent steady saving so the sample shows both On track and Behind
+        dep += [(dt.date(2026, mth, 2), "Emergency fund", 450), (dt.date(2026, mth, 2), "New laptop", 140)]
     dep.sort()
     for k in range(ND):
         r = 5 + k

@@ -155,6 +155,8 @@ def main():
         have |= set(json.loads(CAU_HINH.read_text(encoding="utf-8")).get("bo_qua", []))   # dieu-toc.py: chủ đề bị trả 2 lần
     except Exception:
         pass
+    # mẫu đã có ở kho (đã lên kệ / chờ / bị trả) thì không dựng lại – đúng trên mọi máy, kể cả máy dự phòng có HANG trống
+    have |= {p.name.split("-mau-", 1)[1] for p in (NET24 / "BAN-GIAO").glob("**/2*-mau-*") if p.is_dir()}
     q = [s for s in khung12.SPECS if s not in have]
     ra = qua = 0
     for slug in q[:x.so_mon]:
@@ -167,8 +169,10 @@ def main():
     if not x.khong_nop:
         n = day_cho_cua_1()
         log("moi hang len ke: " + json.dumps(moi.moi_len_ke("mau", NET24)))
-    if not q:
-        log("het hang cho 8 mau – giai doan 1 du; them chu de vao khung12.SPECS khi co phieu")
+    if not q:   # 24/10: hết 8 mẫu khung12 → hàng chờ v2 (làm lại món bị trả + mẫu có công thức thật), không để xưởng 0 món
+        import chay_v2
+        r2, q2, n2 = chay_v2.run(x.so_mon, x.khong_nop)
+        ra, qua, n = ra + r2, qua + q2, n + n2
     nk = HERE / "NHAT-KY.md"
     nk.write_text(nk.read_text(encoding="utf-8").rstrip("\n") + f"\n| {datetime.date.today():%d/%m} | {ra} mẫu | Cửa 0: {qua} | đẩy chờ Cửa 1: {n} | 0 | {ra - qua} |\n", encoding="utf-8")
     log(f"XONG: ra {ra}, cua 0 {qua}, day {n}")
