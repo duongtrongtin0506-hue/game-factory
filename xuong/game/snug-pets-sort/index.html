@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Snug Pets Sort</title>
+<meta name="description" content="Tuck every pet into its own snug bed. A calm sorting puzzle with endless generated levels, a daily puzzle, kid mode and night mode.">
+<meta name="theme-color" content="#F7F3EE">
+<style>
+:root{--bg:#F7F3EE;--card:#FFFFFF;--ink:#1F1B16;--soft:#6B635A;--line:#E8E0D6;--accent:#C2410C;--bed:#EFE7DC;--ok:#15803D}
+:root.night{--bg:#16130F;--card:#211D18;--ink:#F5EFE7;--soft:#B3A99C;--line:#3A332B;--accent:#FB923C;--bed:#2C2620}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial;-webkit-user-select:none;user-select:none;transition:background .3s}
+main{max-width:560px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:16px 16px calc(16px + env(safe-area-inset-bottom))}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:20px;margin:0;letter-spacing:-.01em}.lv{color:var(--soft);font-size:16px}
+.icons{display:flex;gap:8px}.ib{width:44px;height:44px;border-radius:12px;border:0;background:var(--card);color:var(--ink);font:600 16px system-ui;display:grid;place-items:center;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.ib svg{width:22px;height:22px}.ib[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.stat{display:flex;gap:16px;color:var(--soft);font-size:16px;margin:16px 0 8px}.stat b{color:var(--ink);font-variant-numeric:tabular-nums}
+#board{flex:1;display:grid;gap:16px 12px;align-content:center;justify-content:center;padding:8px 0}
+.bed{width:72px;border-radius:24px 24px 36px 36px;background:var(--bed);padding:8px 8px 12px;display:flex;flex-direction:column-reverse;gap:4px;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative;min-height:calc(var(--cap)*60px + 20px)}
+.bed.sel{transform:translateY(-8px);box-shadow:0 8px 0 -2px var(--accent)}
+.bed.done{background:color-mix(in srgb,var(--ok) 18%,var(--bed))}
+.bed.done::after{content:"";position:absolute;left:50%;top:-10px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10l3 3 7-7' stroke='white' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")}
+.pet{width:56px;height:56px;transition:transform .18s cubic-bezier(.3,1.4,.6,1)}
+.pet.up{transform:translateY(-12px)}
+.bar{display:flex;gap:8px;justify-content:center;margin-top:8px}
+.btn{min-height:48px;padding:0 20px;border-radius:999px;border:0;font:600 16px system-ui;background:var(--card);color:var(--ink);cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.btn.pri{background:var(--accent);color:#fff}
+.btn:disabled{opacity:.4}
+#over{position:fixed;inset:0;display:none;place-items:center;background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(6px)}
+#over.on{display:grid}.card{background:var(--card);border-radius:24px;padding:24px;text-align:center;width:min(320px,88vw);box-shadow:0 12px 40px rgba(0,0,0,.12)}
+.card h2{margin:0 0 4px;font-size:24px}.stars{font-size:32px;letter-spacing:4px;color:#D97706;margin:8px 0}.card p{color:var(--soft);margin:0 0 16px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:999px;font-size:15px;opacity:0;transition:opacity .2s;pointer-events:none}.toast.on{opacity:1}
+@media (max-width:380px){.bed{width:64px}.pet{width:48px;height:48px}.bed{min-height:calc(var(--cap)*52px + 20px)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+ <header>
+  <div><h1>Snug Pets Sort</h1><div class="lv" id="lv">Level 1</div></div>
+  <div class="icons">
+   <button class="ib" id="daily" title="Daily puzzle" aria-label="Daily puzzle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
+   <button class="ib" id="kid" title="Kid mode" aria-label="Kid mode" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c1.8 2 5.2 2 7 0"/><circle cx="9" cy="10" r=".8" fill="currentColor"/><circle cx="15" cy="10" r=".8" fill="currentColor"/></svg></button>
+   <button class="ib" id="night" title="Night mode" aria-label="Night mode" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+ </header>
+ <div class="stat"><span>Moves <b id="mv">0</b></span><span>Best <b id="best">–</b></span><span>Stars <b id="st">0</b></span></div>
+ <div id="board" role="grid" aria-label="Pet beds"></div>
+ <div class="bar"><button class="btn" id="undo">Undo</button><button class="btn" id="hint">Hint</button><button class="btn" id="restart">Restart</button></div>
+</main>
+<div id="over"><div class="card"><h2 id="ot">All snug!</h2><div class="stars" id="os">★★★</div><p id="op"></p><button class="btn pri" id="next">Next level</button></div></div>
+<div class="toast" id="toast"></div>
+<script>
+// Snug Pets Sort – Net24 original game (code and art made from scratch, MIT). Sort pets so each bed holds one kind.
+// Levels are generated from a seed and proven solvable by a search before they are shown.
+"use strict";
+const $ = id => document.getElementById(id);
+const SAVE = "snugpets.v1";
+const PETS = [ // body colour, ear style – shape differs per pet so colour is never the only cue
+  { n: "Cat", c: "#F59E0B", e: "tri" }, { n: "Dog", c: "#A16207", e: "flop" }, { n: "Bunny", c: "#E5E7EB", e: "long" },
+  { n: "Bear", c: "#78350F", e: "round" }, { n: "Fox", c: "#EA580C", e: "fox" }, { n: "Panda", c: "#F8FAFC", e: "panda" },
+  { n: "Frog", c: "#22C55E", e: "frog" }, { n: "Chick", c: "#FACC15", e: "chick" }];
+function petSVG(i) {
+  const p = PETS[i], o = '#1F1B16', ears = {
+    tri: `<path d="M14 22 L18 6 L28 16Z M50 22 L46 6 L36 16Z" fill="${p.c}" stroke="${o}" stroke-width="2" stroke-linejoin="round"/>`,
+    flop: `<ellipse cx="13" cy="28" rx="7" ry="13" fill="#713F12" stroke="${o}" stroke-width="2" transform="rotate(15 13 28)"/><ellipse cx="51" cy="28" rx="7" ry="13" fill="#713F12" stroke="${o}" stroke-width="2" transform="rotate(-15 51 28)"/>`,
+    long: `<ellipse cx="24" cy="10" rx="5" ry="13" fill="${p.c}" stroke="${o}" stroke-width="2"/><ellipse cx="40" cy="10" rx="5" ry="13" fill="${p.c}" stroke="${o}" stroke-width="2"/><ellipse cx="24" cy="11" rx="2" ry="8" fill="#F9A8D4"/><ellipse cx="40" cy="11" rx="2" ry="8" fill="#F9A8D4"/>`,
+    round: `<circle cx="16" cy="16" r="8" fill="${p.c}" stroke="${o}" stroke-width="2"/><circle cx="48" cy="16" r="8" fill="${p.c}" stroke="${o}" stroke-width="2"/>`,
+    fox: `<path d="M12 26 L14 4 L30 16Z M52 26 L50 4 L34 16Z" fill="${p.c}" stroke="${o}" stroke-width="2" stroke-linejoin="round"/><path d="M15 20 L16 10 L24 16Z M49 20 L48 10 L40 16Z" fill="#FFF7ED"/>`,
+    panda: `<circle cx="16" cy="16" r="8" fill="#1F1B16"/><circle cx="48" cy="16" r="8" fill="#1F1B16"/>`,
+    frog: `<circle cx="20" cy="16" r="9" fill="${p.c}" stroke="${o}" stroke-width="2"/><circle cx="44" cy="16" r="9" fill="${p.c}" stroke="${o}" stroke-width="2"/>`,
+    chick: `<path d="M30 8 Q32 0 34 8 Q38 2 36 10Z" fill="#F97316"/>`
+  }[p.e];
+  let face = `<circle cx="32" cy="36" r="22" fill="${p.c}" stroke="${o}" stroke-width="2"/>`;
+  if (p.e === "panda") face += `<ellipse cx="24" cy="33" rx="6" ry="7" fill="#1F1B16"/><ellipse cx="40" cy="33" rx="6" ry="7" fill="#1F1B16"/>`;
+  if (p.e === "fox") face += `<path d="M14 40 Q32 62 50 40 Q32 50 14 40Z" fill="#FFF7ED"/>`;
+  const eyeY = p.e === "frog" ? 16 : 33, ex = p.e === "frog" ? [20, 44] : [24, 40], ec = p.e === "panda" ? "#fff" : o;
+  face += `<circle cx="${ex[0]}" cy="${eyeY}" r="3" fill="${ec}"/><circle cx="${ex[1]}" cy="${eyeY}" r="3" fill="${ec}"/>`;
+  face += p.e === "chick" ? `<path d="M28 40 L36 40 L32 46Z" fill="#F97316" stroke="${o}" stroke-width="1.5" stroke-linejoin="round"/>`
+    : p.e === "frog" ? `<path d="M22 42 Q32 50 42 42" stroke="${o}" stroke-width="2" fill="none" stroke-linecap="round"/>`
+    : `<ellipse cx="32" cy="41" rx="3" ry="2.2" fill="${o}"/><path d="M26 45 Q32 49 38 45" stroke="${o}" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+  return `<svg class="pet" viewBox="0 0 64 64" role="img" aria-label="${p.n}">${ears + face}</svg>`;
+}
+// ---------- seeded RNG + generator + solver
+function rng(seed) { let s = seed >>> 0 || 1; return () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296 }
+function key(st) { return st.map(b => b.join("")).sort().join("|") }
+function top(b) { if (!b.length) return [-1, 0]; const t = b[b.length - 1]; let n = 0; for (let i = b.length - 1; i >= 0 && b[i] === t; i--) n++; return [t, n] }
+function canMove(st, a, b, cap) { if (a === b || !st[a].length || st[b].length >= cap) return 0; const [t, n] = top(st[a]), [u] = top(st[b]); if (st[b].length && u !== t) return 0; if (!st[b].length && n === st[a].length) return 0; return Math.min(n, cap - st[b].length) }
+function apply(st, a, b, k) { const s = st.map(x => x.slice()); for (let i = 0; i < k; i++) s[b].push(s[a].pop()); return s }
+function solved(st, cap) { return st.every(b => !b.length || (b.length === cap && b.every(x => x === b[0]))) }
+function solve(st, cap, limit = 60000) { // depth-first search with memo; returns a move list or null
+  const seen = new Set(), path = []; let nodes = 0;
+  function dfs(s) {
+    if (solved(s, cap)) return true; if (++nodes > limit) return false;
+    const k = key(s); if (seen.has(k)) return false; seen.add(k);
+    const moves = [];
+    for (let a = 0; a < s.length; a++) for (let b = 0; b < s.length; b++) { const m = canMove(s, a, b, cap); if (m) { const [t] = top(s[a]); const fill = s[b].length && top(s[b])[0] === t ? 2 : 0; moves.push([fill + (m === top(s[a])[1] ? 1 : 0), a, b, m]) } }
+    moves.sort((x, y) => y[0] - x[0]);
+    for (const [, a, b, m] of moves) { path.push([a, b]); if (dfs(apply(s, a, b, m))) return true; path.pop() }
+    return false;
+  }
+  return dfs(st) ? path.slice() : null;
+}
+function makeLevel(seed, kinds, cap) {
+  for (let t = 0; t < 50; t++) {
+    const r = rng(seed * 97 + t), pool = [];
+    for (let k = 0; k < kinds; k++) for (let i = 0; i < cap; i++) pool.push(k);
+    for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]] }
+    const st = []; for (let k = 0; k < kinds; k++) st.push(pool.slice(k * cap, k * cap + cap)); st.push([], []);
+    if (solved(st, cap)) continue; const sol = solve(st, cap); if (sol) return { st, par: sol.length };
+  }
+  return null;
+}
+// ---------- state
+const save = (() => { try { return JSON.parse(localStorage.getItem(SAVE)) || {} } catch (e) { return {} } })();
+const S = Object.assign({ level: 1, kid: false, night: false, best: {}, stars: {}, daily: {} }, save);
+let L = null, st = [], cap = 4, hist = [], sel = -1, moves = 0, mode = "level", dailyKey = "";
+function persist() { try { localStorage.setItem(SAVE, JSON.stringify(S)) } catch (e) {} }
+function spec() { if (mode === "daily") return { seed: +dailyKey.replace(/-/g, ""), kinds: 6, cap: 4 }; return S.kid ? { seed: 500 + S.level, kinds: Math.min(3 + Math.floor((S.level - 1) / 6), 4), cap: 3 } : { seed: S.level, kinds: Math.min(3 + Math.floor((S.level - 1) / 3), 8), cap: 4 } }
+function load() { const p = spec(); cap = p.cap; L = makeLevel(p.seed, p.kinds, p.cap); st = L.st.map(b => b.slice()); hist = []; sel = -1; moves = 0; render() }
+function id() { return mode === "daily" ? "d" + dailyKey : (S.kid ? "k" : "n") + S.level }
+function render() {
+  document.documentElement.classList.toggle("night", S.night);
+  $("kid").setAttribute("aria-pressed", S.kid); $("night").setAttribute("aria-pressed", S.night);
+  $("lv").textContent = mode === "daily" ? "Daily puzzle · " + dailyKey : (S.kid ? "Kid mode · level " : "Level ") + S.level;
+  $("mv").textContent = moves; $("best").textContent = S.best[id()] ?? "–"; $("st").textContent = Object.values(S.stars).reduce((a, b) => a + b, 0);
+  const b = $("board"), cols = Math.min(st.length, window.innerWidth < 420 ? 4 : 5);
+  b.style.gridTemplateColumns = `repeat(${cols}, auto)`;
+  b.innerHTML = st.map((bed, i) => `<div class="bed ${i === sel ? "sel" : ""} ${bed.length === cap && bed.every(x => x === bed[0]) ? "done" : ""}" style="--cap:${cap}" data-i="${i}" role="gridcell" aria-label="Bed ${i + 1}: ${bed.map(x => PETS[x].n).join(", ") || "empty"}">${bed.map((x, j) => petSVG(x).replace('class="pet"', `class="pet${i === sel && j >= bed.length - top(bed)[1] ? " up" : ""}"`)).join("")}</div>`).join("");
+  $("undo").disabled = !hist.length;
+}
+function toast(t) { const e = $("toast"); e.textContent = t; e.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove("on"), 1600) }
+function tap(i) {
+  if (sel < 0) { if (st[i].length) { sel = i; render() } return }
+  if (i === sel) { sel = -1; render(); return }
+  const k = canMove(st, sel, i, cap);
+  if (!k) { if (st[i].length) { sel = i } else { sel = -1; toast("That bed is the wrong kind") } render(); return }
+  hist.push(st.map(b => b.slice())); st = apply(st, sel, i, k); sel = -1; moves++;
+  try { navigator.vibrate && navigator.vibrate(8) } catch (e) {}
+  render(); if (solved(st, cap)) win();
+}
+function win() {
+  const k = id(), stars = moves <= L.par ? 3 : moves <= Math.ceil(L.par * 1.5) ? 2 : 1;
+  S.best[k] = Math.min(S.best[k] ?? 1e9, moves); S.stars[k] = Math.max(S.stars[k] || 0, stars);
+  if (mode === "daily") S.daily[dailyKey] = moves;
+  persist();
+  $("os").textContent = "★".repeat(stars) + "☆".repeat(3 - stars);
+  $("op").textContent = `${moves} moves · target ${L.par}` + (mode === "daily" ? " · come back tomorrow for a new one" : "");
+  $("next").textContent = mode === "daily" ? "Back to levels" : "Next level";
+  setTimeout(() => $("over").classList.add("on"), 350);
+}
+$("board").addEventListener("click", e => { const b = e.target.closest(".bed"); if (b) tap(+b.dataset.i) });
+$("undo").onclick = () => { if (hist.length) { st = hist.pop(); moves++; sel = -1; render() } };
+$("restart").onclick = () => { st = L.st.map(b => b.slice()); hist = []; sel = -1; moves = 0; render() };
+$("hint").onclick = () => { const s = solve(st, cap); if (!s) { toast("Stuck – try Undo or Restart"); return } const [a, b] = s[0]; sel = a; render(); setTimeout(() => { const el = $("board").children[b]; el && el.animate([{ transform: "scale(1)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" }], { duration: 500, iterations: 2 }) }, 100) };
+$("next").onclick = () => { $("over").classList.remove("on"); if (mode === "daily") mode = "level"; else { S.level++; persist() } load() };
+$("kid").onclick = () => { S.kid = !S.kid; mode = "level"; persist(); load(); toast(S.kid ? "Kid mode: 3 pets per bed, gentler levels" : "Kid mode off") };
+$("night").onclick = () => { S.night = !S.night; persist(); render() };
+$("daily").onclick = () => { mode = "daily"; dailyKey = new Date().toISOString().slice(0, 10); load() };
+addEventListener("resize", () => render());
+addEventListener("keydown", e => { if (e.key === "z" && (e.ctrlKey || e.metaKey)) $("undo").click(); if (e.key >= "1" && e.key <= "9") tap(+e.key - 1) });
+// demo hooks for store screenshots: #lv=7 #kid #night #daily #win
+const h = location.hash; if (h.includes("lv=")) S.level = +h.split("lv=")[1].split(/[^0-9]/)[0]; if (h.includes("kid")) S.kid = true; if (h.includes("night")) S.night = true; if (h.includes("daily")) { mode = "daily"; dailyKey = "2026-10-24" }
+load();
+if (h.includes("pick")) { tap(0) }
+if (h.includes("win")) { const s = solve(st, cap); for (const [a, b] of s) { sel = a; tap(b) } }
+</script>
+</body>
+</html>
