@@ -7,6 +7,7 @@ $GF = Split-Path -Parent $PSScriptRoot
 $env:NET24 = Join-Path $env:USERPROFILE "Documents\Net24-xuong"
 $env:N24_LAM = Join-Path $env:USERPROFILE "Net24-lam"
 $env:PYTHONIOENCODING = "utf-8"
+$env:N24_CPU_MAX = "97"   # máy 1 luôn có trình duyệt/phiên khác chạy; chỉ bỏ lượt khi gần kín CPU
 $log = Join-Path $env:N24_LAM "chay-may1.log"
 New-Item -ItemType Directory -Force $env:N24_LAM | Out-Null
 "$(Get-Date -Format 'yyyy-MM-dd HH:mm') bat dau $Xuong" | Out-File -Append -Encoding utf8 $log

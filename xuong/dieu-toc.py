@@ -45,7 +45,7 @@ def busy():
         cpu = 0
     bat = ps("(Get-CimInstance Win32_Battery).EstimatedChargeRemaining")
     low = bat.isdigit() and int(bat) < 30
-    return cpu > 80 or low, f"cpu {cpu:.0f}% pin {bat or '-'}"
+    return cpu > float(os.environ.get("N24_CPU_MAX", 80)) or low, f"cpu {cpu:.0f}% pin {bat or '-'}"  # máy 1 (nhiều phiên song song): N24_CPU_MAX=97
 
 
 def git(*a):
