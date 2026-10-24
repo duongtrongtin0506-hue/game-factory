@@ -101,6 +101,16 @@ _F["N"] = _n
 _F["SUMIFS"] = _sumifs
 _F["COUNTIFS"] = _countifs
 _F["AVERAGEIFS"] = _averageifs
+def _rept(t, n):  # Excel REPT (engine thiếu); nhánh IF không chọn có thể truyền lỗi vào – trả "" như Excel không tính nhánh đó
+    try:
+        t = _flat(t)[0] if hasattr(t, "ravel") or hasattr(t, "value") else t
+        n = _flat(n)[0] if hasattr(n, "ravel") or hasattr(n, "value") else n
+        return str(t) * int(float(n))
+    except Exception:
+        return ""
+
+
+_F["REPT"] = _rept
 
 
 def check(path, cells=()):
