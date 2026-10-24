@@ -68,7 +68,7 @@ def main():
         for f in d.glob(ext):
             dong.append(f"| Download | {f.name} | {f.stat().st_size / 1024:.0f} KB |")
     lo = sorted({m.group(0) for f in KHACH if (d / f).exists() for m in NOI_BO.finditer((d / f).read_text(encoding="utf-8", errors="ignore"))})
-    dong.append(f"| Internal words | {', '.join(KHACH)} | {'0 ✅' if not lo else '❌ ' + ', '.join(lo)} |")
+    dong.append(f"| Internal words | listing, handover, leaders, licenses | {'0 ✅' if not lo else '❌ ' + ', '.join(lo)} |")  # không ghi tên tệp: "BAN-GIAO" là chữ nội bộ
     if lo: loi.append("internal words: " + ", ".join(lo))
     for t in opt["them"]:
         dong.append("| " + t + " |")
@@ -79,6 +79,10 @@ def main():
     if bg.exists() and not loi:
         t = bg.read_text(encoding="utf-8").split("\n## Design measurements")[0].rstrip("\n")
         bg.write_text(t + "\n\n## Design measurements (measured before submission)\n\n" + "\n".join(tbl) + "\n", encoding="utf-8")
+        lo2 = sorted({m.group(0) for m in NOI_BO.finditer("\n".join(tbl))})
+        if lo2:  # quét lại sau khi chép (bài học 24/10: chính bảng số đo làm lộ chữ nội bộ)
+            loi.append("internal words in measurements: " + ", ".join(lo2))
+            bg.write_text(t + "\n", encoding="utf-8")
     print("\n".join(md))
     sys.exit(1 if loi else 0)
 
